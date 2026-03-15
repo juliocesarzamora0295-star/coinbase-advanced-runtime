@@ -1,0 +1,47 @@
+# Configuración de símbolos para Fortress v4
+# Este archivo es versionable - no contiene secrets
+
+symbols:
+  - symbol: "BTC-USD"
+    enabled: true
+    timeframe: "1h"
+    strategies:
+      - "ma_crossover"
+      - "breakout"
+    
+  - symbol: "ETH-USD"
+    enabled: true
+    timeframe: "1h"
+    strategies:
+      - "ma_crossover"
+      - "mean_reversion"
+    
+  # Descomentar para activar más símbolos
+  # - symbol: "SOL-USD"
+  #   enabled: false
+  #   timeframe: "1h"
+  #   strategies:
+  #     - "ma_crossover"
+
+# Configuración global de trading
+trading:
+  dry_run: true           # true = no ejecuta órdenes reales
+  observe_only: true      # true = solo observa, no genera señales de trading
+  max_position_pct: 0.20  # Máximo 20% del capital por posición
+  max_notional_per_symbol: 10000  # Máximo notional por símbolo ($)
+  max_orders_per_minute: 10       # Máximo órdenes por minuto
+  smoke_test_mode: false  # true = modo smoke test con validaciones
+  max_cycles: 0           # 0 = sin límite, N = detener después de N ciclos
+  
+# Configuración de riesgo
+risk:
+  max_daily_loss: 0.05      # 5% pérdida diaria máxima
+  max_drawdown: 0.15        # 15% drawdown máximo
+  max_consecutive_losses: 3 # Máximo 3 pérdidas consecutivas
+
+# Configuración de monitoreo
+monitoring:
+  log_level: "INFO"
+  latency_p95_threshold_ms: 500.0
+  reject_rate_threshold: 0.03
+  slippage_drift_threshold_bps: 10.0

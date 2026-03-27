@@ -28,6 +28,7 @@ RULE_MAX_ORDERS_PER_MINUTE = "MAX_ORDERS_PER_MINUTE"
 RULE_SELL_NO_POSITION = "SELL_NO_POSITION"
 RULE_TARGET_QTY_ZERO = "TARGET_QTY_ZERO"
 RULE_MAX_NOTIONAL_EXCEEDED = "MAX_NOTIONAL_EXCEEDED"
+RULE_KILL_SWITCH = "KILL_SWITCH"
 
 
 @dataclass(frozen=True)
@@ -111,6 +112,7 @@ class RiskGate:
         target_qty: Decimal,
         entry_ref: Decimal,
         breaker_state: str = "CLOSED",
+        kill_switch: bool = False,
     ) -> RiskDecision:
         """
         Evaluar si una orden puede ser ejecutada.
@@ -129,6 +131,13 @@ class RiskGate:
         equity = snapshot.equity
         position_qty = snapshot.position_qty
         side_upper = side.upper()
+
+        # Check 0: Kill switch — bloqueo total manual
+        if kill_switch:
+            logger.warning(
+                "RiskGate blocked: kill_switch=ON symbol=%s side=%s", symbol, side
+            )
+            return _blocked("Kill switch is active", RULE_KILL_SWITCH)
 
         # Check 1: Circuit Breaker (input externo, no puerta paralela)
         if breaker_state == "OPEN":

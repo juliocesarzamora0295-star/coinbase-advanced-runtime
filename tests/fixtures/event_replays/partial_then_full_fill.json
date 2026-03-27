@@ -1,0 +1,46 @@
+{
+  "description": "Limit order: 2 fills parciales + fill final = cierre completo de posición",
+  "symbol": "BTC-USD",
+  "initial_equity": "10000",
+  "order_type": "LIMIT",
+  "fills": [
+    {
+      "side": "buy",
+      "amount": "0.05",
+      "price": "50000",
+      "cost": "2500",
+      "fee_cost": "2.50",
+      "fee_currency": "USD",
+      "trade_id": "t-partial-001",
+      "order_id": "ord-partial-001",
+      "ts_ms": 1700000000000
+    },
+    {
+      "side": "buy",
+      "amount": "0.03",
+      "price": "50100",
+      "cost": "1503",
+      "fee_cost": "1.50",
+      "fee_currency": "USD",
+      "trade_id": "t-partial-002",
+      "order_id": "ord-partial-001",
+      "ts_ms": 1700000001000
+    },
+    {
+      "side": "buy",
+      "amount": "0.02",
+      "price": "49900",
+      "cost": "998",
+      "fee_cost": "1.00",
+      "fee_currency": "USD",
+      "trade_id": "t-partial-003",
+      "order_id": "ord-partial-001",
+      "ts_ms": 1700000002000
+    }
+  ],
+  "expected_final_state": {
+    "position_qty": "0.1",
+    "total_fills": 3,
+    "realized_pnl": "0"
+  }
+}

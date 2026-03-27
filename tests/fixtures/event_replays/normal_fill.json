@@ -1,0 +1,25 @@
+{
+  "description": "Market order normal: un ACK seguido de un fill completo",
+  "symbol": "BTC-USD",
+  "initial_equity": "10000",
+  "order_type": "MARKET",
+  "fills": [
+    {
+      "side": "buy",
+      "amount": "0.1",
+      "price": "50000",
+      "cost": "5000",
+      "fee_cost": "5.00",
+      "fee_currency": "USD",
+      "trade_id": "t-normal-001",
+      "order_id": "ord-normal-001",
+      "ts_ms": 1700000000000
+    }
+  ],
+  "expected_final_state": {
+    "position_qty": "0.1",
+    "avg_entry": "50000",
+    "realized_pnl": "0",
+    "total_fills": 1
+  }
+}

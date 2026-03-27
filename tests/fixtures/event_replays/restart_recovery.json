@@ -1,0 +1,47 @@
+{
+  "description": "Snapshot de estado OMS + fills pre-restart para validar recuperación",
+  "symbol": "BTC-USD",
+  "pre_restart_oms_state": [
+    {
+      "intent_id": "intent-restart-001",
+      "client_order_id": "client-restart-001",
+      "exchange_order_id": "exchange-restart-001",
+      "state": "OPEN_RESTING",
+      "product_id": "BTC-USD",
+      "side": "BUY",
+      "order_type": "LIMIT",
+      "qty": "0.1",
+      "price": "50000"
+    },
+    {
+      "intent_id": "intent-restart-002",
+      "client_order_id": "client-restart-002",
+      "exchange_order_id": "exchange-restart-002",
+      "state": "CANCEL_QUEUED",
+      "product_id": "BTC-USD",
+      "side": "BUY",
+      "order_type": "LIMIT",
+      "qty": "0.05",
+      "price": "49000"
+    }
+  ],
+  "pre_restart_fills": [
+    {
+      "side": "buy",
+      "amount": "0.2",
+      "price": "48000",
+      "cost": "9600",
+      "fee_cost": "0",
+      "fee_currency": "USD",
+      "trade_id": "t-pre-restart-001",
+      "order_id": "ord-prev-001",
+      "ts_ms": 1699999000000
+    }
+  ],
+  "post_restart_expectations": {
+    "open_oms_orders": ["intent-restart-001", "intent-restart-002"],
+    "filled_oms_orders": [],
+    "ledger_position_qty": "0.2",
+    "ledger_avg_entry": "48000"
+  }
+}

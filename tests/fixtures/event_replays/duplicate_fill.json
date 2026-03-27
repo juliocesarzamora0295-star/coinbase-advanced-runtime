@@ -1,0 +1,34 @@
+{
+  "description": "Fill duplicado con mismo trade_id — no debe doble-contar",
+  "symbol": "BTC-USD",
+  "initial_equity": "10000",
+  "fills": [
+    {
+      "side": "buy",
+      "amount": "0.1",
+      "price": "50000",
+      "cost": "5000",
+      "fee_cost": "5.00",
+      "fee_currency": "USD",
+      "trade_id": "t-duplicate-001",
+      "order_id": "ord-dup-001",
+      "ts_ms": 1700000000000
+    },
+    {
+      "side": "buy",
+      "amount": "0.1",
+      "price": "50000",
+      "cost": "5000",
+      "fee_cost": "5.00",
+      "fee_currency": "USD",
+      "trade_id": "t-duplicate-001",
+      "order_id": "ord-dup-001",
+      "ts_ms": 1700000001000
+    }
+  ],
+  "expected_final_state": {
+    "position_qty": "0.1",
+    "total_fills": 1,
+    "note": "El segundo fill tiene el mismo trade_id y debe ser ignorado"
+  }
+}

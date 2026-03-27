@@ -1,341 +1,292 @@
 """
-Tests para RiskGate - Pre-trade risk checks.
+Tests para RiskGate.evaluate() con el nuevo contrato v3.
 
-Valida:
-- BUY respeta max position
-- SELL reductor no se bloquea como aumento de posición
-- Daily loss bloquea orden
-- Drawdown bloquea orden
-- Orders per minute usa snapshot y contador interno
+Invariantes testadas:
+- allowed=False bloquea incondicionalmente
+- hard_max_qty es un cap (nunca excede target_qty ni límites de posición/notional)
+- CircuitBreaker OPEN → allowed=False vía evaluate(breaker_state="OPEN")
+- Fail-closed: equity=0 → blocked
+- Daily loss y drawdown → blocked con blocking_rule_ids correctos
+- Orders/minute: usa max(snapshot, interno)
+- SELL sin posición → blocked (spot-only)
 """
-import sys
 from decimal import Decimal
 
-sys.path.insert(0, '/mnt/okcomputer/output/fortress_v4')
+from src.risk.gate import (
+    RiskGate,
+    RiskLimits,
+    RiskSnapshot,
+    RiskDecision,
+    RULE_CIRCUIT_BREAKER_OPEN,
+    RULE_DAILY_LOSS_LIMIT,
+    RULE_MAX_DRAWDOWN,
+    RULE_MAX_ORDERS_PER_MINUTE,
+    RULE_SELL_NO_POSITION,
+    RULE_EQUITY_ZERO_OR_MISSING,
+)
 
-from src.risk.gate import RiskGate, RiskLimits, RiskSnapshot, RiskDecision
+
+def make_limits(**kwargs) -> RiskLimits:
+    defaults = dict(
+        max_position_pct=Decimal("0.20"),
+        max_notional_per_symbol=Decimal("10000"),
+        max_orders_per_minute=10,
+        max_daily_loss_pct=Decimal("0.05"),
+        max_drawdown_pct=Decimal("0.15"),
+    )
+    defaults.update(kwargs)
+    return RiskLimits(**defaults)
+
+
+def make_snapshot(**kwargs) -> RiskSnapshot:
+    defaults = dict(
+        equity=Decimal("10000"),
+        position_qty=Decimal("0"),
+        day_pnl_pct=Decimal("0"),
+        drawdown_pct=Decimal("0"),
+        orders_last_minute=0,
+    )
+    defaults.update(kwargs)
+    return RiskSnapshot(**defaults)
 
 
 class TestRiskGateBuy:
     """Tests para órdenes BUY."""
-    
+
     def setup_method(self):
-        self.limits = RiskLimits(
-            max_position_pct=Decimal("0.20"),  # 20%
-            max_notional_per_symbol=Decimal("10000"),
-            max_orders_per_minute=10,
-            max_daily_loss_pct=Decimal("0.05"),
-            max_drawdown_pct=Decimal("0.15"),
-        )
-        self.gate = RiskGate(self.limits)
-    
-    def test_buy_respects_max_position(self):
-        """BUY debe respetar el límite de posición máxima."""
-        snapshot = RiskSnapshot(
-            equity=Decimal("10000"),
-            position_qty=Decimal("0"),
-            day_pnl_pct=Decimal("0"),
-            drawdown_pct=Decimal("0"),
-            orders_last_minute=0,
-        )
-        
-        # Con equity 10k y max_position 20%, max position = 0.2 BTC a 50k
+        self.gate = RiskGate(make_limits())
+
+    def test_buy_allowed_with_room_for_position(self):
+        """BUY con posición < max_position_pct debe ser permitido."""
+        snapshot = make_snapshot(equity=Decimal("10000"), position_qty=Decimal("0"))
+        # target_qty = 0.01 BTC a 50k = $500 = 5% equity (dentro del 20% limit)
         decision = self.gate.evaluate(
             symbol="BTC-USD",
             side="BUY",
             snapshot=snapshot,
+            target_qty=Decimal("0.01"),
             entry_ref=Decimal("50000"),
-            stop_ref=Decimal("49000"),
-            cost_estimate=Decimal("10"),
         )
-        
-        assert decision.allow, f"BUY debería ser permitido: {decision.reason}"
-        # Max position = 0.2 BTC, con sizing conservador qty debe ser > 0
-        assert decision.qty > 0
-    
-    def test_buy_blocked_when_position_near_max(self):
-        """BUY bloqueado cuando posición está cerca del máximo."""
-        # Posición ya al 19% (cerca del 20% límite)
-        snapshot = RiskSnapshot(
-            equity=Decimal("10000"),
-            position_qty=Decimal("0.19"),  # 19% de 0.2 BTC max
-            day_pnl_pct=Decimal("0"),
-            drawdown_pct=Decimal("0"),
-            orders_last_minute=0,
-        )
-        
+        assert decision.allowed, f"BUY debería ser permitido: {decision.reason}"
+        assert decision.hard_max_qty > Decimal("0")
+        assert decision.hard_max_qty <= Decimal("0.01")  # nunca excede target
+
+    def test_buy_hard_max_qty_never_exceeds_target(self):
+        """hard_max_qty nunca excede target_qty."""
+        snapshot = make_snapshot(equity=Decimal("100000"), position_qty=Decimal("0"))
+        target = Decimal("0.05")
         decision = self.gate.evaluate(
             symbol="BTC-USD",
             side="BUY",
             snapshot=snapshot,
+            target_qty=target,
             entry_ref=Decimal("50000"),
-            stop_ref=Decimal("49000"),
-            cost_estimate=Decimal("10"),
         )
-        
-        # Debe permitir qty muy pequeña o 0
-        assert decision.qty >= 0
+        if decision.allowed:
+            assert decision.hard_max_qty <= target
 
-
-class TestRiskGateSell:
-    """Tests para órdenes SELL."""
-    
-    def setup_method(self):
-        self.limits = RiskLimits(
-            max_position_pct=Decimal("0.20"),
-            max_notional_per_symbol=Decimal("10000"),
-            max_orders_per_minute=10,
-            max_daily_loss_pct=Decimal("0.05"),
-            max_drawdown_pct=Decimal("0.15"),
-        )
-        self.gate = RiskGate(self.limits)
-    
-    def test_sell_reduction_not_blocked_as_position_increase(self):
-        """
-        SELL reductor NO debe bloquearse como si aumentara exposición.
-        
-        Bug anterior: new_position = position_qty + qty (sin considerar side)
-        Resultado: SELL con posición larga se bloqueaba incorrectamente.
-        """
-        # Tenemos 0.1 BTC, queremos vender 0.05 BTC
-        # Con equity 10k y precio 50k, max_position = 0.04 BTC (20% de 10k / 50k)
-        # Posición de 0.1 BTC ya excede max_position, pero SELL la reduce
-        snapshot = RiskSnapshot(
+    def test_buy_blocked_when_position_at_max(self):
+        """BUY bloqueado cuando posición ya está al máximo permitido."""
+        # equity=10000, max_position_pct=0.20, entry=50000 → max_qty = 0.04 BTC
+        # position_qty ya en 0.04 → sin espacio disponible
+        snapshot = make_snapshot(
             equity=Decimal("10000"),
-            position_qty=Decimal("0.1"),  # Posición larga (excede max de 0.04)
-            day_pnl_pct=Decimal("0"),
-            drawdown_pct=Decimal("0"),
-            orders_last_minute=0,
+            position_qty=Decimal("0.04"),  # exactamente al límite
         )
-        
-        # Forzar sizing alto para asegurar que hay qty disponible
-        # Usar stop muy cerco para que qty sea grande
         decision = self.gate.evaluate(
             symbol="BTC-USD",
-            side="SELL",
+            side="BUY",
             snapshot=snapshot,
+            target_qty=Decimal("0.01"),
             entry_ref=Decimal("50000"),
-            stop_ref=Decimal("49999"),  # Stop muy cercano = sizing grande
-            cost_estimate=Decimal("0.01"),
         )
-        
-        # SELL reductor debe ser permitido (reduce exposición)
-        # Nota: qty puede ser 0 si la posición ya excede max_position,
-        # pero el punto es que no se bloquee por "max position exceeded"
-        # con new_position > max_position (que sería el bug)
-        if decision.qty > 0:
-            assert decision.allow, f"SELL reductor debería ser permitido: {decision.reason}"
-        else:
-            # Si qty es 0, es por sizing, no por el bug de posición
-            assert "max position" not in decision.reason.lower() or "±" in decision.reason
-    
-    def test_sell_without_position_blocked(self):
-        """
-        P1 FIX: SELL sin posición debe ser bloqueado (spot-only).
-        
-        En spot, no puedes vender lo que no tienes.
-        """
-        # Sin posición, SELL no puede ejecutarse
-        snapshot = RiskSnapshot(
-            equity=Decimal("10000"),
-            position_qty=Decimal("0"),
-            day_pnl_pct=Decimal("0"),
-            drawdown_pct=Decimal("0"),
-            orders_last_minute=0,
-        )
-        
+        assert not decision.allowed, "BUY debe ser bloqueado en posición máxima"
+
+    def test_buy_circuit_breaker_open_blocks(self):
+        """Circuit breaker OPEN debe bloquear BUY."""
+        snapshot = make_snapshot()
         decision = self.gate.evaluate(
             symbol="BTC-USD",
-            side="SELL",
+            side="BUY",
             snapshot=snapshot,
+            target_qty=Decimal("0.01"),
             entry_ref=Decimal("50000"),
-            stop_ref=None,
-            cost_estimate=Decimal("10"),
+            breaker_state="OPEN",
         )
-        
-        # Spot-only: SELL sin posición debe ser bloqueado
-        assert not decision.allow, "SELL without position should be blocked in spot-only mode"
-        assert decision.qty == 0
+        assert not decision.allowed
+        assert RULE_CIRCUIT_BREAKER_OPEN in decision.blocking_rule_ids
+
+    def test_buy_equity_zero_blocks(self):
+        """equity=0 → blocked (fail-closed)."""
+        snapshot = make_snapshot(equity=Decimal("0"))
+        decision = self.gate.evaluate(
+            symbol="BTC-USD",
+            side="BUY",
+            snapshot=snapshot,
+            target_qty=Decimal("0.01"),
+            entry_ref=Decimal("50000"),
+        )
+        assert not decision.allowed
+        assert RULE_EQUITY_ZERO_OR_MISSING in decision.blocking_rule_ids
 
 
 class TestRiskGateDailyLoss:
     """Tests para daily loss limit."""
-    
+
     def setup_method(self):
-        self.limits = RiskLimits(
-            max_position_pct=Decimal("0.20"),
-            max_daily_loss_pct=Decimal("0.05"),  # 5%
-            max_drawdown_pct=Decimal("0.15"),
-        )
-        self.gate = RiskGate(self.limits)
-    
-    def test_daily_loss_blocks_order(self):
-        """Daily loss >= 5% debe bloquear orden."""
-        snapshot = RiskSnapshot(
-            equity=Decimal("10000"),
-            position_qty=Decimal("0"),
-            day_pnl_pct=Decimal("-0.06"),  # -6% (excede 5%)
-            drawdown_pct=Decimal("0"),
-            orders_last_minute=0,
-        )
-        
+        self.gate = RiskGate(make_limits(max_daily_loss_pct=Decimal("0.05")))
+
+    def test_daily_loss_exceeded_blocks(self):
+        """day_pnl_pct <= -5% debe bloquear."""
+        snapshot = make_snapshot(day_pnl_pct=Decimal("-0.06"))
         decision = self.gate.evaluate(
             symbol="BTC-USD",
             side="BUY",
             snapshot=snapshot,
+            target_qty=Decimal("0.01"),
             entry_ref=Decimal("50000"),
-            stop_ref=Decimal("49000"),
-            cost_estimate=Decimal("10"),
         )
-        
-        assert not decision.allow, "Orden debe ser bloqueada por daily loss"
+        assert not decision.allowed
+        assert RULE_DAILY_LOSS_LIMIT in decision.blocking_rule_ids
         assert "Daily loss limit" in decision.reason
-    
-    def test_daily_loss_allows_order_when_under_limit(self):
-        """Daily loss < 5% debe permitir orden."""
-        snapshot = RiskSnapshot(
+
+    def test_daily_loss_within_limit_allows(self):
+        """day_pnl_pct = -3% (dentro del 5% límite) → permitido."""
+        snapshot = make_snapshot(
             equity=Decimal("10000"),
             position_qty=Decimal("0"),
-            day_pnl_pct=Decimal("-0.03"),  # -3% (dentro de 5%)
-            drawdown_pct=Decimal("0"),
-            orders_last_minute=0,
+            day_pnl_pct=Decimal("-0.03"),
         )
-        
         decision = self.gate.evaluate(
             symbol="BTC-USD",
             side="BUY",
             snapshot=snapshot,
+            target_qty=Decimal("0.01"),
             entry_ref=Decimal("50000"),
-            stop_ref=Decimal("49000"),
-            cost_estimate=Decimal("10"),
         )
-        
-        assert decision.allow, f"Orden debería ser permitida: {decision.reason}"
+        assert decision.allowed, f"Orden debería ser permitida: {decision.reason}"
 
 
 class TestRiskGateDrawdown:
     """Tests para drawdown limit."""
-    
+
     def setup_method(self):
-        self.limits = RiskLimits(
-            max_position_pct=Decimal("0.20"),
-            max_daily_loss_pct=Decimal("0.05"),
-            max_drawdown_pct=Decimal("0.15"),  # 15%
-        )
-        self.gate = RiskGate(self.limits)
-    
-    def test_drawdown_blocks_order(self):
-        """Drawdown >= 15% debe bloquear orden."""
-        snapshot = RiskSnapshot(
-            equity=Decimal("8500"),  # Drawdown implícito
-            position_qty=Decimal("0"),
-            day_pnl_pct=Decimal("0"),
-            drawdown_pct=Decimal("0.16"),  # 16% (excede 15%)
-            orders_last_minute=0,
-        )
-        
+        self.gate = RiskGate(make_limits(max_drawdown_pct=Decimal("0.15")))
+
+    def test_drawdown_exceeded_blocks(self):
+        """drawdown_pct >= 15% → blocked."""
+        snapshot = make_snapshot(drawdown_pct=Decimal("0.16"))
         decision = self.gate.evaluate(
             symbol="BTC-USD",
             side="BUY",
             snapshot=snapshot,
+            target_qty=Decimal("0.01"),
             entry_ref=Decimal("50000"),
-            stop_ref=Decimal("49000"),
-            cost_estimate=Decimal("10"),
         )
-        
-        assert not decision.allow, "Orden debe ser bloqueada por drawdown"
+        assert not decision.allowed
+        assert RULE_MAX_DRAWDOWN in decision.blocking_rule_ids
         assert "drawdown" in decision.reason.lower()
 
 
 class TestRiskGateOrdersPerMinute:
     """Tests para max orders per minute."""
-    
+
     def setup_method(self):
-        self.limits = RiskLimits(
-            max_position_pct=Decimal("0.20"),
-            max_orders_per_minute=3,
-        )
-        self.gate = RiskGate(self.limits)
-    
-    def test_orders_per_minute_uses_snapshot_and_internal_counter(self):
+        self.gate = RiskGate(make_limits(max_orders_per_minute=3))
+
+    def test_snapshot_orders_at_limit_blocks(self):
         """
-        Max orders per minute debe usar snapshot.orders_last_minute + contador interno.
-        
-        Bug anterior: solo usaba contador interno, ignorando estado externo.
+        Si snapshot.orders_last_minute ya está al límite → blocked.
+        Verifica que el gate usa max(snapshot, interno), no solo el interno.
         """
-        snapshot = RiskSnapshot(
-            equity=Decimal("10000"),
-            position_qty=Decimal("0"),
-            day_pnl_pct=Decimal("0"),
-            drawdown_pct=Decimal("0"),
-            orders_last_minute=3,  # Ya al límite desde snapshot
-        )
-        
+        snapshot = make_snapshot(orders_last_minute=3)
         decision = self.gate.evaluate(
             symbol="BTC-USD",
             side="BUY",
             snapshot=snapshot,
+            target_qty=Decimal("0.01"),
             entry_ref=Decimal("50000"),
-            stop_ref=Decimal("49000"),
-            cost_estimate=Decimal("10"),
         )
-        
-        assert not decision.allow, "Orden debe ser bloqueada por max orders/min"
-        assert "orders per minute" in decision.reason.lower()
-    
+        assert not decision.allowed
+        assert RULE_MAX_ORDERS_PER_MINUTE in decision.blocking_rule_ids
+
     def test_internal_counter_increments_on_approval(self):
-        """Contador interno debe incrementar cuando orden es aprobada."""
-        snapshot = RiskSnapshot(
+        """El contador interno incrementa con cada orden aprobada."""
+        snapshot = make_snapshot(orders_last_minute=0)
+        entry = Decimal("50000")
+        tq = Decimal("0.001")
+
+        # 3 órdenes aprobadas
+        for i in range(3):
+            d = self.gate.evaluate(
+                symbol="BTC-USD", side="BUY",
+                snapshot=snapshot, target_qty=tq, entry_ref=entry,
+            )
+            assert d.allowed, f"Orden {i+1} debería aprobarse: {d.reason}"
+
+        # 4ta debe ser bloqueada
+        d4 = self.gate.evaluate(
+            symbol="BTC-USD", side="BUY",
+            snapshot=snapshot, target_qty=tq, entry_ref=entry,
+        )
+        assert not d4.allowed
+        assert RULE_MAX_ORDERS_PER_MINUTE in d4.blocking_rule_ids
+
+
+class TestRiskGateSell:
+    """Tests para órdenes SELL."""
+
+    def setup_method(self):
+        self.gate = RiskGate(make_limits())
+
+    def test_sell_without_position_blocked(self):
+        """SELL sin posición → blocked (spot-only invariant)."""
+        snapshot = make_snapshot(position_qty=Decimal("0"))
+        decision = self.gate.evaluate(
+            symbol="BTC-USD",
+            side="SELL",
+            snapshot=snapshot,
+            target_qty=Decimal("0.01"),
+            entry_ref=Decimal("50000"),
+        )
+        assert not decision.allowed
+        assert RULE_SELL_NO_POSITION in decision.blocking_rule_ids
+
+    def test_sell_reduction_allowed(self):
+        """SELL con posición larga → allowed (reduce_only=True)."""
+        snapshot = make_snapshot(
             equity=Decimal("10000"),
-            position_qty=Decimal("0"),
-            day_pnl_pct=Decimal("0"),
-            drawdown_pct=Decimal("0"),
-            orders_last_minute=0,
+            position_qty=Decimal("0.1"),
         )
-        
-        # Primera orden - debe aprobarse
-        decision1 = self.gate.evaluate(
+        decision = self.gate.evaluate(
             symbol="BTC-USD",
-            side="BUY",
+            side="SELL",
             snapshot=snapshot,
+            target_qty=Decimal("0.05"),
             entry_ref=Decimal("50000"),
-            stop_ref=Decimal("49000"),
-            cost_estimate=Decimal("10"),
         )
-        assert decision1.allow
-        
-        # Segunda orden - debe aprobarse
-        decision2 = self.gate.evaluate(
+        assert decision.allowed, f"SELL reductor debería ser permitido: {decision.reason}"
+        assert decision.reduce_only is True
+        assert decision.hard_max_qty > Decimal("0")
+
+    def test_sell_hard_max_qty_capped_by_position(self):
+        """hard_max_qty no puede exceder position_qty (spot-only)."""
+        snapshot = make_snapshot(
+            equity=Decimal("10000"),
+            position_qty=Decimal("0.05"),
+        )
+        # target_qty > position_qty
+        decision = self.gate.evaluate(
             symbol="BTC-USD",
-            side="BUY",
+            side="SELL",
             snapshot=snapshot,
+            target_qty=Decimal("1.0"),  # mucho más que la posición
             entry_ref=Decimal("50000"),
-            stop_ref=Decimal("49000"),
-            cost_estimate=Decimal("10"),
         )
-        assert decision2.allow
-        
-        # Tercera orden - debe aprobarse
-        decision3 = self.gate.evaluate(
-            symbol="BTC-USD",
-            side="BUY",
-            snapshot=snapshot,
-            entry_ref=Decimal("50000"),
-            stop_ref=Decimal("49000"),
-            cost_estimate=Decimal("10"),
-        )
-        assert decision3.allow
-        
-        # Cuarta orden - debe bloquearse (3 por minuto)
-        decision4 = self.gate.evaluate(
-            symbol="BTC-USD",
-            side="BUY",
-            snapshot=snapshot,
-            entry_ref=Decimal("50000"),
-            stop_ref=Decimal("49000"),
-            cost_estimate=Decimal("10"),
-        )
-        assert not decision4.allow
+        if decision.allowed:
+            assert decision.hard_max_qty <= Decimal("0.05"), (
+                f"hard_max_qty={decision.hard_max_qty} no debe exceder position_qty=0.05"
+            )
 
 
 if __name__ == "__main__":

@@ -1,0 +1,17 @@
+{
+  "description": "Limit order: abierta → cancelada vía CANCEL_QUEUED → CANCELLED",
+  "symbol": "BTC-USD",
+  "order_type": "LIMIT",
+  "oms_events": [
+    {"type": "save_intent", "state": "NEW", "order_type": "LIMIT"},
+    {"type": "update_state", "state": "OPEN_RESTING", "exchange_order_id": "ex-cancel-001"},
+    {"type": "update_state", "state": "CANCEL_QUEUED"},
+    {"type": "update_state", "state": "CANCELLED"}
+  ],
+  "expected_final_state": {
+    "oms_state": "CANCELLED",
+    "is_terminal": true,
+    "is_active": false,
+    "in_pending_or_open": false
+  }
+}

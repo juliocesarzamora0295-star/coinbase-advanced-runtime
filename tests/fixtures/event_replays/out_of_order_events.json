@@ -1,0 +1,35 @@
+{
+  "description": "Fill llega antes que el ACK (orden temporal adversa). Ledger debe ser consistente.",
+  "symbol": "BTC-USD",
+  "note": "En WebSocket, eventos pueden llegar fuera de orden. La deduplicación por trade_id protege al ledger.",
+  "fills": [
+    {
+      "side": "buy",
+      "amount": "0.1",
+      "price": "50000",
+      "cost": "5000",
+      "fee_cost": "5.00",
+      "fee_currency": "USD",
+      "trade_id": "t-ooo-001",
+      "order_id": "ord-ooo-001",
+      "ts_ms": 1700000001000
+    },
+    {
+      "side": "buy",
+      "amount": "0.1",
+      "price": "50000",
+      "cost": "5000",
+      "fee_cost": "5.00",
+      "fee_currency": "USD",
+      "trade_id": "t-ooo-001",
+      "order_id": "ord-ooo-001",
+      "ts_ms": 1700000000000,
+      "note": "mismo trade_id, ts anterior — llegó fuera de orden"
+    }
+  ],
+  "expected_final_state": {
+    "position_qty": "0.1",
+    "total_fills": 1,
+    "note": "Solo se cuenta una vez — deduplicación por trade_id"
+  }
+}

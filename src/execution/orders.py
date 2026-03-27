@@ -269,13 +269,16 @@ class OrderExecutor:
         
         try:
             self.client.cancel_orders([record.exchange_order_id])
-            
+
+            # Transicionar a CANCEL_QUEUED, no directamente a CANCELLED.
+            # El estado CANCELLED solo se confirma via user channel o REST reconcile.
+            # CANCEL_QUEUED indica que la solicitud fue aceptada por el exchange.
             self.idempotency.update_state(
                 intent_id=intent_id,
-                state=OrderState.CANCELLED,
+                state=OrderState.CANCEL_QUEUED,
             )
-            
-            logger.info(f"Order cancelled: {record.exchange_order_id}")
+
+            logger.info(f"Cancel request accepted: {record.exchange_order_id} -> CANCEL_QUEUED")
             return True
             
         except CoinbaseAPIError as e:

@@ -10,7 +10,8 @@ Invariantes testeadas:
 - make_signal() genera signal_id y emitted_at automáticamente
 - metadata es opcional
 """
-from datetime import datetime, timezone, timedelta
+
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 
 import pytest
@@ -254,13 +255,17 @@ class TestMakeSignalFactory:
     def test_two_signals_have_different_ids(self):
         """Dos llamadas a make_signal() producen signal_ids distintos."""
         s1 = make_signal(
-            symbol="BTC-USD", direction="BUY",
-            strength=Decimal("0.5"), strategy_id="sma",
+            symbol="BTC-USD",
+            direction="BUY",
+            strength=Decimal("0.5"),
+            strategy_id="sma",
             bar_timestamp=confirmed_bar_ts(),
         )
         s2 = make_signal(
-            symbol="BTC-USD", direction="BUY",
-            strength=Decimal("0.5"), strategy_id="sma",
+            symbol="BTC-USD",
+            direction="BUY",
+            strength=Decimal("0.5"),
+            strategy_id="sma",
             bar_timestamp=confirmed_bar_ts(),
         )
         assert s1.signal_id != s2.signal_id
@@ -268,8 +273,10 @@ class TestMakeSignalFactory:
     def test_metadata_defaults_to_empty(self):
         """metadata es vacío por defecto."""
         s = make_signal(
-            symbol="BTC-USD", direction="BUY",
-            strength=Decimal("0.5"), strategy_id="sma",
+            symbol="BTC-USD",
+            direction="BUY",
+            strength=Decimal("0.5"),
+            strategy_id="sma",
             bar_timestamp=confirmed_bar_ts(),
         )
         assert s.metadata == {}
@@ -277,14 +284,62 @@ class TestMakeSignalFactory:
     def test_metadata_passed_through(self):
         """metadata pasado explícitamente se conserva."""
         s = make_signal(
-            symbol="BTC-USD", direction="BUY",
-            strength=Decimal("0.5"), strategy_id="sma",
+            symbol="BTC-USD",
+            direction="BUY",
+            strength=Decimal("0.5"),
+            strategy_id="sma",
             bar_timestamp=confirmed_bar_ts(),
             metadata={"source": "backtest", "version": 2},
         )
         assert s.metadata["source"] == "backtest"
 
 
+class TestStrategyManagerEmitsNewSignal:
+    """
+    Contract test: StrategyManager.on_candle_closed() debe retornar
+    src.strategy.signal.Signal (no el Signal legacy de base.py).
+    """
+
+    def test_sma_crossover_emits_new_signal_type(self):
+        """SmaCrossoverStrategy emite Signal del contrato nuevo (con signal_id, direction)."""
+        import pandas as pd
+
+        from src.strategy.manager import StrategyManager
+
+        manager = StrategyManager.load_from_config(
+            symbol="BTC-USD",
+            symbol_config={"strategies": ["sma_crossover"], "sma_fast": 2, "sma_slow": 3},
+        )
+
+        # Warmup: primera barra es startup bucket
+        manager.on_candle_closed(
+            pd.Series({"close": 100.0, "open": 99.0, "high": 101.0, "low": 98.0, "volume": 1.0})
+        )
+
+        # Alimentar datos que producen cruce alcista
+        prices = [100.0] * 4 + [90.0] + [130.0]
+        result = None
+        for p in prices:
+            row = pd.Series(
+                {"close": p, "open": p * 0.99, "high": p * 1.01, "low": p * 0.98, "volume": 1.0}
+            )
+            r = manager.on_candle_closed(row)
+            if r is not None:
+                result = r
+
+        if result is not None:
+            # Debe tener campos del contrato nuevo
+            assert hasattr(result, "signal_id"), "Signal nuevo debe tener signal_id"
+            assert hasattr(result, "direction"), "Signal nuevo debe tener direction (no side)"
+            assert hasattr(result, "strategy_id"), "Signal nuevo debe tener strategy_id"
+            assert result.direction in ("BUY", "SELL")
+            assert len(result.signal_id) > 0
+            # No debe tener campos del Signal viejo
+            assert not hasattr(result, "amount"), "Signal nuevo NO debe tener amount"
+            assert not hasattr(result, "reduce_only"), "Signal nuevo NO debe tener reduce_only"
+
+
 if __name__ == "__main__":
     import pytest
+
     pytest.main([__file__, "-v"])

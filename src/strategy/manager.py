@@ -15,13 +15,15 @@ Lo que NO hace:
 - No bypassea RiskGate.
 - No lee estado OMS.
 """
+
 import logging
+from datetime import datetime
 from decimal import Decimal
-from typing import Dict, Any, List, Optional
+from typing import Any, Dict, List, Optional
 
 import pandas as pd
 
-from src.strategy.base import Strategy, Signal
+from src.strategy.base import Strategy
 from src.strategy.sma_crossover import SmaCrossoverStrategy
 
 logger = logging.getLogger("StrategyManager")
@@ -97,9 +99,7 @@ class StrategyManager:
                 loaded.append(strategy)
                 logger.info("Loaded strategy '%s' for %s", name, symbol)
             except Exception as exc:
-                logger.error(
-                    "Failed to load strategy '%s' for %s: %s", name, symbol, exc
-                )
+                logger.error("Failed to load strategy '%s' for %s: %s", name, symbol, exc)
 
         if not loaded:
             raise ValueError(
@@ -112,7 +112,8 @@ class StrategyManager:
         self,
         candle: pd.Series,
         mid: Optional[Decimal] = None,
-    ) -> Optional[Signal]:
+        bar_timestamp: Optional[datetime] = None,
+    ) -> Optional[object]:
         """
         Procesar una vela cerrada y obtener señal compuesta.
 
@@ -143,11 +144,11 @@ class StrategyManager:
 
         price = mid if mid is not None else Decimal(str(candle.get("close", 0)))
 
-        all_signals: List[Signal] = []
+        all_signals: List = []
         for strategy in self._strategies:
             try:
                 strategy.update_market_data(self._candles)
-                signals = strategy.generate_signals(mid=price)
+                signals = strategy.generate_signals(mid=price, bar_timestamp=bar_timestamp)
                 all_signals.extend(signals)
             except Exception as exc:
                 logger.error(
@@ -160,12 +161,15 @@ class StrategyManager:
 
         return self._compose(all_signals)
 
-    def _compose(self, signals: List[Signal]) -> Optional[Signal]:
+    def _compose(self, signals: List) -> Optional[object]:
         """
         Componer lista de señales en una sola según compose_mode.
 
         "first": primera señal válida gana.
         "majority": mayoría de señales en la misma dirección.
+
+        Compatible con src.strategy.signal.Signal (direction="BUY"/"SELL")
+        y con src.strategy.base.Signal (side="buy"/"sell").
 
         Returns:
             Signal o None.
@@ -174,19 +178,27 @@ class StrategyManager:
             return None
 
         if self._compose_mode == "first":
-            return signals[0]
+            return signals[0]  # type: ignore[no-any-return]
 
         if self._compose_mode == "majority":
-            buys = [s for s in signals if s.side == "buy"]
-            sells = [s for s in signals if s.side == "sell"]
+
+            def _direction(s: Any) -> str:
+                # New Signal: direction="BUY"/"SELL"; old Signal: side="buy"/"sell"
+                d = getattr(s, "direction", None)
+                if d is not None:
+                    return str(d).upper()
+                return str(getattr(s, "side", "")).upper()
+
+            buys = [s for s in signals if _direction(s) == "BUY"]
+            sells = [s for s in signals if _direction(s) == "SELL"]
             if len(buys) > len(sells):
-                return buys[0]
+                return buys[0]  # type: ignore[no-any-return]
             if len(sells) > len(buys):
-                return sells[0]
+                return sells[0]  # type: ignore[no-any-return]
             return None  # empate → sin señal
 
         # Fallback a first
-        return signals[0]
+        return signals[0]  # type: ignore[no-any-return]
 
     @property
     def bar_count(self) -> int:

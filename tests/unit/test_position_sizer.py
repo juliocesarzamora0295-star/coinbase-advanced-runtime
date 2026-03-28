@@ -17,6 +17,7 @@ Invariantes testeadas:
 - SizingDecision es inmutable (frozen)
 - mismos inputs → mismo output (determinismo)
 """
+
 from decimal import Decimal
 
 import pytest
@@ -27,7 +28,6 @@ from src.risk.position_sizer import (
     SizingDecision,
     SymbolConstraints,
 )
-
 
 # ──────────────────────────────────────────────
 # Fixtures / helpers
@@ -67,6 +67,7 @@ def compute(
 # Fail-closed
 # ──────────────────────────────────────────────
 
+
 class TestFailClosed:
 
     def test_equity_none_raises_fail_closed_error(self):
@@ -99,6 +100,7 @@ class TestFailClosed:
 # ──────────────────────────────────────────────
 # Casos degenerados (no error, qty=0)
 # ──────────────────────────────────────────────
+
 
 class TestDegenerateCases:
 
@@ -138,6 +140,7 @@ class TestDegenerateCases:
 # Cálculo correcto (sin stop)
 # ──────────────────────────────────────────────
 
+
 class TestBasicSizing:
 
     def test_qty_correct_percentage_sizing(self):
@@ -176,6 +179,7 @@ class TestBasicSizing:
 # Sizing con stop_price
 # ──────────────────────────────────────────────
 
+
 class TestStopBasedSizing:
 
     def test_stop_based_sizing_correct(self):
@@ -193,7 +197,7 @@ class TestStopBasedSizing:
 
     def test_tight_stop_produces_larger_qty(self):
         """Stop más cercano → menor stop_distance → mayor qty."""
-        wide_stop = compute(entry_price="50000", stop_price="45000")   # distance=5000
+        wide_stop = compute(entry_price="50000", stop_price="45000")  # distance=5000
         tight_stop = compute(entry_price="50000", stop_price="49500")  # distance=500
         assert tight_stop.target_qty > wide_stop.target_qty
 
@@ -208,6 +212,7 @@ class TestStopBasedSizing:
 # ──────────────────────────────────────────────
 # Step size (cuantización)
 # ──────────────────────────────────────────────
+
 
 class TestStepSizeQuantization:
 
@@ -261,12 +266,15 @@ class TestStepSizeQuantization:
         result = compute(equity="10000", entry_price="50000", risk_pct="0.0123")
         if BTC_CONSTRAINTS.step_size > Decimal("0"):
             remainder = result.target_qty % BTC_CONSTRAINTS.step_size
-            assert remainder == Decimal("0"), f"qty={result.target_qty} no múltiplo de {BTC_CONSTRAINTS.step_size}"
+            assert remainder == Decimal(
+                "0"
+            ), f"qty={result.target_qty} no múltiplo de {BTC_CONSTRAINTS.step_size}"
 
 
 # ──────────────────────────────────────────────
 # Caps
 # ──────────────────────────────────────────────
+
 
 class TestCaps:
 
@@ -286,7 +294,7 @@ class TestCaps:
         tight_constraints = SymbolConstraints(
             step_size=Decimal("0.001"),
             min_qty=Decimal("0.001"),
-            max_qty=Decimal("0.01"),   # cap muy bajo
+            max_qty=Decimal("0.01"),  # cap muy bajo
             min_notional=Decimal("1"),
         )
         sizer = PositionSizer()
@@ -325,6 +333,7 @@ class TestCaps:
 # ──────────────────────────────────────────────
 # Determinismo e inmutabilidad
 # ──────────────────────────────────────────────
+
 
 class TestDeterminismAndImmutability:
 

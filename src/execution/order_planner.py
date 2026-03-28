@@ -12,6 +12,7 @@ Invariantes:
 - OrderIntent es inmutable (frozen=True)
 - OrderPlanner no llama a RiskGate ni a PositionSizer ni a OMS directamente
 """
+
 import hashlib
 from dataclasses import dataclass
 from decimal import Decimal
@@ -19,12 +20,12 @@ from typing import Literal, Optional
 
 from src.risk.position_sizer import SizingDecision, SymbolConstraints
 
-
 PLANNER_VERSION = "1.0"
 
 
 class OrderNotAllowedError(Exception):
     """Raised when RiskDecision.allowed=False. No OrderIntent debe crearse."""
+
     pass
 
 
@@ -34,6 +35,7 @@ class RiskDecisionInput:
     Subset de RiskDecision relevante para OrderPlanner.
     Evita acoplamiento directo a src.risk.gate para imports circulares.
     """
+
     allowed: bool
     hard_max_qty: Decimal
     hard_max_notional: Decimal
@@ -51,16 +53,16 @@ class OrderIntent:
     para mantener auditabilidad y serialización limpia.
     """
 
-    client_order_id: str                        # determinista dado signal_id + symbol
-    signal_id: str                              # referencia al Signal que lo originó
-    strategy_id: str                            # referencia a la estrategia
+    client_order_id: str  # determinista dado signal_id + symbol
+    signal_id: str  # referencia al Signal que lo originó
+    strategy_id: str  # referencia a la estrategia
     symbol: str
     side: Literal["BUY", "SELL"]
-    final_qty: Decimal                          # min(target_qty, hard_max_qty, notional_cap)
+    final_qty: Decimal  # min(target_qty, hard_max_qty, notional_cap)
     order_type: Literal["MARKET", "LIMIT"]
-    price: Optional[Decimal]                    # None para órdenes MARKET
+    price: Optional[Decimal]  # None para órdenes MARKET
     reduce_only: bool
-    viable: bool                                # False si final_qty < min_qty: no enviar
+    viable: bool  # False si final_qty < min_qty: no enviar
     planner_version: str
 
 

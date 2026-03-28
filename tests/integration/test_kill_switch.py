@@ -15,23 +15,20 @@ Invariantes testeadas:
   (cancel policy es responsabilidad del caller)
 - kill_switch=True con PaperEngine → engine nunca recibe órdenes
 """
+
 import uuid
 from datetime import datetime
 from decimal import Decimal
 
-import pytest
-
-from src.accounting.ledger import Fill, TradeLedger
 from src.execution.idempotency import IdempotencyStore, OrderIntent, OrderState
 from src.risk.gate import (
+    RULE_CIRCUIT_BREAKER_OPEN,
+    RULE_KILL_SWITCH,
     RiskGate,
     RiskLimits,
     RiskSnapshot,
-    RULE_KILL_SWITCH,
-    RULE_CIRCUIT_BREAKER_OPEN,
 )
 from src.simulation.paper_engine import PaperEngine
-
 
 # ──────────────────────────────────────────────
 # Helpers
@@ -80,6 +77,7 @@ def make_intent(intent_id: str, client_id: str) -> OrderIntent:
 # ──────────────────────────────────────────────
 # Kill switch ON bloquea todo
 # ──────────────────────────────────────────────
+
 
 class TestKillSwitchBlocks:
 
@@ -163,6 +161,7 @@ class TestKillSwitchBlocks:
 # Kill switch OFF recupera trading
 # ──────────────────────────────────────────────
 
+
 class TestKillSwitchRecovery:
 
     def test_kill_switch_false_allows_normal_evaluation(self):
@@ -216,6 +215,7 @@ class TestKillSwitchRecovery:
 # ──────────────────────────────────────────────
 # OMS no cancela órdenes automáticamente
 # ──────────────────────────────────────────────
+
 
 class TestOpenOrdersDuringKillSwitch:
 

@@ -14,34 +14,47 @@ Invariantes testeadas:
 - StrategyManager por símbolo es independiente (no cross-contamination)
 - bar_count y strategy_count son correctos
 """
+
+from datetime import datetime, timezone
 from decimal import Decimal
-from typing import List, Optional
-from unittest.mock import MagicMock
+from typing import List
 
 import pandas as pd
 import pytest
 
-from src.strategy.base import Signal, Strategy
+from src.strategy.base import Strategy
 from src.strategy.manager import StrategyManager
-
+from src.strategy.signal import Signal
+from src.strategy.signal import make_signal as _make_new_signal
 
 # ──────────────────────────────────────────────
 # Helpers
 # ──────────────────────────────────────────────
 
+
 def make_candle(close: float = 50000.0) -> pd.Series:
-    return pd.Series({"open": close * 0.99, "high": close * 1.01, "low": close * 0.98, "close": close, "volume": 1.0})
+    return pd.Series(
+        {
+            "open": close * 0.99,
+            "high": close * 1.01,
+            "low": close * 0.98,
+            "close": close,
+            "volume": 1.0,
+        }
+    )
+
+
+_BAR_TS = datetime(2024, 1, 15, 10, 0, 0, tzinfo=timezone.utc)
 
 
 def make_signal(side: str = "buy") -> Signal:
-    return Signal(
+    direction = "BUY" if side == "buy" else "SELL"
+    return _make_new_signal(
         symbol="BTC-USD",
-        side=side,
-        position_side="LONG" if side == "buy" else "SHORT",
-        order_type="limit",
-        amount=Decimal("0.001"),
-        price=Decimal("50000"),
-        reason="test",
+        direction=direction,
+        strength=Decimal("1.0"),
+        strategy_id="test_strategy",
+        bar_timestamp=_BAR_TS,
     )
 
 
@@ -54,7 +67,7 @@ class FixedStrategy(Strategy):
         self._call_count = 0
         self._signal_side = signal_side
 
-    def generate_signals(self, *, mid: Decimal) -> List[Signal]:
+    def generate_signals(self, *, mid: Decimal, bar_timestamp=None) -> List:
         self._call_count += 1
         if self._call_count > self._emit_after:
             return [make_signal(self._signal_side)]
@@ -64,20 +77,21 @@ class FixedStrategy(Strategy):
 class ExplodingStrategy(Strategy):
     """Estrategia que levanta excepción en generate_signals."""
 
-    def generate_signals(self, *, mid: Decimal) -> List[Signal]:
+    def generate_signals(self, *, mid: Decimal, bar_timestamp=None) -> List:
         raise RuntimeError("strategy exploded")
 
 
 class EmptyStrategy(Strategy):
     """Estrategia que nunca emite señal."""
 
-    def generate_signals(self, *, mid: Decimal) -> List[Signal]:
+    def generate_signals(self, *, mid: Decimal, bar_timestamp=None) -> List:
         return []
 
 
 # ──────────────────────────────────────────────
 # load_from_config
 # ──────────────────────────────────────────────
+
 
 class TestLoadFromConfig:
 
@@ -122,6 +136,7 @@ class TestLoadFromConfig:
 # Startup bucket (primera barra)
 # ──────────────────────────────────────────────
 
+
 class TestStartupBucket:
 
     def test_first_candle_returns_none(self):
@@ -156,6 +171,7 @@ class TestStartupBucket:
 # Sin warmup suficiente
 # ──────────────────────────────────────────────
 
+
 class TestInsufficientWarmup:
 
     def test_strategy_with_no_data_returns_none(self):
@@ -188,6 +204,7 @@ class TestInsufficientWarmup:
 # Excepciones no propagan
 # ──────────────────────────────────────────────
 
+
 class TestExceptionIsolation:
 
     def test_exploding_strategy_does_not_propagate(self):
@@ -218,6 +235,7 @@ class TestExceptionIsolation:
 # Composición
 # ──────────────────────────────────────────────
 
+
 class TestCompose:
 
     def test_compose_first_wins(self):
@@ -230,7 +248,7 @@ class TestCompose:
         result = manager.on_candle_closed(make_candle())
 
         assert result is not None
-        assert result.side == "buy"  # s1 es primera
+        assert result.direction == "BUY"  # s1 es primera
 
     def test_compose_majority_buy_wins(self):
         """compose_mode=majority → mayoría buy → retorna buy."""
@@ -243,7 +261,7 @@ class TestCompose:
         result = manager.on_candle_closed(make_candle())
 
         assert result is not None
-        assert result.side == "buy"
+        assert result.direction == "BUY"
 
     def test_compose_majority_sell_wins(self):
         """compose_mode=majority → mayoría sell → retorna sell."""
@@ -256,7 +274,7 @@ class TestCompose:
         result = manager.on_candle_closed(make_candle())
 
         assert result is not None
-        assert result.side == "sell"
+        assert result.direction == "SELL"
 
     def test_compose_majority_tie_returns_none(self):
         """compose_mode=majority con empate → None."""
@@ -282,6 +300,7 @@ class TestCompose:
 # ──────────────────────────────────────────────
 # Independencia por símbolo
 # ──────────────────────────────────────────────
+
 
 class TestSymbolIndependence:
 

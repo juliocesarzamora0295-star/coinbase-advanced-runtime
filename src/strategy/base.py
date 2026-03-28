@@ -1,17 +1,22 @@
 """
 Clase base para estrategias de trading.
 """
+
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import Dict, List, Optional, Any
+from typing import Any, Dict, List, Optional
 
 import pandas as pd
 
 
 @dataclass
 class Signal:
-    """Señal de trading generada por una estrategia."""
+    """
+    Señal legacy — mantenida para compatibilidad con tests de StrategyManager.
+    Las estrategias de producción deben emitir src.strategy.signal.Signal.
+    """
+
     symbol: str
     side: str  # "buy" | "sell"
     position_side: str  # "LONG" | "SHORT"
@@ -35,8 +40,8 @@ class Strategy(ABC):
         self._df = market_data
 
     @abstractmethod
-    def generate_signals(self, *, mid: Decimal) -> List[Signal]:
-        """Generar señales de trading."""
+    def generate_signals(self, *, mid: Decimal, bar_timestamp: Any = None) -> List:
+        """Generar señales de trading. Retorna List[src.strategy.signal.Signal]."""
         pass
 
     def update_positions(self, fill: Dict[str, Any]) -> None:

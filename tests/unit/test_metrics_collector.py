@@ -3,13 +3,14 @@ Tests unitarios: MetricsCollector.
 
 Verifica contadores, setters, snapshot y flush.
 """
+
 import json
 import logging
 from decimal import Decimal
 
 import pytest
 
-from src.observability.metrics import MetricsCollector, RuntimeMetrics
+from src.observability.metrics import MetricsCollector
 
 
 @pytest.fixture
@@ -65,7 +66,7 @@ class TestOrderRateTracking:
         collector.record_order_rejected("EQUITY_ZERO")
         snap = collector.snapshot()
         # 1 rejected out of 3 total
-        assert abs(snap.order_reject_rate - 1/3) < 0.001
+        assert abs(snap.order_reject_rate - 1 / 3) < 0.001
 
     def test_riskgate_rejection_reason_counted(self, collector):
         collector.record_order_rejected("CIRCUIT_BREAKER_OPEN")

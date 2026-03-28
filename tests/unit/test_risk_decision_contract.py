@@ -10,20 +10,20 @@ Invariantes testeadas:
 - Fail-closed: equity=None/0, market_price faltante → allowed=False
 - CircuitBreaker como input de evaluate() (no puerta paralela)
 """
+
 from decimal import Decimal
 
 import pytest
 
 from src.risk.gate import (
-    RiskGate,
-    RiskDecision,
-    RiskLimits,
-    RiskSnapshot,
     RULE_CIRCUIT_BREAKER_OPEN,
-    RULE_EQUITY_ZERO_OR_MISSING,
     RULE_DAILY_LOSS_LIMIT,
+    RULE_EQUITY_ZERO_OR_MISSING,
     RULE_MAX_DRAWDOWN,
     RULE_SELL_NO_POSITION,
+    RiskGate,
+    RiskLimits,
+    RiskSnapshot,
 )
 
 
@@ -68,9 +68,9 @@ class TestRiskDecisionStructure:
             target_qty=Decimal("0.01"),
             entry_ref=Decimal("50000"),
         )
-        assert not hasattr(decision, "suggested_qty"), (
-            "RiskDecision no debe tener suggested_qty — ese campo contamina capas"
-        )
+        assert not hasattr(
+            decision, "suggested_qty"
+        ), "RiskDecision no debe tener suggested_qty — ese campo contamina capas"
 
     def test_risk_decision_has_hard_max_qty(self):
         """RiskDecision tiene hard_max_qty (un cap, no sugerencia)."""
@@ -174,7 +174,8 @@ class TestRiskDecisionFailClosed:
         """equity=0 → allowed=False con RULE_EQUITY_ZERO_OR_MISSING."""
         gate = make_gate()
         d = gate.evaluate(
-            symbol="BTC-USD", side="BUY",
+            symbol="BTC-USD",
+            side="BUY",
             snapshot=healthy_snapshot(equity=Decimal("0")),
             target_qty=Decimal("0.01"),
             entry_ref=Decimal("50000"),
@@ -186,7 +187,8 @@ class TestRiskDecisionFailClosed:
         """breaker_state=OPEN → allowed=False con RULE_CIRCUIT_BREAKER_OPEN."""
         gate = make_gate()
         d = gate.evaluate(
-            symbol="BTC-USD", side="BUY",
+            symbol="BTC-USD",
+            side="BUY",
             snapshot=healthy_snapshot(),
             target_qty=Decimal("0.01"),
             entry_ref=Decimal("50000"),
@@ -199,7 +201,8 @@ class TestRiskDecisionFailClosed:
         """breaker_state=CLOSED (default) no bloquea por sí mismo."""
         gate = make_gate()
         d = gate.evaluate(
-            symbol="BTC-USD", side="BUY",
+            symbol="BTC-USD",
+            side="BUY",
             snapshot=healthy_snapshot(),
             target_qty=Decimal("0.001"),
             entry_ref=Decimal("50000"),
@@ -212,7 +215,8 @@ class TestRiskDecisionFailClosed:
         """day_pnl_pct <= -max_daily_loss_pct → RULE_DAILY_LOSS_LIMIT en blocking_rule_ids."""
         gate = make_gate(max_daily_loss_pct=Decimal("0.05"))
         d = gate.evaluate(
-            symbol="BTC-USD", side="BUY",
+            symbol="BTC-USD",
+            side="BUY",
             snapshot=healthy_snapshot(day_pnl_pct=Decimal("-0.06")),
             target_qty=Decimal("0.01"),
             entry_ref=Decimal("50000"),
@@ -224,7 +228,8 @@ class TestRiskDecisionFailClosed:
         """drawdown_pct >= max_drawdown_pct → RULE_MAX_DRAWDOWN en blocking_rule_ids."""
         gate = make_gate(max_drawdown_pct=Decimal("0.15"))
         d = gate.evaluate(
-            symbol="BTC-USD", side="BUY",
+            symbol="BTC-USD",
+            side="BUY",
             snapshot=healthy_snapshot(drawdown_pct=Decimal("0.16")),
             target_qty=Decimal("0.01"),
             entry_ref=Decimal("50000"),
@@ -236,7 +241,8 @@ class TestRiskDecisionFailClosed:
         """SELL sin posición → RULE_SELL_NO_POSITION."""
         gate = make_gate()
         d = gate.evaluate(
-            symbol="BTC-USD", side="SELL",
+            symbol="BTC-USD",
+            side="SELL",
             snapshot=healthy_snapshot(position_qty=Decimal("0")),
             target_qty=Decimal("0.01"),
             entry_ref=Decimal("50000"),
@@ -253,22 +259,24 @@ class TestRiskDecisionAllowedInvariants:
         gate = make_gate()
         target = Decimal("0.001")
         d = gate.evaluate(
-            symbol="BTC-USD", side="BUY",
+            symbol="BTC-USD",
+            side="BUY",
             snapshot=healthy_snapshot(equity=Decimal("100000")),
             target_qty=target,
             entry_ref=Decimal("50000"),
         )
         if d.allowed:
-            assert d.hard_max_qty <= target, (
-                f"hard_max_qty={d.hard_max_qty} debe ser ≤ target_qty={target}"
-            )
+            assert (
+                d.hard_max_qty <= target
+            ), f"hard_max_qty={d.hard_max_qty} debe ser ≤ target_qty={target}"
 
     def test_allowed_hard_max_notional_coherent_with_qty_and_price(self):
         """allowed=True → hard_max_notional ≈ hard_max_qty × entry_ref."""
         gate = make_gate()
         entry = Decimal("50000")
         d = gate.evaluate(
-            symbol="BTC-USD", side="BUY",
+            symbol="BTC-USD",
+            side="BUY",
             snapshot=healthy_snapshot(equity=Decimal("100000")),
             target_qty=Decimal("0.001"),
             entry_ref=entry,
@@ -285,7 +293,8 @@ class TestRiskDecisionAllowedInvariants:
         """SELL permitido → reduce_only=True (spot-only invariant)."""
         gate = make_gate()
         d = gate.evaluate(
-            symbol="BTC-USD", side="SELL",
+            symbol="BTC-USD",
+            side="SELL",
             snapshot=healthy_snapshot(position_qty=Decimal("0.1")),
             target_qty=Decimal("0.05"),
             entry_ref=Decimal("50000"),
@@ -297,7 +306,8 @@ class TestRiskDecisionAllowedInvariants:
         """BUY permitido → reduce_only=False."""
         gate = make_gate()
         d = gate.evaluate(
-            symbol="BTC-USD", side="BUY",
+            symbol="BTC-USD",
+            side="BUY",
             snapshot=healthy_snapshot(),
             target_qty=Decimal("0.001"),
             entry_ref=Decimal("50000"),
@@ -308,4 +318,5 @@ class TestRiskDecisionAllowedInvariants:
 
 if __name__ == "__main__":
     import pytest
+
     pytest.main([__file__, "-v"])

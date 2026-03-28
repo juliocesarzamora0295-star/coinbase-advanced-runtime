@@ -6,6 +6,7 @@ Valida:
 - SELL qty capada por position_qty (spot-only)
 - BUY bloqueado cuando posición al máximo
 """
+
 from decimal import Decimal
 
 from src.risk.gate import RiskGate, RiskLimits, RiskSnapshot
@@ -49,9 +50,9 @@ class TestRiskGateSellReduction:
             entry_ref=Decimal("100"),
         )
         assert decision.allowed, f"SELL reductor debe ser permitido: {decision.reason}"
-        assert decision.hard_max_qty > Decimal("0"), (
-            f"hard_max_qty debe ser > 0, got {decision.hard_max_qty}"
-        )
+        assert decision.hard_max_qty > Decimal(
+            "0"
+        ), f"hard_max_qty debe ser > 0, got {decision.hard_max_qty}"
         assert decision.reduce_only is True
 
     def test_sell_cannot_exceed_position(self):
@@ -77,8 +78,7 @@ class TestRiskGateSellReduction:
         )
         if decision.allowed:
             assert decision.hard_max_qty <= Decimal("2"), (
-                f"SELL hard_max_qty ({decision.hard_max_qty}) "
-                f"no debe exceder position_qty (2)"
+                f"SELL hard_max_qty ({decision.hard_max_qty}) " f"no debe exceder position_qty (2)"
             )
 
     def test_buy_blocked_when_at_max_position(self):
@@ -108,4 +108,5 @@ class TestRiskGateSellReduction:
 
 if __name__ == "__main__":
     import pytest
+
     pytest.main([__file__, "-v"])

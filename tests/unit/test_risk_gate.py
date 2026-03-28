@@ -10,19 +10,19 @@ Invariantes testadas:
 - Orders/minute: usa max(snapshot, interno)
 - SELL sin posición → blocked (spot-only)
 """
+
 from decimal import Decimal
 
 from src.risk.gate import (
-    RiskGate,
-    RiskLimits,
-    RiskSnapshot,
-    RiskDecision,
     RULE_CIRCUIT_BREAKER_OPEN,
     RULE_DAILY_LOSS_LIMIT,
+    RULE_EQUITY_ZERO_OR_MISSING,
     RULE_MAX_DRAWDOWN,
     RULE_MAX_ORDERS_PER_MINUTE,
     RULE_SELL_NO_POSITION,
-    RULE_EQUITY_ZERO_OR_MISSING,
+    RiskGate,
+    RiskLimits,
+    RiskSnapshot,
 )
 
 
@@ -219,15 +219,21 @@ class TestRiskGateOrdersPerMinute:
         # 3 órdenes aprobadas
         for i in range(3):
             d = self.gate.evaluate(
-                symbol="BTC-USD", side="BUY",
-                snapshot=snapshot, target_qty=tq, entry_ref=entry,
+                symbol="BTC-USD",
+                side="BUY",
+                snapshot=snapshot,
+                target_qty=tq,
+                entry_ref=entry,
             )
             assert d.allowed, f"Orden {i+1} debería aprobarse: {d.reason}"
 
         # 4ta debe ser bloqueada
         d4 = self.gate.evaluate(
-            symbol="BTC-USD", side="BUY",
-            snapshot=snapshot, target_qty=tq, entry_ref=entry,
+            symbol="BTC-USD",
+            side="BUY",
+            snapshot=snapshot,
+            target_qty=tq,
+            entry_ref=entry,
         )
         assert not d4.allowed
         assert RULE_MAX_ORDERS_PER_MINUTE in d4.blocking_rule_ids
@@ -284,11 +290,12 @@ class TestRiskGateSell:
             entry_ref=Decimal("50000"),
         )
         if decision.allowed:
-            assert decision.hard_max_qty <= Decimal("0.05"), (
-                f"hard_max_qty={decision.hard_max_qty} no debe exceder position_qty=0.05"
-            )
+            assert decision.hard_max_qty <= Decimal(
+                "0.05"
+            ), f"hard_max_qty={decision.hard_max_qty} no debe exceder position_qty=0.05"
 
 
 if __name__ == "__main__":
     import pytest
+
     pytest.main([__file__, "-v"])

@@ -22,13 +22,14 @@ Implementación:
 - flush() escribe JSON por línea a logger (rotación diaria vía logging config).
 - Thread-safe: todas las operaciones sobre primitivas Python son GIL-safe.
 """
+
 import json
 import logging
 import time
 from collections import defaultdict
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from decimal import Decimal
-from typing import Dict, Optional
+from typing import Dict
 
 logger = logging.getLogger("Metrics")
 
@@ -169,6 +170,7 @@ class MetricsCollector:
     def snapshot(self) -> RuntimeMetrics:
         """Retornar snapshot inmutable del estado actual."""
         import copy
+
         snap = copy.deepcopy(self._metrics)
         snap.ts_ms = int(time.time() * 1000)
         snap.riskgate_rejection_reason_count = dict(self._riskgate_rejections)

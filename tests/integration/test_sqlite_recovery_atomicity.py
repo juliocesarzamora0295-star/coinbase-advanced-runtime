@@ -14,19 +14,18 @@ Invariantes testeadas:
 
 Sin Coinbase API. Usa SQLite temporal en tmp_path.
 """
+
 import uuid
 from datetime import datetime
 from decimal import Decimal
 
-import pytest
-
 from src.accounting.ledger import Fill, TradeLedger
 from src.execution.idempotency import IdempotencyStore, OrderIntent, OrderState
-
 
 # ──────────────────────────────────────────────
 # Helpers
 # ──────────────────────────────────────────────
+
 
 def make_intent(intent_id: str, client_id: str) -> OrderIntent:
     return OrderIntent(
@@ -62,6 +61,7 @@ def make_fill(trade_id: str, amount: str = "0.1", price: str = "50000") -> Fill:
 # ──────────────────────────────────────────────
 # Divergencia OMS ↔ Ledger
 # ──────────────────────────────────────────────
+
 
 class TestOMSLedgerDivergence:
 
@@ -143,6 +143,7 @@ class TestOMSLedgerDivergence:
 # ──────────────────────────────────────────────
 # Atomicidad de restart
 # ──────────────────────────────────────────────
+
 
 class TestRestartAtomicity:
 

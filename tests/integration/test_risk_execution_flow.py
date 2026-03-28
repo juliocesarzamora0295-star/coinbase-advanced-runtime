@@ -17,24 +17,22 @@ Invariantes testeadas:
 - ledger post-fill coherente con fill recibido
 - CircuitBreaker recibe feedback de fills (callback wiring)
 """
+
 from decimal import Decimal
 
-import pytest
-
 from src.accounting.ledger import Fill, TradeLedger
-from src.risk.circuit_breaker import CircuitBreaker, BreakerState
+from src.risk.circuit_breaker import BreakerState, CircuitBreaker
 from src.risk.gate import (
+    RULE_CIRCUIT_BREAKER_OPEN,
+    RULE_DAILY_LOSS_LIMIT,
+    RULE_EQUITY_ZERO_OR_MISSING,
+    RULE_MAX_DRAWDOWN,
+    RULE_SELL_NO_POSITION,
     RiskGate,
     RiskLimits,
     RiskSnapshot,
-    RULE_CIRCUIT_BREAKER_OPEN,
-    RULE_EQUITY_ZERO_OR_MISSING,
-    RULE_DAILY_LOSS_LIMIT,
-    RULE_MAX_DRAWDOWN,
-    RULE_SELL_NO_POSITION,
 )
 from src.simulation.paper_engine import PaperEngine
-
 
 # ──────────────────────────────────────────────
 # Helpers
@@ -95,6 +93,7 @@ def fill_from_paper(paper_fill, ts_ms: int = 1_700_000_000_000) -> Fill:
 # Happy path
 # ──────────────────────────────────────────────
 
+
 class TestHappyPath:
 
     def test_buy_signal_approved_fill_and_ledger_updated(self, tmp_path):
@@ -148,9 +147,15 @@ class TestHappyPath:
 
         # Setup: comprar primero
         buy_fill_data = Fill(
-            side="buy", amount=Decimal("0.2"), price=Decimal("50000"),
-            cost=Decimal("10000"), fee_cost=Decimal("0"), fee_currency="USD",
-            ts_ms=1_700_000_000_000, trade_id="setup-buy-001", order_id="o-setup",
+            side="buy",
+            amount=Decimal("0.2"),
+            price=Decimal("50000"),
+            cost=Decimal("10000"),
+            fee_cost=Decimal("0"),
+            fee_currency="USD",
+            ts_ms=1_700_000_000_000,
+            trade_id="setup-buy-001",
+            order_id="o-setup",
         )
         ledger.add_fill(buy_fill_data)
         assert ledger.position_qty == Decimal("0.2")
@@ -192,7 +197,7 @@ class TestHappyPath:
         """final_qty = min(target_qty, hard_max_qty) — fill nunca excede el cap."""
         gate = make_gate(max_position_pct="0.01")  # caps muy bajos → hard_max_qty pequeño
         engine = PaperEngine()
-        ledger = TradeLedger(symbol="BTC-USD", db_path=str(tmp_path / "ledger.db"))
+        ledger = TradeLedger(symbol="BTC-USD", db_path=str(tmp_path / "ledger.db"))  # noqa: F841
 
         snap = make_snapshot(equity="10000")
         target_qty = Decimal("1.0")  # mayor que el cap
@@ -229,6 +234,7 @@ class TestHappyPath:
 # ──────────────────────────────────────────────
 # Fail-closed: equity=0
 # ──────────────────────────────────────────────
+
 
 class TestEquityFailClosed:
 
@@ -271,6 +277,7 @@ class TestEquityFailClosed:
 # ──────────────────────────────────────────────
 # Circuit Breaker como input de RiskGate
 # ──────────────────────────────────────────────
+
 
 class TestCircuitBreakerAsInput:
 
@@ -357,6 +364,7 @@ class TestCircuitBreakerAsInput:
 # Drawdown excedido post-pérdidas
 # ──────────────────────────────────────────────
 
+
 class TestDrawdownBlocks:
 
     def test_drawdown_exceeded_blocks_new_trade(self, tmp_path):
@@ -366,9 +374,15 @@ class TestDrawdownBlocks:
 
         # Comprar a 50000, perder
         buy_fill = Fill(
-            side="buy", amount=Decimal("0.2"), price=Decimal("50000"),
-            cost=Decimal("10000"), fee_cost=Decimal("0"), fee_currency="USD",
-            ts_ms=1_700_000_000_000, trade_id="loss-buy-001", order_id="o-loss",
+            side="buy",
+            amount=Decimal("0.2"),
+            price=Decimal("50000"),
+            cost=Decimal("10000"),
+            fee_cost=Decimal("0"),
+            fee_currency="USD",
+            ts_ms=1_700_000_000_000,
+            trade_id="loss-buy-001",
+            order_id="o-loss",
         )
         ledger.add_fill(buy_fill)
 
@@ -411,6 +425,7 @@ class TestDrawdownBlocks:
 # SELL sin posición
 # ──────────────────────────────────────────────
 
+
 class TestSellWithoutPosition:
 
     def test_sell_blocked_when_no_position(self):
@@ -434,6 +449,7 @@ class TestSellWithoutPosition:
 # ──────────────────────────────────────────────
 # Wiring ledger ↔ fill
 # ──────────────────────────────────────────────
+
 
 class TestLedgerFillWiring:
 

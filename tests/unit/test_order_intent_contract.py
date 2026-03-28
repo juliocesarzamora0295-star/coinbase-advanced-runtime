@@ -11,14 +11,14 @@ Invariantes testeadas:
 - OrderIntent no contiene objeto Signal completo (solo signal_id, strategy_id)
 - reduce_only se propaga desde RiskDecision
 """
+
 from decimal import Decimal
 
 import pytest
 
 from src.execution.order_planner import (
-    OrderPlanner,
-    OrderIntent,
     OrderNotAllowedError,
+    OrderPlanner,
     RiskDecisionInput,
     _make_client_order_id,
 )
@@ -84,9 +84,9 @@ class TestOrderIntentStructure:
             risk=make_risk(),
             constraints=make_constraints(),
         )
-        assert not hasattr(intent, "signal_ref"), (
-            "OrderIntent no debe tener signal_ref: acoplamiento frágil"
-        )
+        assert not hasattr(
+            intent, "signal_ref"
+        ), "OrderIntent no debe tener signal_ref: acoplamiento frágil"
         assert intent.signal_id == "sig-001"
         assert intent.strategy_id == "sma_crossover"
 
@@ -129,7 +129,10 @@ class TestOrderPlannerFinalQty:
 
         # Caso: target_qty < hard_max_qty → final_qty = target_qty
         intent = planner.plan(
-            signal_id="sig-001", strategy_id="sma", symbol="BTC-USD", side="BUY",
+            signal_id="sig-001",
+            strategy_id="sma",
+            symbol="BTC-USD",
+            side="BUY",
             sizing=make_sizing(target_qty=Decimal("0.03")),
             risk=make_risk(hard_max_qty=Decimal("0.10")),
             constraints=make_constraints(),
@@ -140,54 +143,66 @@ class TestOrderPlannerFinalQty:
         """Si target_qty > hard_max_qty → final_qty ≤ hard_max_qty."""
         planner = OrderPlanner()
         intent = planner.plan(
-            signal_id="sig-001", strategy_id="sma", symbol="BTC-USD", side="BUY",
-            sizing=make_sizing(target_qty=Decimal("1.0")),   # grande
-            risk=make_risk(hard_max_qty=Decimal("0.05")),    # cap pequeño
+            signal_id="sig-001",
+            strategy_id="sma",
+            symbol="BTC-USD",
+            side="BUY",
+            sizing=make_sizing(target_qty=Decimal("1.0")),  # grande
+            risk=make_risk(hard_max_qty=Decimal("0.05")),  # cap pequeño
             constraints=make_constraints(),
         )
-        assert intent.final_qty <= Decimal("0.05"), (
-            f"final_qty={intent.final_qty} debe ser ≤ hard_max_qty=0.05"
-        )
+        assert intent.final_qty <= Decimal(
+            "0.05"
+        ), f"final_qty={intent.final_qty} debe ser ≤ hard_max_qty=0.05"
 
     def test_final_qty_respects_step_size(self):
         """final_qty está cuantizado por step_size (no inventa qty)."""
         planner = OrderPlanner()
         constraints = make_constraints(step_size=Decimal("0.01"))
         intent = planner.plan(
-            signal_id="sig-001", strategy_id="sma", symbol="BTC-USD", side="BUY",
+            signal_id="sig-001",
+            strategy_id="sma",
+            symbol="BTC-USD",
+            side="BUY",
             sizing=make_sizing(target_qty=Decimal("0.0567")),
             risk=make_risk(hard_max_qty=Decimal("0.10")),
             constraints=constraints,
         )
         if intent.final_qty > Decimal("0"):
             remainder = intent.final_qty % Decimal("0.01")
-            assert remainder == Decimal("0"), (
-                f"final_qty={intent.final_qty} no está cuantizado por step_size=0.01"
-            )
+            assert remainder == Decimal(
+                "0"
+            ), f"final_qty={intent.final_qty} no está cuantizado por step_size=0.01"
 
     def test_viable_false_when_final_qty_below_min_qty(self):
         """Si final_qty < min_qty → OrderIntent.viable=False (no se envía)."""
         planner = OrderPlanner()
         constraints = make_constraints(
             step_size=Decimal("0.01"),
-            min_qty=Decimal("0.1"),   # min muy alto
+            min_qty=Decimal("0.1"),  # min muy alto
         )
         intent = planner.plan(
-            signal_id="sig-001", strategy_id="sma", symbol="BTC-USD", side="BUY",
+            signal_id="sig-001",
+            strategy_id="sma",
+            symbol="BTC-USD",
+            side="BUY",
             sizing=make_sizing(target_qty=Decimal("0.001")),  # menor que min_qty
             risk=make_risk(hard_max_qty=Decimal("0.001")),
             constraints=constraints,
         )
-        assert intent.viable is False, (
-            f"final_qty={intent.final_qty} < min_qty=0.1 → viable debe ser False"
-        )
+        assert (
+            intent.viable is False
+        ), f"final_qty={intent.final_qty} < min_qty=0.1 → viable debe ser False"
 
     def test_viable_true_when_final_qty_meets_min_qty(self):
         """Si final_qty >= min_qty → OrderIntent.viable=True."""
         planner = OrderPlanner()
         constraints = make_constraints(min_qty=Decimal("0.001"))
         intent = planner.plan(
-            signal_id="sig-001", strategy_id="sma", symbol="BTC-USD", side="BUY",
+            signal_id="sig-001",
+            strategy_id="sma",
+            symbol="BTC-USD",
+            side="BUY",
             sizing=make_sizing(target_qty=Decimal("0.05")),
             risk=make_risk(hard_max_qty=Decimal("0.10")),
             constraints=constraints,
@@ -203,7 +218,10 @@ class TestOrderPlannerBlocking:
         planner = OrderPlanner()
         with pytest.raises(OrderNotAllowedError):
             planner.plan(
-                signal_id="sig-001", strategy_id="sma", symbol="BTC-USD", side="BUY",
+                signal_id="sig-001",
+                strategy_id="sma",
+                symbol="BTC-USD",
+                side="BUY",
                 sizing=make_sizing(),
                 risk=make_risk(allowed=False, hard_max_qty=Decimal("0")),
                 constraints=make_constraints(),
@@ -215,7 +233,10 @@ class TestOrderPlannerBlocking:
         result = None
         try:
             result = planner.plan(
-                signal_id="sig-001", strategy_id="sma", symbol="BTC-USD", side="BUY",
+                signal_id="sig-001",
+                strategy_id="sma",
+                symbol="BTC-USD",
+                side="BUY",
                 sizing=make_sizing(),
                 risk=make_risk(allowed=False, hard_max_qty=Decimal("0")),
                 constraints=make_constraints(),
@@ -263,7 +284,10 @@ class TestReduceOnlyPropagation:
         """reduce_only=True del RiskDecision se propaga a OrderIntent."""
         planner = OrderPlanner()
         intent = planner.plan(
-            signal_id="sig-001", strategy_id="sma", symbol="BTC-USD", side="SELL",
+            signal_id="sig-001",
+            strategy_id="sma",
+            symbol="BTC-USD",
+            side="SELL",
             sizing=make_sizing(),
             risk=make_risk(reduce_only=True),
             constraints=make_constraints(),
@@ -274,7 +298,10 @@ class TestReduceOnlyPropagation:
         """reduce_only=False del RiskDecision se propaga a OrderIntent."""
         planner = OrderPlanner()
         intent = planner.plan(
-            signal_id="sig-001", strategy_id="sma", symbol="BTC-USD", side="BUY",
+            signal_id="sig-001",
+            strategy_id="sma",
+            symbol="BTC-USD",
+            side="BUY",
             sizing=make_sizing(),
             risk=make_risk(reduce_only=False),
             constraints=make_constraints(),
@@ -284,4 +311,5 @@ class TestReduceOnlyPropagation:
 
 if __name__ == "__main__":
     import pytest
+
     pytest.main([__file__, "-v"])

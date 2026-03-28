@@ -11,6 +11,7 @@ Invariantes:
 - invalidate_on_gap() marca el book como stale
 - spread=None cuando stale o inconsistente
 """
+
 import logging
 import time
 from decimal import Decimal

@@ -6,12 +6,13 @@ Adaptado de GuardianBot con mejoras:
 - Integración con TradeLedger de Fortress
 - Soporte para reduce_only y position_side
 """
-import time
+
 import logging
+import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from decimal import Decimal
-from typing import Dict, List, Optional, Any
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger("PaperEngine")
 
@@ -19,6 +20,7 @@ logger = logging.getLogger("PaperEngine")
 @dataclass
 class PaperFill:
     """Fill generado por el paper engine."""
+
     status: str
     trade_id: str
     order_id: str
@@ -36,7 +38,7 @@ class PaperFill:
 class PaperEngine:
     """
     Motor de paper trading que simula la ejecución de órdenes.
-    
+
     Características:
     - Matching de órdenes limit contra bid/ask
     - Ejecución inmediata de market orders
@@ -92,14 +94,14 @@ class PaperEngine:
     ) -> Dict[str, Any]:
         """
         Enviar orden al paper engine.
-        
+
         Args:
             intent: Datos de la orden (client_id, symbol, side, type, amount, price)
             bid: Precio bid actual
             ask: Precio ask actual
             bid_size: Tamaño disponible en bid
             ask_size: Tamaño disponible en ask
-            
+
         Returns:
             Dict con status: "filled", "open", o "rejected"
         """
@@ -169,14 +171,14 @@ class PaperEngine:
     ) -> List[PaperFill]:
         """
         Procesar tick de mercado y ejecutar órdenes que se crucen.
-        
+
         Args:
             symbol: Símbolo a procesar
             bid: Precio bid actual
             ask: Precio ask actual
             bid_size: Tamaño disponible
             ask_size: Tamaño disponible
-            
+
         Returns:
             Lista de fills generados
         """
@@ -226,12 +228,12 @@ class PaperEngine:
     ) -> Optional[PaperFill]:
         """
         Forzar ejecución de una orden (para testing).
-        
+
         Args:
             order_id: ID de la orden a ejecutar
             symbol: Símbolo
             price: Precio de ejecución
-            
+
         Returns:
             Fill o None si no existe la orden
         """

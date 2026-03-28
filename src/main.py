@@ -3,33 +3,34 @@ Fortress v4 - Coinbase Advanced Trade Edition
 
 Entry point del bot de trading.
 """
+
 import logging
 import sys
-import time
 import threading
+import time
 from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Dict, List, Optional
 
 import pandas as pd
 
-from src.config import get_config, PathsConfig
-from src.core.jwt_auth import JWTAuth, load_credentials_from_env
+from src.accounting.ledger import TradeLedger
+from src.config import PathsConfig, get_config
 from src.core.coinbase_exchange import CoinbaseRESTClient
 from src.core.coinbase_websocket import CoinbaseWSFeed, WSMessage
+from src.core.jwt_auth import JWTAuth, load_credentials_from_env
 from src.core.quantization import create_quantizer_from_api_response
 from src.execution.idempotency import IdempotencyStore
+from src.execution.order_planner import OrderNotAllowedError, OrderPlanner, RiskDecisionInput
 from src.execution.orders import OrderExecutor
-from src.accounting.ledger import TradeLedger
-from src.risk.circuit_breaker import CircuitBreaker, BreakerConfig
-from src.risk.gate import RiskGate, RiskLimits, RiskSnapshot
-from src.oms.reconcile import OMSReconcileService
-from src.marketdata.service import MarketDataService
 from src.marketdata.orderbook import OrderBook
-from src.strategy.manager import StrategyManager
-from src.risk.position_sizer import PositionSizer, SymbolConstraints, FailClosedError
-from src.execution.order_planner import OrderPlanner, RiskDecisionInput, OrderNotAllowedError
+from src.marketdata.service import MarketDataService
+from src.oms.reconcile import OMSReconcileService
+from src.risk.circuit_breaker import BreakerConfig, CircuitBreaker
+from src.risk.gate import RiskGate, RiskLimits, RiskSnapshot
+from src.risk.position_sizer import FailClosedError, PositionSizer, SymbolConstraints
 from src.simulation.paper_engine import PaperEngine
+from src.strategy.manager import StrategyManager
 
 # Configurar logging
 logging.basicConfig(
@@ -37,7 +38,7 @@ logging.basicConfig(
     format="%(asctime)s [%(name)s] %(levelname)s: %(message)s",
     handlers=[
         logging.StreamHandler(sys.stdout),
-    ]
+    ],
 )
 logger = logging.getLogger("Main")
 
@@ -45,7 +46,7 @@ logger = logging.getLogger("Main")
 def setup_file_logging(logs_path: PathsConfig) -> None:
     """Configurar logging a archivo."""
     from logging.handlers import RotatingFileHandler
-    
+
     file_handler = RotatingFileHandler(
         logs_path.logs / "fortress.log",
         maxBytes=10_000_000,  # 10MB
@@ -54,27 +55,27 @@ def setup_file_logging(logs_path: PathsConfig) -> None:
     file_handler.setFormatter(
         logging.Formatter("%(asctime)s [%(name)s] %(levelname)s: %(message)s")
     )
-    
+
     root_logger = logging.getLogger()
     root_logger.addHandler(file_handler)
 
 
 class TradingBot:
     """Bot de trading principal."""
-    
+
     def __init__(self):
         self.config = get_config()
         self.client: CoinbaseRESTClient = None
         self.jwt_auth: JWTAuth = None
         self.ws: CoinbaseWSFeed = None
         self.circuit_breaker: CircuitBreaker = None
-        
+
         # Por símbolo
         self.executors: Dict[str, OrderExecutor] = {}
         self.ledgers: Dict[str, TradeLedger] = {}
         self.quantizers: Dict[str, any] = {}
         self.oms_services: Dict[str, OMSReconcileService] = {}
-        
+
         # Market data y señales
         self.price_data: Dict[str, List[Dict]] = {}
         self.current_prices: Dict[str, Decimal] = {}
@@ -89,15 +90,15 @@ class TradingBot:
 
         # Paper Engine (simulación)
         self.paper_engine: Optional[PaperEngine] = None
-        
+
         # Modo smoke test - desde config YAML
         self.smoke_test_mode: bool = self.config.trading.smoke_test_mode
         self.cycle_count: int = 0
-        
+
         # Control
         self._running = False
         self._lock = threading.Lock()
-    
+
     def initialize(self) -> bool:
         """Inicializar el bot."""
         logger.info("=" * 60)
@@ -114,15 +115,15 @@ class TradingBot:
         logger.info("")
         logger.info("El bot opera en modo OBSERVACIÓN (no ejecuta órdenes)")
         logger.info("")
-        
+
         # Verificar credenciales
         if not self.config.coinbase.is_configured:
             logger.error("COINBASE_KEY_NAME y COINBASE_KEY_SECRET son requeridos")
             return False
-        
+
         logger.info(f"Key Name: {self.config.coinbase.key_name[:50]}...")
         logger.info(f"JWT Issuer: {self.config.coinbase.issuer}")
-        
+
         # Crear JWT Auth
         try:
             credentials = load_credentials_from_env()
@@ -134,7 +135,7 @@ class TradingBot:
         except Exception as e:
             logger.error(f"Failed to initialize JWT Auth: {e}")
             return False
-        
+
         # Crear cliente REST
         try:
             self.client = CoinbaseRESTClient(
@@ -146,12 +147,12 @@ class TradingBot:
         except Exception as e:
             logger.error(f"Failed to initialize REST Client: {e}")
             return False
-        
+
         # Verificar conexión
         try:
             accounts = self.client.list_accounts()
             logger.info(f"Connected to Coinbase. Accounts: {len(accounts)}")
-            
+
             for account in accounts[:3]:
                 currency = account.get("currency", "")
                 balance = account.get("available_balance", {}).get("value", "0")
@@ -159,7 +160,7 @@ class TradingBot:
         except Exception as e:
             logger.error(f"Failed to connect to Coinbase: {e}")
             return False
-        
+
         # Obtener fees
         try:
             fees = self.client.get_transaction_summary()
@@ -169,7 +170,7 @@ class TradingBot:
             logger.info(f"Fee Tier: Maker={maker}, Taker={taker}")
         except Exception as e:
             logger.warning(f"Could not fetch fees: {e}")
-        
+
         # Inicializar circuit breaker
         breaker_cfg = BreakerConfig(
             max_daily_loss=self.config.risk.max_daily_loss,
@@ -181,7 +182,7 @@ class TradingBot:
         )
         self.circuit_breaker = CircuitBreaker(breaker_cfg)
         logger.info("Circuit Breaker initialized")
-        
+
         # Inicializar Risk Gate (integrado en pipeline) - desde config YAML
         risk_limits = RiskLimits(
             max_position_pct=Decimal(str(self.config.trading.max_position_pct)),
@@ -192,7 +193,7 @@ class TradingBot:
         )
         self.risk_gate = RiskGate(risk_limits)
         logger.info(f"Risk Gate initialized: max_position={risk_limits.max_position_pct}%")
-        
+
         # Inicializar Paper Engine para simulación
         if self.config.trading.dry_run or self.config.trading.observe_only:
             self.paper_engine = PaperEngine(
@@ -200,21 +201,21 @@ class TradingBot:
                 taker_fee=Decimal("0.0004"),
             )
             logger.info("Paper Engine initialized for simulation")
-        
+
         # Inicializar componentes por símbolo
         for symbol_cfg in self.config.symbols:
             if not symbol_cfg.enabled:
                 continue
-            
+
             symbol = symbol_cfg.symbol
             logger.info(f"Initializing {symbol}...")
-            
+
             try:
                 # Obtener info del producto
                 product = self.client.get_product(symbol)
                 quantizer = create_quantizer_from_api_response(product)
                 self.quantizers[symbol] = quantizer
-                
+
                 # Crear ledger con callback al circuit breaker
                 db_path = str(self.config.paths.state / f"ledger_{symbol}.db")
                 ledger = TradeLedger(
@@ -223,18 +224,18 @@ class TradingBot:
                     on_fill_callback=self.circuit_breaker.get_fill_callback(),
                 )
                 self.ledgers[symbol] = ledger
-                
+
                 # Inicializar circuit breaker con equity
                 if ledger.position_qty > 0:
                     position_value = ledger.position_qty * ledger.avg_entry
                     self.circuit_breaker.reset_day(position_value)
-                
+
                 logger.info(
                     f"   Position: {ledger.position_qty} "
                     f"| Avg Entry: {ledger.avg_entry} "
                     f"| Realized PnL: {ledger.realized_pnl_quote}"
                 )
-                
+
                 # Crear idempotency store y executor
                 idempotency_db = str(self.config.paths.state / f"idempotency_{symbol}.db")
                 idempotency = IdempotencyStore(db_path=idempotency_db)
@@ -245,7 +246,7 @@ class TradingBot:
                     max_retries=self.config.coinbase.max_retries,
                 )
                 self.executors[symbol] = executor
-                
+
                 # Crear OMS reconcile service con REST fill fetcher
                 oms = OMSReconcileService(
                     idempotency=idempotency,
@@ -253,28 +254,28 @@ class TradingBot:
                     fill_fetcher=lambda order_id: self.client.list_fills(order_id=order_id),
                 )
                 self.oms_services[symbol] = oms
-                
+
                 # Inicializar buffer de precios y order book
                 self.price_data[symbol] = []
                 self.current_prices[symbol] = Decimal("0")
                 self.order_books[symbol] = OrderBook(symbol)
-                
+
             except Exception as e:
                 logger.error(f"Failed to initialize {symbol}: {e}")
                 continue
-        
+
         if not self.executors:
             logger.error("No symbols initialized. Exiting.")
             return False
-        
+
         # Inicializar WebSocket
         self._init_websocket()
-        
+
         # Inicializar pipeline: CandleClosed -> Signal -> RiskGate -> Executor
         self._init_pipeline()
-        
+
         return True
-    
+
     def _init_pipeline(self) -> None:
         """
         Inicializar pipeline v3:
@@ -310,7 +311,7 @@ class TradingBot:
             )
 
         logger.info("Trading pipeline v3 initialized")
-    
+
     def _on_candle_closed(self, symbol: str, candle) -> None:
         """
         Callback para eventos CandleClosed.
@@ -324,13 +325,16 @@ class TradingBot:
             return
 
         import pandas as pd
-        candle_series = pd.Series({
-            "open": candle.open,
-            "high": candle.high,
-            "low": candle.low,
-            "close": candle.close,
-            "volume": candle.volume,
-        })
+
+        candle_series = pd.Series(
+            {
+                "open": candle.open,
+                "high": candle.high,
+                "low": candle.low,
+                "close": candle.close,
+                "volume": candle.volume,
+            }
+        )
         bar_ts = datetime.fromtimestamp(candle.timestamp_ms / 1000, tz=timezone.utc)
 
         signal = sm.on_candle_closed(candle_series, mid=candle.close, bar_timestamp=bar_ts)
@@ -338,7 +342,7 @@ class TradingBot:
             return
 
         self._process_signal_with_risk(symbol, signal, candle)
-    
+
     def _process_signal_with_risk(self, symbol: str, signal, candle) -> None:
         """
         Procesar señal a través del pipeline v3.
@@ -368,11 +372,13 @@ class TradingBot:
         orders_last_minute = executor.get_orders_last_minute() if executor else None
 
         missing = [
-            name for name, val in [
+            name
+            for name, val in [
                 ("day_pnl_pct", day_pnl_pct),
                 ("drawdown_pct", drawdown_pct),
                 ("orders_last_minute", orders_last_minute),
-            ] if val is None
+            ]
+            if val is None
         ]
         if missing:
             logger.warning(
@@ -468,10 +474,13 @@ class TradingBot:
 
         # Ejecutar orden según modo configurado
         self._execute_order(
-            symbol, order_intent.side, order_intent.final_qty, entry_ref,
-            signal.metadata.get("reason", signal.strategy_id)
+            symbol,
+            order_intent.side,
+            order_intent.final_qty,
+            entry_ref,
+            signal.metadata.get("reason", signal.strategy_id),
         )
-    
+
     def _execute_order(
         self,
         symbol: str,
@@ -482,31 +491,28 @@ class TradingBot:
     ) -> None:
         """
         Ejecutar orden según modo configurado.
-        
+
         Modos mutuamente excluyentes:
         - observe_only=True: solo observa, nunca ejecuta
         - dry_run=True: simula ejecución sin enviar al exchange
         - ambos=False: trading real (envía orden al exchange)
-        
+
         Invariante: observe_only tiene prioridad sobre dry_run.
         """
         observe = self.config.trading.observe_only
         dry_run = self.config.trading.dry_run
-        
+
         # Modo observación: solo loggear, nunca ejecutar
         if observe:
-            logger.info(
-                f"[{symbol}] OBSERVE ONLY: {side} {qty} @ {price} "
-                f"(reason: {reason})"
-            )
+            logger.info(f"[{symbol}] OBSERVE ONLY: {side} {qty} @ {price} " f"(reason: {reason})")
             return
-        
+
         # Verificar que tenemos executor para el símbolo
         executor = self.executors.get(symbol)
         if executor is None:
             logger.error(f"[{symbol}] No executor found")
             return
-        
+
         # Modo dry run: simular con PaperEngine, no enviar al exchange
         if dry_run:
             if self.paper_engine:
@@ -527,6 +533,7 @@ class TradingBot:
                     ledger = self.ledgers.get(symbol)
                     if ledger and fill:
                         from src.accounting.ledger import Fill
+
                         ledger_fill = Fill(
                             side=fill.side,
                             amount=fill.amount,
@@ -549,12 +556,9 @@ class TradingBot:
                         f"(reason: {reason}, status: {result.get('status')})"
                     )
             else:
-                logger.info(
-                    f"[{symbol}] DRY RUN: {side} {qty} @ {price} "
-                    f"(reason: {reason})"
-                )
+                logger.info(f"[{symbol}] DRY RUN: {side} {qty} @ {price} " f"(reason: {reason})")
             return
-        
+
         # Trading real: enviar orden al exchange
         # Solo llegamos aquí si observe_only=False y dry_run=False
         try:
@@ -569,35 +573,35 @@ class TradingBot:
             )
         except Exception as e:
             logger.error(f"[{symbol}] ORDER FAILED: {e}")
-    
+
     def _init_websocket(self) -> None:
         """Inicializar WebSocket."""
         self.ws = CoinbaseWSFeed(self.jwt_auth)
-        
+
         # Callback para gap detection — invalida order books (L2 stale tras gap)
         def on_gap_detected():
             logger.warning("WebSocket gap detected! Initiating reconciliation...")
             self.circuit_breaker.record_ws_gap()
             for book in self.order_books.values():
                 book.invalidate_on_gap()
-        
+
         self.ws.on_gap_detected = on_gap_detected
-        
+
         # Subscribirse a canales por símbolo
         for symbol in self.ledgers.keys():
             self._subscribe_symbol(symbol)
-        
+
         # Subscribirse a heartbeats
         def on_heartbeat(msg: WSMessage):
             pass  # Gap detection se maneja en CoinbaseWSFeed
-        
+
         self.ws.subscribe_heartbeats(on_heartbeat)
-        
+
         # P1: Canal user - una sola suscripción con todos los product_ids
         # La doc indica que user channel espera una conexión por usuario
         # con múltiples product_ids en un solo array
         symbols = list(self.ledgers.keys())
-        
+
         def on_user(msg: WSMessage):
             """Procesar mensajes del canal user (orders, fills)."""
             try:
@@ -605,26 +609,26 @@ class TradingBot:
                 for event in events:
                     event_type = event.get("type")
                     orders = event.get("orders", [])
-                    
+
                     # Agrupar órdenes por símbolo (product_id)
                     by_symbol: Dict[str, List[Dict]] = {}
                     for order in orders:
                         product_id = order.get("product_id")
                         if product_id:
                             by_symbol.setdefault(product_id, []).append(order)
-                    
+
                     # Enviar a cada OMS service correspondiente
                     for symbol, bucket in by_symbol.items():
                         oms = self.oms_services.get(symbol)
                         if oms:
                             oms.handle_user_event(event_type, bucket)
-                        
+
             except Exception as e:
                 logger.error(f"Error processing user channel: {e}")
-        
+
         if symbols:
             self.ws.subscribe("user", symbols, on_user)
-    
+
     def _subscribe_symbol(self, symbol: str) -> None:
         """Subscribirse a canales para un símbolo."""
         # Obtener timeframe de la config
@@ -633,7 +637,7 @@ class TradingBot:
             if s.symbol == symbol:
                 timeframe = s.timeframe
                 break
-        
+
         def on_candles(msg: WSMessage, sym=symbol, tf=timeframe):
             """Procesar velas del canal candles."""
             try:
@@ -647,13 +651,13 @@ class TradingBot:
                         low_p = Decimal(str(candle.get("low", 0)))
                         close_p = Decimal(str(candle.get("close", 0)))
                         volume = Decimal(str(candle.get("volume", 0)))
-                        
+
                         if close_p > 0:
                             with self._lock:
                                 self.current_prices[sym] = close_p
-                            
+
                             self._store_candle(sym, ts_ms, open_p, high_p, low_p, close_p, volume)
-                            
+
                             # P0 FIX: Ingerir vela 5m - MarketDataService dispara callbacks internamente
                             # No llamar _on_candle_closed aquí, los callbacks ya están suscritos
                             self.market_data.ingest_5m_candle(
@@ -668,7 +672,7 @@ class TradingBot:
                             )
             except Exception as e:
                 logger.error(f"Error processing candles for {sym}: {e}")
-        
+
         def on_ticker(msg: WSMessage, sym=symbol):
             """Procesar ticker (solo para precio actual)."""
             try:
@@ -683,7 +687,7 @@ class TradingBot:
                                 self.current_prices[sym] = price
             except Exception as e:
                 logger.error(f"Error processing ticker for {sym}: {e}")
-        
+
         def on_level2(msg: WSMessage, sym=symbol):
             """Procesar order book L2 — normaliza eventos Coinbase y actualiza OrderBook."""
             book = self.order_books.get(sym)
@@ -698,22 +702,24 @@ class TradingBot:
                         raw_side = upd.get("side", "")
                         # Coinbase usa "offer" para ask
                         side_norm = "ask" if raw_side == "offer" else raw_side
-                        normalized.append({
-                            "type": event_type,
-                            "side": side_norm,
-                            "price": upd.get("price_level", "0"),
-                            "size": upd.get("new_quantity", "0"),
-                        })
+                        normalized.append(
+                            {
+                                "type": event_type,
+                                "side": side_norm,
+                                "price": upd.get("price_level", "0"),
+                                "size": upd.get("new_quantity", "0"),
+                            }
+                        )
                 if normalized:
                     book.update(normalized)
             except Exception as exc:
                 logger.error(f"[{sym}] Error processing L2: {exc}")
-        
+
         # Subscribirse a canales públicos
         self.ws.subscribe_candles(symbol, on_candles)
         self.ws.subscribe_ticker(symbol, on_ticker)
         self.ws.subscribe_level2(symbol, on_level2)
-    
+
     def _store_candle(
         self,
         symbol: str,
@@ -727,55 +733,59 @@ class TradingBot:
         """Almacenar vela recibida del canal candles."""
         with self._lock:
             data = self.price_data[symbol]
-            
+
             # Verificar si ya tenemos esta vela
             if data and data[-1].get("timestamp") == ts_ms:
-                data[-1].update({
-                    "open": open_p,
-                    "high": high_p,
-                    "low": low_p,
-                    "close": close_p,
-                    "volume": volume,
-                })
+                data[-1].update(
+                    {
+                        "open": open_p,
+                        "high": high_p,
+                        "low": low_p,
+                        "close": close_p,
+                        "volume": volume,
+                    }
+                )
             else:
-                data.append({
-                    "timestamp": ts_ms,
-                    "open": open_p,
-                    "high": high_p,
-                    "low": low_p,
-                    "close": close_p,
-                    "volume": volume,
-                })
-                
+                data.append(
+                    {
+                        "timestamp": ts_ms,
+                        "open": open_p,
+                        "high": high_p,
+                        "low": low_p,
+                        "close": close_p,
+                        "volume": volume,
+                    }
+                )
+
                 # Mantener solo últimas N velas
                 max_candles = 500
                 if len(data) > max_candles:
                     data.pop(0)
-    
+
     def _get_ohlcv_df(self, symbol: str) -> pd.DataFrame:
         """
         Obtener DataFrame OHLCV para un símbolo con resampling a timeframe operativo.
-        
+
         Coinbase candles entrega buckets de 5 minutos.
         Se hace resampling explícito al timeframe configurado (1h/4h/etc).
         """
         with self._lock:
             data = self.price_data.get(symbol, [])
-        
+
         if not data:
             return pd.DataFrame()
-        
+
         df = pd.DataFrame(data).sort_values("timestamp")
         df["timestamp"] = pd.to_datetime(df["timestamp"], unit="ms", utc=True)
         df = df.set_index("timestamp")
-        
+
         # Obtener timeframe configurado
         timeframe = "1h"
         for s in self.config.symbols:
             if s.symbol == symbol:
                 timeframe = s.timeframe
                 break
-        
+
         # Mapeo de timeframe a regla de pandas
         rule_map = {
             "5m": "5min",
@@ -788,18 +798,20 @@ class TradingBot:
             "1d": "1d",
         }
         rule = rule_map.get(timeframe, "5min")
-        
+
         # Resampling si el timeframe no es 5m nativo
         if rule != "5min":
             # closed="left": intervalo [inicio, fin) - vela en el borde va al bucket siguiente
-            ohlcv = df.resample(rule, label="right", closed="left").agg({
-                "open": "first",
-                "high": "max",
-                "low": "min",
-                "close": "last",
-                "volume": "sum",
-            })
-            
+            ohlcv = df.resample(rule, label="right", closed="left").agg(
+                {
+                    "open": "first",
+                    "high": "max",
+                    "low": "min",
+                    "close": "last",
+                    "volume": "sum",
+                }
+            )
+
             # Filtrar barras incompletas: contar velas 5m por bucket
             counts = df["close"].resample(rule, label="right", closed="left").count()
             required = {
@@ -811,17 +823,17 @@ class TradingBot:
                 "6h": 72,
                 "1d": 288,
             }.get(rule, 1)
-            
+
             # Solo mantener barras completas
             df = ohlcv[counts >= required].dropna()
-        
+
         return df
-    
+
     def run(self) -> int:
         """Ejecutar el bot."""
         if not self.initialize():
             return 1
-        
+
         # Iniciar WebSocket
         try:
             self.ws.start()
@@ -829,51 +841,51 @@ class TradingBot:
         except Exception as e:
             logger.error(f"Failed to start WebSocket: {e}")
             return 1
-        
+
         self._running = True
-        
+
         logger.info("Bot running. Press Ctrl+C to stop.")
         logger.info("")
-        
+
         # Main loop
         # CORREGIDO: Modo observación - solo housekeeping/logging.
         # El disparador de trading debe venir de CandleClosed / OMS events.
         try:
             max_cycles = self.config.trading.max_cycles
-            
+
             while self._running:
                 self.cycle_count += 1
-                
+
                 # Modo smoke test: limitar ciclos
                 if max_cycles > 0 and self.cycle_count >= max_cycles:
                     logger.info(f"🏁 Smoke test completado: {max_cycles} ciclos ejecutados")
                     self._running = False
                     break
-                
+
                 # Log status periódico
                 self._log_status()
-                
+
                 # Validaciones de ledger en modo smoke test
                 if self.smoke_test_mode:
                     self._run_smoke_validations()
-                
+
                 # Sleep corto para housekeeping (no es el reloj de trading)
                 time.sleep(1)
-                
+
         except KeyboardInterrupt:
             logger.info("Shutting down...")
-        
+
         finally:
             self._running = False
             self.ws.stop()
             logger.info("Shutdown complete")
-        
+
         return 0
-    
+
     def _run_smoke_validations(self) -> None:
         """
         Validaciones de smoke test.
-        
+
         Adaptado de GuardianBot.
         Verifica invariantes del ledger en cada ciclo.
         """
@@ -881,23 +893,25 @@ class TradingBot:
             current_price = self.current_prices.get(symbol)
             if not current_price or current_price <= 0:
                 continue
-            
+
             # Validar equity invariant
             ok, msg = ledger.validate_equity_invariant(current_price)
             if not ok:
                 logger.critical(f"❌ [{symbol}] {msg}")
                 if self.smoke_test_mode:
                     raise RuntimeError(f"Equity invariant violation: {msg}")
-            
+
             # Log de estado para smoke test
             if self.cycle_count % 10 == 0:
                 stats = ledger.get_stats()
-                logger.info(f"🧪 [{symbol}] Smoke cycle {self.cycle_count}: pos={stats['position_qty']}, pnl={stats['realized_pnl']}")
-    
+                logger.info(
+                    f"🧪 [{symbol}] Smoke cycle {self.cycle_count}: pos={stats['position_qty']}, pnl={stats['realized_pnl']}"
+                )
+
     def _process_symbol(self, symbol: str) -> None:
         """
         Procesar un símbolo.
-        
+
         ADVERTENCIA: Strategy layer no implementada.
         El bot opera en modo observación (no ejecuta órdenes).
         """
@@ -907,18 +921,18 @@ class TradingBot:
             if reason:
                 logger.warning(f"Trading blocked: {reason}")
             return
-        
+
         # Obtener datos OHLCV
         df = self._get_ohlcv_df(symbol)
         if len(df) < 50:
             logger.debug(f"Insufficient data for {symbol}: {len(df)} candles")
             return
-        
+
         # MODO OBSERVACIÓN: Trading triggers vienen de CandleClosed callbacks (_on_candle_closed).
         # Este método solo loggea estado para smoke test / debug.
         current_price = self.current_prices.get(symbol, Decimal("0"))
         ledger = self.ledgers.get(symbol)
-        
+
         if ledger and current_price > 0:
             unrealized = ledger.get_unrealized_pnl(current_price)
             logger.debug(
@@ -926,11 +940,11 @@ class TradingBot:
                 f"position={ledger.position_qty}, "
                 f"unrealized={unrealized:.2f}"
             )
-    
+
     def _log_status(self) -> None:
         """Loggear estado del bot."""
         status = self.circuit_breaker.get_status()
-        
+
         logger.info(
             f"Status: {status['state']} | "
             f"Equity: ${status['equity']['now']:,.2f} | "
@@ -945,7 +959,7 @@ def main():
     # Configurar file logging
     config = get_config()
     setup_file_logging(config.paths)
-    
+
     bot = TradingBot()
     return bot.run()
 

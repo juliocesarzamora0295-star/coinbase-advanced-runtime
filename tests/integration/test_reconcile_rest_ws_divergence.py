@@ -16,21 +16,20 @@ Casos testeados:
 
 Sin Coinbase API. fill_fetcher es un callable mockeado.
 """
+
 import uuid
 from datetime import datetime
 from decimal import Decimal
-from typing import List, Dict
+from typing import Dict
 
-import pytest
-
-from src.accounting.ledger import Fill, TradeLedger
+from src.accounting.ledger import TradeLedger
 from src.execution.idempotency import IdempotencyStore, OrderIntent, OrderState
 from src.oms.reconcile import OMSReconcileService
-
 
 # ──────────────────────────────────────────────
 # Helpers
 # ──────────────────────────────────────────────
+
 
 def make_intent(intent_id: str, client_id: str, product_id: str = "BTC-USD") -> OrderIntent:
     return OrderIntent(
@@ -92,6 +91,7 @@ def make_service(
 # WS dice OPEN, REST dice FILLED
 # ──────────────────────────────────────────────
 
+
 class TestWSOpenRESTFilled:
 
     def test_ws_open_then_rest_filled_updates_oms(self, tmp_path):
@@ -113,16 +113,16 @@ class TestWSOpenRESTFilled:
         service = make_service(store, ledger, fill_fetcher=lambda oid: rest_fills)
 
         # WS: orden OPEN
-        service.handle_user_event("update", [
-            make_order_event(exchange_id, client_id, "OPEN", number_of_fills=0)
-        ])
+        service.handle_user_event(
+            "update", [make_order_event(exchange_id, client_id, "OPEN", number_of_fills=0)]
+        )
         record = store.get_by_intent_id(intent_id)
         assert record.state == OrderState.OPEN_RESTING
 
         # WS: número de fills aumentó → disparar REST fetch
-        service.handle_user_event("update", [
-            make_order_event(exchange_id, client_id, "FILLED", number_of_fills=1)
-        ])
+        service.handle_user_event(
+            "update", [make_order_event(exchange_id, client_id, "FILLED", number_of_fills=1)]
+        )
 
         record = store.get_by_intent_id(intent_id)
         assert record.state == OrderState.FILLED
@@ -145,9 +145,9 @@ class TestWSOpenRESTFilled:
         rest_fills = [make_rest_fill("fill-direct-001")]
         service = make_service(store, ledger, fill_fetcher=lambda oid: rest_fills)
 
-        service.handle_user_event("update", [
-            make_order_event(exchange_id, client_id, "FILLED", number_of_fills=1)
-        ])
+        service.handle_user_event(
+            "update", [make_order_event(exchange_id, client_id, "FILLED", number_of_fills=1)]
+        )
 
         record = store.get_by_intent_id(intent_id)
         assert record.state == OrderState.FILLED
@@ -157,6 +157,7 @@ class TestWSOpenRESTFilled:
 # ──────────────────────────────────────────────
 # Idempotencia: mismo fill no se doble-aplica
 # ──────────────────────────────────────────────
+
 
 class TestFillIdempotency:
 
@@ -178,15 +179,15 @@ class TestFillIdempotency:
         service = make_service(store, ledger, fill_fetcher=lambda oid: rest_fills)
 
         # Primer evento con fill
-        service.handle_user_event("update", [
-            make_order_event(exchange_id, client_id, "FILLED", number_of_fills=1)
-        ])
+        service.handle_user_event(
+            "update", [make_order_event(exchange_id, client_id, "FILLED", number_of_fills=1)]
+        )
         qty_after_first = ledger.position_qty
 
         # Segundo evento con mismo fill (fill_count no aumenta, no re-fetch)
-        service.handle_user_event("update", [
-            make_order_event(exchange_id, client_id, "FILLED", number_of_fills=1)
-        ])
+        service.handle_user_event(
+            "update", [make_order_event(exchange_id, client_id, "FILLED", number_of_fills=1)]
+        )
 
         assert ledger.position_qty == qty_after_first
 
@@ -205,6 +206,7 @@ class TestFillIdempotency:
         store.save_intent(intent, OrderState.NEW)
 
         call_count = [0]
+
         def fill_fetcher(oid):
             call_count[0] += 1
             return [make_rest_fill("fill-td-001")]
@@ -212,15 +214,15 @@ class TestFillIdempotency:
         service = make_service(store, ledger, fill_fetcher=fill_fetcher)
 
         # Primera vez: fill_count 0 → 1
-        service.handle_user_event("update", [
-            make_order_event(exchange_id, client_id, "OPEN", number_of_fills=1)
-        ])
+        service.handle_user_event(
+            "update", [make_order_event(exchange_id, client_id, "OPEN", number_of_fills=1)]
+        )
         qty_first = ledger.position_qty
 
         # Segunda vez: fill_count 1 → 2 (fill_fetcher retorna el mismo fill)
-        service.handle_user_event("update", [
-            make_order_event(exchange_id, client_id, "OPEN", number_of_fills=2)
-        ])
+        service.handle_user_event(
+            "update", [make_order_event(exchange_id, client_id, "OPEN", number_of_fills=2)]
+        )
 
         # El ledger deduplicó por trade_id — posición no cambió
         assert ledger.position_qty == qty_first
@@ -229,6 +231,7 @@ class TestFillIdempotency:
 # ──────────────────────────────────────────────
 # Cancelación
 # ──────────────────────────────────────────────
+
 
 class TestCancellation:
 
@@ -247,9 +250,9 @@ class TestCancellation:
         store.save_intent(intent, OrderState.CANCEL_QUEUED)
 
         service = make_service(store, ledger)
-        service.handle_user_event("update", [
-            make_order_event(exchange_id, client_id, "CANCELLED", number_of_fills=0)
-        ])
+        service.handle_user_event(
+            "update", [make_order_event(exchange_id, client_id, "CANCELLED", number_of_fills=0)]
+        )
 
         record = store.get_by_intent_id(intent_id)
         assert record.state == OrderState.CANCELLED
@@ -261,6 +264,7 @@ class TestCancellation:
 # ──────────────────────────────────────────────
 # Casos especiales
 # ──────────────────────────────────────────────
+
 
 class TestEdgeCases:
 
@@ -274,9 +278,10 @@ class TestEdgeCases:
         service = make_service(store, ledger)
 
         # No debe lanzar
-        service.handle_user_event("update", [
-            make_order_event("ex-unknown", "client-unknown", "FILLED", number_of_fills=1)
-        ])
+        service.handle_user_event(
+            "update",
+            [make_order_event("ex-unknown", "client-unknown", "FILLED", number_of_fills=1)],
+        )
         # Ledger intacto
         assert ledger.position_qty == Decimal("0")
 
@@ -300,9 +305,9 @@ class TestEdgeCases:
         service = make_service(store, ledger, fill_fetcher=exploding_fetcher)
 
         # No debe propagar la excepción
-        service.handle_user_event("update", [
-            make_order_event(exchange_id, client_id, "FILLED", number_of_fills=1)
-        ])
+        service.handle_user_event(
+            "update", [make_order_event(exchange_id, client_id, "FILLED", number_of_fills=1)]
+        )
 
         # Estado OMS debe haberse actualizado a FILLED aunque fill_fetcher falló
         record = store.get_by_intent_id(intent_id)
@@ -340,9 +345,9 @@ class TestEdgeCases:
 
         service = make_service(store, ledger, fill_fetcher=None)
 
-        service.handle_user_event("update", [
-            make_order_event(exchange_id, client_id, "FILLED", number_of_fills=1)
-        ])
+        service.handle_user_event(
+            "update", [make_order_event(exchange_id, client_id, "FILLED", number_of_fills=1)]
+        )
 
         # Estado actualizado aunque no haya fills
         record = store.get_by_intent_id(intent_id)

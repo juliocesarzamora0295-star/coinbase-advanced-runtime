@@ -5,9 +5,8 @@ Cubre:
 - pre_order_check(): todos los paths de validación
 - edge case: hard_max_qty = 0 después de cap por max_notional_per_symbol
 """
-from decimal import Decimal
 
-import pytest
+from decimal import Decimal
 
 from src.risk.gate import RiskGate, RiskLimits, RiskSnapshot
 
@@ -27,13 +26,17 @@ def make_gate(max_notional: str = "10000") -> RiskGate:
 # pre_order_check — paths de rechazo
 # ──────────────────────────────────────────────
 
+
 class TestPreOrderCheck:
 
     def test_equity_zero_rejected(self):
         gate = make_gate()
         ok, reason = gate.pre_order_check(
-            equity=Decimal("0"), price=Decimal("50000"),
-            amount=Decimal("0.1"), order_type="market", side="buy",
+            equity=Decimal("0"),
+            price=Decimal("50000"),
+            amount=Decimal("0.1"),
+            order_type="market",
+            side="buy",
         )
         assert ok is False
         assert "equity" in reason
@@ -41,8 +44,11 @@ class TestPreOrderCheck:
     def test_amount_zero_rejected(self):
         gate = make_gate()
         ok, reason = gate.pre_order_check(
-            equity=Decimal("10000"), price=Decimal("50000"),
-            amount=Decimal("0"), order_type="market", side="buy",
+            equity=Decimal("10000"),
+            price=Decimal("50000"),
+            amount=Decimal("0"),
+            order_type="market",
+            side="buy",
         )
         assert ok is False
         assert "amount" in reason
@@ -50,8 +56,11 @@ class TestPreOrderCheck:
     def test_price_zero_rejected(self):
         gate = make_gate()
         ok, reason = gate.pre_order_check(
-            equity=Decimal("10000"), price=Decimal("0"),
-            amount=Decimal("0.1"), order_type="market", side="buy",
+            equity=Decimal("10000"),
+            price=Decimal("0"),
+            amount=Decimal("0.1"),
+            order_type="market",
+            side="buy",
         )
         assert ok is False
         assert "price" in reason
@@ -59,8 +68,11 @@ class TestPreOrderCheck:
     def test_bad_order_type_rejected(self):
         gate = make_gate()
         ok, reason = gate.pre_order_check(
-            equity=Decimal("10000"), price=Decimal("50000"),
-            amount=Decimal("0.1"), order_type="stop", side="buy",
+            equity=Decimal("10000"),
+            price=Decimal("50000"),
+            amount=Decimal("0.1"),
+            order_type="stop",
+            side="buy",
         )
         assert ok is False
         assert "order_type" in reason
@@ -68,8 +80,11 @@ class TestPreOrderCheck:
     def test_bad_side_rejected(self):
         gate = make_gate()
         ok, reason = gate.pre_order_check(
-            equity=Decimal("10000"), price=Decimal("50000"),
-            amount=Decimal("0.1"), order_type="market", side="long",
+            equity=Decimal("10000"),
+            price=Decimal("50000"),
+            amount=Decimal("0.1"),
+            order_type="market",
+            side="long",
         )
         assert ok is False
         assert "side" in reason
@@ -77,8 +92,11 @@ class TestPreOrderCheck:
     def test_bad_position_side_rejected(self):
         gate = make_gate()
         ok, reason = gate.pre_order_check(
-            equity=Decimal("10000"), price=Decimal("50000"),
-            amount=Decimal("0.1"), order_type="market", side="buy",
+            equity=Decimal("10000"),
+            price=Decimal("50000"),
+            amount=Decimal("0.1"),
+            order_type="market",
+            side="buy",
             position_side="FLAT",
         )
         assert ok is False
@@ -87,9 +105,13 @@ class TestPreOrderCheck:
     def test_reduce_only_long_requires_sell(self):
         gate = make_gate()
         ok, reason = gate.pre_order_check(
-            equity=Decimal("10000"), price=Decimal("50000"),
-            amount=Decimal("0.1"), order_type="market", side="buy",
-            position_side="LONG", reduce_only=True,
+            equity=Decimal("10000"),
+            price=Decimal("50000"),
+            amount=Decimal("0.1"),
+            order_type="market",
+            side="buy",
+            position_side="LONG",
+            reduce_only=True,
         )
         assert ok is False
         assert "reduce_only" in reason
@@ -97,9 +119,13 @@ class TestPreOrderCheck:
     def test_reduce_only_short_requires_buy(self):
         gate = make_gate()
         ok, reason = gate.pre_order_check(
-            equity=Decimal("10000"), price=Decimal("50000"),
-            amount=Decimal("0.1"), order_type="market", side="sell",
-            position_side="SHORT", reduce_only=True,
+            equity=Decimal("10000"),
+            price=Decimal("50000"),
+            amount=Decimal("0.1"),
+            order_type="market",
+            side="sell",
+            position_side="SHORT",
+            reduce_only=True,
         )
         assert ok is False
         assert "reduce_only" in reason
@@ -107,9 +133,13 @@ class TestPreOrderCheck:
     def test_open_long_requires_buy(self):
         gate = make_gate()
         ok, reason = gate.pre_order_check(
-            equity=Decimal("10000"), price=Decimal("50000"),
-            amount=Decimal("0.1"), order_type="market", side="sell",
-            position_side="LONG", reduce_only=False,
+            equity=Decimal("10000"),
+            price=Decimal("50000"),
+            amount=Decimal("0.1"),
+            order_type="market",
+            side="sell",
+            position_side="LONG",
+            reduce_only=False,
         )
         assert ok is False
         assert "LONG" in reason
@@ -117,9 +147,13 @@ class TestPreOrderCheck:
     def test_open_short_requires_sell(self):
         gate = make_gate()
         ok, reason = gate.pre_order_check(
-            equity=Decimal("10000"), price=Decimal("50000"),
-            amount=Decimal("0.1"), order_type="market", side="buy",
-            position_side="SHORT", reduce_only=False,
+            equity=Decimal("10000"),
+            price=Decimal("50000"),
+            amount=Decimal("0.1"),
+            order_type="market",
+            side="buy",
+            position_side="SHORT",
+            reduce_only=False,
         )
         assert ok is False
         assert "SHORT" in reason
@@ -127,8 +161,11 @@ class TestPreOrderCheck:
     def test_notional_exceeded_rejected(self):
         gate = make_gate(max_notional="100")
         ok, reason = gate.pre_order_check(
-            equity=Decimal("10000"), price=Decimal("50000"),
-            amount=Decimal("1.0"), order_type="market", side="buy",
+            equity=Decimal("10000"),
+            price=Decimal("50000"),
+            amount=Decimal("1.0"),
+            order_type="market",
+            side="buy",
             position_side="LONG",
         )
         assert ok is False
@@ -137,8 +174,11 @@ class TestPreOrderCheck:
     def test_valid_market_buy_approved(self):
         gate = make_gate()
         ok, reason = gate.pre_order_check(
-            equity=Decimal("10000"), price=Decimal("50000"),
-            amount=Decimal("0.01"), order_type="market", side="buy",
+            equity=Decimal("10000"),
+            price=Decimal("50000"),
+            amount=Decimal("0.01"),
+            order_type="market",
+            side="buy",
             position_side="LONG",
         )
         assert ok is True
@@ -147,9 +187,13 @@ class TestPreOrderCheck:
     def test_valid_limit_sell_approved(self):
         gate = make_gate()
         ok, reason = gate.pre_order_check(
-            equity=Decimal("10000"), price=Decimal("50000"),
-            amount=Decimal("0.01"), order_type="limit", side="sell",
-            position_side="LONG", reduce_only=True,
+            equity=Decimal("10000"),
+            price=Decimal("50000"),
+            amount=Decimal("0.01"),
+            order_type="limit",
+            side="sell",
+            position_side="LONG",
+            reduce_only=True,
         )
         assert ok is True
         assert reason == "ok"
@@ -157,18 +201,26 @@ class TestPreOrderCheck:
     def test_valid_reduce_only_long_sell(self):
         gate = make_gate()
         ok, reason = gate.pre_order_check(
-            equity=Decimal("10000"), price=Decimal("50000"),
-            amount=Decimal("0.01"), order_type="market", side="sell",
-            position_side="LONG", reduce_only=True,
+            equity=Decimal("10000"),
+            price=Decimal("50000"),
+            amount=Decimal("0.01"),
+            order_type="market",
+            side="sell",
+            position_side="LONG",
+            reduce_only=True,
         )
         assert ok is True
 
     def test_valid_reduce_only_short_buy(self):
         gate = make_gate()
         ok, reason = gate.pre_order_check(
-            equity=Decimal("10000"), price=Decimal("50000"),
-            amount=Decimal("0.01"), order_type="market", side="buy",
-            position_side="SHORT", reduce_only=True,
+            equity=Decimal("10000"),
+            price=Decimal("50000"),
+            amount=Decimal("0.01"),
+            order_type="market",
+            side="buy",
+            position_side="SHORT",
+            reduce_only=True,
         )
         assert ok is True
 
@@ -176,6 +228,7 @@ class TestPreOrderCheck:
 # ──────────────────────────────────────────────
 # edge case: hard_max_qty = 0 después de notional cap
 # ──────────────────────────────────────────────
+
 
 class TestHardMaxQtyZeroBlocked:
 
@@ -185,6 +238,7 @@ class TestHardMaxQtyZeroBlocked:
         → bloqueado con RULE_TARGET_QTY_ZERO.
         """
         from src.risk.gate import RULE_TARGET_QTY_ZERO
+
         # max_position_pct=10%, equity=10000, entry=50000
         # max_qty_by_equity = 10000*0.10/50000 = 0.02
         # position_qty ya en 0.02 → available_qty = max(0, 0.02 - 0.02) = 0
@@ -198,7 +252,7 @@ class TestHardMaxQtyZeroBlocked:
         gate = RiskGate(limits=limits)
         snap = RiskSnapshot(
             equity=Decimal("10000"),
-            position_qty=Decimal("0.02"),   # ya en el máximo
+            position_qty=Decimal("0.02"),  # ya en el máximo
             day_pnl_pct=Decimal("0"),
             drawdown_pct=Decimal("0"),
         )

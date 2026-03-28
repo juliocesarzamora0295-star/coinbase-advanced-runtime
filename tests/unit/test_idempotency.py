@@ -1,10 +1,11 @@
 """Tests para sistema de idempotencia."""
+
 import os
 import shutil
 import tempfile
+from decimal import Decimal
 
 import pytest
-from decimal import Decimal
 
 from src.execution.idempotency import (
     IdempotencyStore,
@@ -79,12 +80,14 @@ class TestIdempotencyStore:
         store = IdempotencyStore(db_path=temp_db)
 
         # Crear intents en diferentes estados
-        for i, state in enumerate([
-            OrderState.NEW,
-            OrderState.OPEN_RESTING,
-            OrderState.FILLED,
-            OrderState.CANCELLED,
-        ]):
+        for i, state in enumerate(
+            [
+                OrderState.NEW,
+                OrderState.OPEN_RESTING,
+                OrderState.FILLED,
+                OrderState.CANCELLED,
+            ]
+        ):
             intent = OrderIntent(
                 intent_id=f"intent-{i}",
                 client_order_id=f"intent-{i}",
@@ -122,10 +125,10 @@ class TestIdempotencyStore:
 
         # Forzar updated_ts_ms viejo modificando directamente
         import sqlite3
+
         with sqlite3.connect(temp_db) as conn:
             conn.execute(
-                "UPDATE order_intents SET updated_ts_ms = 0 WHERE intent_id = ?",
-                ("old-intent",)
+                "UPDATE order_intents SET updated_ts_ms = 0 WHERE intent_id = ?", ("old-intent",)
             )
             conn.commit()
 

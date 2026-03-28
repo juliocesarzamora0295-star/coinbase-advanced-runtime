@@ -15,10 +15,11 @@ Lo que NO hace:
 - No bypassea RiskGate.
 - No lee estado OMS.
 """
+
 import logging
 from datetime import datetime
 from decimal import Decimal
-from typing import Dict, Any, List, Optional
+from typing import Any, Dict, List, Optional
 
 import pandas as pd
 
@@ -98,9 +99,7 @@ class StrategyManager:
                 loaded.append(strategy)
                 logger.info("Loaded strategy '%s' for %s", name, symbol)
             except Exception as exc:
-                logger.error(
-                    "Failed to load strategy '%s' for %s: %s", name, symbol, exc
-                )
+                logger.error("Failed to load strategy '%s' for %s: %s", name, symbol, exc)
 
         if not loaded:
             raise ValueError(
@@ -182,6 +181,7 @@ class StrategyManager:
             return signals[0]
 
         if self._compose_mode == "majority":
+
             def _direction(s) -> str:
                 # New Signal: direction="BUY"/"SELL"; old Signal: side="buy"/"sell"
                 d = getattr(s, "direction", None)

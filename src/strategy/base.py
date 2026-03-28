@@ -1,10 +1,11 @@
 """
 Clase base para estrategias de trading.
 """
+
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import Dict, List, Optional, Any
+from typing import Any, Dict, List, Optional
 
 import pandas as pd
 
@@ -15,6 +16,7 @@ class Signal:
     Señal legacy — mantenida para compatibilidad con tests de StrategyManager.
     Las estrategias de producción deben emitir src.strategy.signal.Signal.
     """
+
     symbol: str
     side: str  # "buy" | "sell"
     position_side: str  # "LONG" | "SHORT"

@@ -12,17 +12,15 @@ Cubre:
 - dedup_check(): fill nuevo vs duplicado
 - get_stats()
 """
-from decimal import Decimal
-from typing import Optional
 
-import pytest
+from decimal import Decimal
 
 from src.accounting.ledger import Fill, TradeLedger
-
 
 # ──────────────────────────────────────────────
 # Helpers
 # ──────────────────────────────────────────────
+
 
 def make_fill(
     trade_id: str,
@@ -51,6 +49,7 @@ def make_fill(
 # ──────────────────────────────────────────────
 # Fill.to_dict / from_dict
 # ──────────────────────────────────────────────
+
 
 class TestFillSerialisation:
 
@@ -89,6 +88,7 @@ class TestFillSerialisation:
 # on_fill_callback
 # ──────────────────────────────────────────────
 
+
 class TestOnFillCallback:
 
     def test_callback_called_on_add_fill(self, tmp_path):
@@ -121,6 +121,7 @@ class TestOnFillCallback:
 # Sell edge cases en recompute
 # ──────────────────────────────────────────────
 
+
 class TestSellEdgeCases:
 
     def test_sell_with_zero_qty_out_no_change(self, tmp_path):
@@ -131,9 +132,15 @@ class TestSellEdgeCases:
 
         # Fill de sell con amount=0
         sell_zero = Fill(
-            side="sell", amount=Decimal("0"), price=Decimal("50000"),
-            cost=Decimal("0"), fee_cost=Decimal("0"), fee_currency="USD",
-            ts_ms=1_700_000_001_000, trade_id="sell-zero-001", order_id="o-sell-zero",
+            side="sell",
+            amount=Decimal("0"),
+            price=Decimal("50000"),
+            cost=Decimal("0"),
+            fee_cost=Decimal("0"),
+            fee_currency="USD",
+            ts_ms=1_700_000_001_000,
+            trade_id="sell-zero-001",
+            order_id="o-sell-zero",
         )
         ledger.add_fill(sell_zero)
         assert ledger.position_qty == qty_before
@@ -151,6 +158,7 @@ class TestSellEdgeCases:
 # ──────────────────────────────────────────────
 # get_day_pnl_pct
 # ──────────────────────────────────────────────
+
 
 class TestGetDayPnlPct:
 
@@ -170,16 +178,22 @@ class TestGetDayPnlPct:
     def test_sell_fill_today_contributes_to_day_pnl(self, tmp_path):
         """Fill de venta de hoy contribuye al cálculo."""
         import time
+
         ledger = TradeLedger(symbol="BTC-USD", db_path=str(tmp_path / "ledger.db"))
         ledger.add_fill(make_fill("dpnl-buy-002", side="buy", amount="0.1", price="50000"))
 
         # Sell con ts_ms de hoy (ahora)
         now_ms = int(time.time() * 1000)
         sell = Fill(
-            side="sell", amount=Decimal("0.05"), price=Decimal("52000"),
+            side="sell",
+            amount=Decimal("0.05"),
+            price=Decimal("52000"),
             cost=Decimal("0.05") * Decimal("52000"),
-            fee_cost=Decimal("0"), fee_currency="USD",
-            ts_ms=now_ms, trade_id="dpnl-sell-002", order_id="o-dpnl",
+            fee_cost=Decimal("0"),
+            fee_currency="USD",
+            ts_ms=now_ms,
+            trade_id="dpnl-sell-002",
+            order_id="o-dpnl",
         )
         ledger.add_fill(sell)
         result = ledger.get_day_pnl_pct(Decimal("52000"))
@@ -189,6 +203,7 @@ class TestGetDayPnlPct:
 # ──────────────────────────────────────────────
 # get_drawdown_pct
 # ──────────────────────────────────────────────
+
 
 class TestGetDrawdownPct:
 
@@ -213,9 +228,15 @@ class TestGetDrawdownPct:
         ledger.add_fill(make_fill("dd-buy-002", side="buy", amount="0.1", price="50000"))
         # Vender a 50000 (pico)
         sell = Fill(
-            side="sell", amount=Decimal("0.1"), price=Decimal("50000"),
-            cost=Decimal("5000"), fee_cost=Decimal("0"), fee_currency="USD",
-            ts_ms=1_700_000_001_000, trade_id="dd-sell-002", order_id="o-dd",
+            side="sell",
+            amount=Decimal("0.1"),
+            price=Decimal("50000"),
+            cost=Decimal("5000"),
+            fee_cost=Decimal("0"),
+            fee_currency="USD",
+            ts_ms=1_700_000_001_000,
+            trade_id="dd-sell-002",
+            order_id="o-dd",
         )
         ledger.add_fill(sell)
         # Precio actual bajo → drawdown
@@ -227,6 +248,7 @@ class TestGetDrawdownPct:
 # ──────────────────────────────────────────────
 # validate_equity_invariant
 # ──────────────────────────────────────────────
+
 
 class TestValidateEquityInvariant:
 
@@ -259,6 +281,7 @@ class TestValidateEquityInvariant:
 # dedup_check
 # ──────────────────────────────────────────────
 
+
 class TestDedupCheck:
 
     def test_new_fill_returns_true(self, tmp_path):
@@ -282,6 +305,7 @@ class TestDedupCheck:
 # ──────────────────────────────────────────────
 # get_stats
 # ──────────────────────────────────────────────
+
 
 class TestGetStats:
 

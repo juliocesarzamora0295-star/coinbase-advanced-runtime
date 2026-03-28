@@ -11,15 +11,14 @@ Invariantes testeadas:
 - señal repetida del mismo lado no se re-emite (dedup de _last_signal_side)
 - base_order_size desde config
 """
+
 from decimal import Decimal
 from typing import List
 
 import pandas as pd
-import pytest
 
-from src.strategy.sma_crossover import SmaCrossoverStrategy
 from src.strategy.signal import Signal
-
+from src.strategy.sma_crossover import SmaCrossoverStrategy
 
 # ──────────────────────────────────────────────
 # Helpers
@@ -28,7 +27,9 @@ from src.strategy.signal import Signal
 MID = Decimal("50000")
 
 
-def make_strategy(fast: int = 3, slow: int = 5, base_order_size: str = "0.001") -> SmaCrossoverStrategy:
+def make_strategy(
+    fast: int = 3, slow: int = 5, base_order_size: str = "0.001"
+) -> SmaCrossoverStrategy:
     return SmaCrossoverStrategy(
         symbol="BTC-USD",
         config={
@@ -53,6 +54,7 @@ def feed_and_generate(strategy: SmaCrossoverStrategy, prices: List[float]) -> Li
 # ──────────────────────────────────────────────
 # Configuración
 # ──────────────────────────────────────────────
+
 
 class TestConfiguration:
 
@@ -88,6 +90,7 @@ class TestConfiguration:
 # ──────────────────────────────────────────────
 # Datos insuficientes
 # ──────────────────────────────────────────────
+
 
 class TestInsufficientData:
 
@@ -125,6 +128,7 @@ class TestInsufficientData:
 # ──────────────────────────────────────────────
 # Señales
 # ──────────────────────────────────────────────
+
 
 class TestSignalGeneration:
 

@@ -12,14 +12,12 @@ Invariantes testeadas:
 - cancel transiciona a CANCEL_QUEUED (no directamente a CANCELLED)
 - orders_last_minute tracking funciona
 """
-import uuid
+
 from decimal import Decimal
 from unittest.mock import MagicMock
 
-import pytest
-
 from src.core.coinbase_exchange import CoinbaseAPIError
-from src.core.quantization import Quantizer, ProductInfo
+from src.core.quantization import ProductInfo, Quantizer
 from src.execution.idempotency import IdempotencyStore, OrderState
 from src.execution.orders import OrderExecutor
 
@@ -30,14 +28,16 @@ def make_store(tmp_path, name: str = "orders") -> IdempotencyStore:
 
 
 def make_quantizer() -> Quantizer:
-    return Quantizer(ProductInfo(
-        product_id="BTC-USD",
-        base_increment=Decimal("0.00000001"),
-        quote_increment=Decimal("0.01"),
-        min_market_funds=Decimal("1"),
-        base_currency="BTC",
-        quote_currency="USD",
-    ))
+    return Quantizer(
+        ProductInfo(
+            product_id="BTC-USD",
+            base_increment=Decimal("0.00000001"),
+            quote_increment=Decimal("0.01"),
+            min_market_funds=Decimal("1"),
+            base_currency="BTC",
+            quote_currency="USD",
+        )
+    )
 
 
 def make_executor(store: IdempotencyStore, mock_client: MagicMock) -> OrderExecutor:

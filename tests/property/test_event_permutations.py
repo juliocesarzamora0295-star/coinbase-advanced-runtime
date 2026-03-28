@@ -11,21 +11,19 @@ Invariantes testeadas:
 - Secuencias válidas de OMS en cualquier orden → estado final consistente
 - cancel_queued puede llegar antes o después de OPEN_RESTING → estado correcto
 """
+
 import itertools
 import uuid
 from datetime import datetime
 from decimal import Decimal
-from typing import List, Tuple
-
-import pytest
 
 from src.accounting.ledger import Fill, TradeLedger
 from src.execution.idempotency import IdempotencyStore, OrderIntent, OrderState
 
-
 # ──────────────────────────────────────────────
 # Helpers
 # ──────────────────────────────────────────────
+
 
 def make_intent(intent_id: str, client_id: str) -> OrderIntent:
     return OrderIntent(
@@ -62,6 +60,7 @@ def make_fill(trade_id: str, amount: str, price: str, ts_ms: int = 1_700_000_000
 # Permutaciones de fills en el ledger
 # ──────────────────────────────────────────────
 
+
 class TestFillPermutations:
 
     def test_two_fills_same_total_regardless_of_order(self, tmp_path):
@@ -75,17 +74,14 @@ class TestFillPermutations:
         results = []
         for perm in itertools.permutations([fill_a, fill_b]):
             ledger = TradeLedger(
-                symbol="BTC-USD",
-                db_path=str(tmp_path / f"ledger_perm_{len(results)}.db")
+                symbol="BTC-USD", db_path=str(tmp_path / f"ledger_perm_{len(results)}.db")
             )
             for fill in perm:
                 ledger.add_fill(fill)
             results.append((ledger.position_qty, ledger.avg_entry))
 
         # Todas las permutaciones deben dar el mismo resultado
-        assert len(set(results)) == 1, (
-            f"Permutaciones producen estados distintos: {results}"
-        )
+        assert len(set(results)) == 1, f"Permutaciones producen estados distintos: {results}"
 
     def test_three_partial_fills_all_permutations(self, tmp_path):
         """
@@ -99,15 +95,11 @@ class TestFillPermutations:
         expected_total = sum(Decimal(f.amount) for f in fills)
 
         for i, perm in enumerate(itertools.permutations(fills)):
-            ledger = TradeLedger(
-                symbol="BTC-USD",
-                db_path=str(tmp_path / f"ledger_3perm_{i}.db")
-            )
+            ledger = TradeLedger(symbol="BTC-USD", db_path=str(tmp_path / f"ledger_3perm_{i}.db"))
             for fill in perm:
                 ledger.add_fill(fill)
             assert ledger.position_qty == expected_total, (
-                f"Permutación {i} produce qty={ledger.position_qty} "
-                f"(esperado {expected_total})"
+                f"Permutación {i} produce qty={ledger.position_qty} " f"(esperado {expected_total})"
             )
 
     def test_duplicate_fill_in_any_position_not_double_counted(self, tmp_path):
@@ -116,7 +108,9 @@ class TestFillPermutations:
         """
         fill_unique = make_fill("perm-uniq", "0.1", "50000", ts_ms=1_700_000_001_000)
         fill_dup = make_fill("perm-dup", "0.2", "48000", ts_ms=1_700_000_002_000)
-        fill_dup_again = make_fill("perm-dup", "0.2", "48000", ts_ms=1_700_000_002_000)  # mismo trade_id
+        fill_dup_again = make_fill(
+            "perm-dup", "0.2", "48000", ts_ms=1_700_000_002_000
+        )  # mismo trade_id
 
         sequences = [
             [fill_unique, fill_dup, fill_dup_again],
@@ -125,22 +119,20 @@ class TestFillPermutations:
         ]
 
         for i, seq in enumerate(sequences):
-            ledger = TradeLedger(
-                symbol="BTC-USD",
-                db_path=str(tmp_path / f"ledger_dup_{i}.db")
-            )
+            ledger = TradeLedger(symbol="BTC-USD", db_path=str(tmp_path / f"ledger_dup_{i}.db"))
             for fill in seq:
                 ledger.add_fill(fill)
 
             # fill_dup debe contar solo una vez: 0.1 + 0.2 = 0.3
-            assert ledger.position_qty == Decimal("0.3"), (
-                f"Secuencia {i}: qty={ledger.position_qty} (esperado 0.3)"
-            )
+            assert ledger.position_qty == Decimal(
+                "0.3"
+            ), f"Secuencia {i}: qty={ledger.position_qty} (esperado 0.3)"
 
 
 # ──────────────────────────────────────────────
 # Permutaciones de estados OMS
 # ──────────────────────────────────────────────
+
 
 class TestOMSStatePermutations:
 
@@ -214,9 +206,7 @@ class TestOMSStatePermutations:
 
         active_ids = [r.intent_id for r in store.get_pending_or_open()]
         for intent_id in terminal_ids:
-            assert intent_id not in active_ids, (
-                f"{intent_id} terminal no debe estar activo"
-            )
+            assert intent_id not in active_ids, f"{intent_id} terminal no debe estar activo"
 
     def test_open_and_terminal_mixed_only_open_active(self, tmp_path):
         """

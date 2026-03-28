@@ -16,10 +16,9 @@ Invariantes testeadas:
 - Trip registra trip_reason no vacío
 - get_status() coherente con estado interno
 """
+
 from datetime import datetime, timedelta
 from decimal import Decimal
-
-import pytest
 
 from src.risk.circuit_breaker import BreakerConfig, BreakerState, CircuitBreaker
 

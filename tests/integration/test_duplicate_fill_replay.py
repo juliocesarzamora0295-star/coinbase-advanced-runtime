@@ -15,6 +15,7 @@ Invariantes testeadas:
 - replay completo desde fixture duplicate_fill.json → estado correcto
 - replay desde fixture out_of_order_events.json → deduplicación correcta
 """
+
 import json
 from decimal import Decimal
 from pathlib import Path
@@ -22,7 +23,6 @@ from pathlib import Path
 import pytest
 
 from src.accounting.ledger import Fill, TradeLedger
-
 
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures" / "event_replays"
 
@@ -129,7 +129,9 @@ class TestOutOfOrderDeduplication:
 
     def test_out_of_order_fill_deduplicated(self, ledger):
         """Fill out-of-order (mismo trade_id, ts menor) → ignorado."""
-        fill_original = make_fill("buy", "0.1", "50000", trade_id="ooo-001", ts_ms=1_700_000_001_000)
+        fill_original = make_fill(
+            "buy", "0.1", "50000", trade_id="ooo-001", ts_ms=1_700_000_001_000
+        )
         fill_late = make_fill("buy", "0.1", "50000", trade_id="ooo-001", ts_ms=1_700_000_000_000)
 
         ledger.add_fill(fill_original)

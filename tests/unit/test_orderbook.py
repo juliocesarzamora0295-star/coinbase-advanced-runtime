@@ -15,17 +15,16 @@ Invariantes testeadas:
 - spread = None cuando post-gap
 - invalidate_on_gap + nuevo update → fresco de nuevo
 """
+
 import time
 from decimal import Decimal
 
-import pytest
-
 from src.marketdata.orderbook import OrderBook
-
 
 # ──────────────────────────────────────────────
 # Helpers
 # ──────────────────────────────────────────────
+
 
 def make_snapshot(bids: list[tuple], asks: list[tuple]) -> list[dict]:
     """Construir lista de eventos snapshot."""
@@ -49,24 +48,29 @@ def fresh_book(max_age_ms: int = 5000) -> OrderBook:
 # Snapshot
 # ──────────────────────────────────────────────
 
+
 class TestSnapshot:
 
     def test_snapshot_sets_best_bid(self):
         """Snapshot → best_bid = precio más alto en bids."""
         book = fresh_book()
-        book.update(make_snapshot(
-            bids=[(49900, 1.0), (49800, 2.0), (49700, 0.5)],
-            asks=[(50100, 1.0)],
-        ))
+        book.update(
+            make_snapshot(
+                bids=[(49900, 1.0), (49800, 2.0), (49700, 0.5)],
+                asks=[(50100, 1.0)],
+            )
+        )
         assert book.best_bid() == Decimal("49900")
 
     def test_snapshot_sets_best_ask(self):
         """Snapshot → best_ask = precio más bajo en asks."""
         book = fresh_book()
-        book.update(make_snapshot(
-            bids=[(49900, 1.0)],
-            asks=[(50100, 1.0), (50200, 2.0), (50300, 0.5)],
-        ))
+        book.update(
+            make_snapshot(
+                bids=[(49900, 1.0)],
+                asks=[(50100, 1.0), (50200, 2.0), (50300, 0.5)],
+            )
+        )
         assert book.best_ask() == Decimal("50100")
 
     def test_empty_book_best_bid_none(self):
@@ -92,6 +96,7 @@ class TestSnapshot:
 # Delta updates
 # ──────────────────────────────────────────────
 
+
 class TestDeltaUpdates:
 
     def test_delta_add_new_bid_level(self):
@@ -111,20 +116,24 @@ class TestDeltaUpdates:
     def test_delta_remove_best_bid_level(self):
         """Delta size=0 elimina nivel, best_bid actualizado."""
         book = fresh_book()
-        book.update(make_snapshot(
-            bids=[(49900, 1.0), (49800, 2.0)],
-            asks=[(50100, 1.0)],
-        ))
+        book.update(
+            make_snapshot(
+                bids=[(49900, 1.0), (49800, 2.0)],
+                asks=[(50100, 1.0)],
+            )
+        )
         book.update([make_delta("bid", 49900, 0)])  # eliminar mejor bid
         assert book.best_bid() == Decimal("49800")
 
     def test_delta_remove_best_ask_level(self):
         """Delta size=0 elimina nivel de ask, best_ask actualizado."""
         book = fresh_book()
-        book.update(make_snapshot(
-            bids=[(49900, 1.0)],
-            asks=[(50100, 1.0), (50200, 2.0)],
-        ))
+        book.update(
+            make_snapshot(
+                bids=[(49900, 1.0)],
+                asks=[(50100, 1.0), (50200, 2.0)],
+            )
+        )
         book.update([make_delta("ask", 50100, 0)])  # eliminar mejor ask
         assert book.best_ask() == Decimal("50200")
 
@@ -140,6 +149,7 @@ class TestDeltaUpdates:
 # ──────────────────────────────────────────────
 # Consistencia
 # ──────────────────────────────────────────────
+
 
 class TestConsistency:
 
@@ -176,6 +186,7 @@ class TestConsistency:
 # ──────────────────────────────────────────────
 # Freshness
 # ──────────────────────────────────────────────
+
 
 class TestFreshness:
 
@@ -219,6 +230,7 @@ class TestFreshness:
 # ──────────────────────────────────────────────
 # Spread
 # ──────────────────────────────────────────────
+
 
 class TestSpread:
 

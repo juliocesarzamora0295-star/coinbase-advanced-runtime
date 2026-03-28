@@ -10,6 +10,7 @@ Invariantes:
 - Signal es inmutable (frozen=True).
 - emitted_at es el timestamp interno del runtime en el momento de emisión.
 """
+
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -29,21 +30,17 @@ class Signal:
     signal_id: str
     symbol: str
     direction: Literal["BUY", "SELL"]
-    strength: Decimal          # rango [0.0, 1.0]
+    strength: Decimal  # rango [0.0, 1.0]
     strategy_id: str
-    bar_timestamp: datetime    # timestamp del bucket confirmado por el stream
-    emitted_at: datetime       # timestamp de emisión del runtime (UTC)
+    bar_timestamp: datetime  # timestamp del bucket confirmado por el stream
+    emitted_at: datetime  # timestamp de emisión del runtime (UTC)
     metadata: Mapping[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         if self.direction not in ("BUY", "SELL"):
-            raise ValueError(
-                f"Invalid direction: {self.direction!r}. Must be 'BUY' or 'SELL'"
-            )
+            raise ValueError(f"Invalid direction: {self.direction!r}. Must be 'BUY' or 'SELL'")
         if not (Decimal("0") <= self.strength <= Decimal("1")):
-            raise ValueError(
-                f"strength must be in [0.0, 1.0], got {self.strength}"
-            )
+            raise ValueError(f"strength must be in [0.0, 1.0], got {self.strength}")
         if not self.signal_id:
             raise ValueError("signal_id must not be empty")
         if not self.symbol:

@@ -16,6 +16,7 @@ Invariantes testeadas:
 - planner_version es constante y no vacío
 - step_size aplicado en final_qty
 """
+
 import hashlib
 from decimal import Decimal
 
@@ -29,7 +30,6 @@ from src.execution.order_planner import (
     _make_client_order_id,
 )
 from src.risk.position_sizer import SizingDecision, SymbolConstraints
-
 
 # ──────────────────────────────────────────────
 # Helpers
@@ -102,6 +102,7 @@ def plan(
 # Bloqueo cuando risk.allowed=False
 # ──────────────────────────────────────────────
 
+
 class TestRiskAllowedFalse:
 
     def test_blocked_risk_raises_order_not_allowed(self):
@@ -125,6 +126,7 @@ class TestRiskAllowedFalse:
 # ──────────────────────────────────────────────
 # final_qty = min(target_qty, hard_max_qty)
 # ──────────────────────────────────────────────
+
 
 class TestFinalQtyCalculation:
 
@@ -184,6 +186,7 @@ class TestFinalQtyCalculation:
 # Viabilidad
 # ──────────────────────────────────────────────
 
+
 class TestViability:
 
     def test_viable_true_when_final_qty_ge_min_qty(self):
@@ -203,7 +206,7 @@ class TestViability:
             min_notional=Decimal("1"),
         )
         intent = plan(
-            sizing=make_sizing(target_qty="0.001"),   # muy pequeño
+            sizing=make_sizing(target_qty="0.001"),  # muy pequeño
             risk=make_risk(hard_max_qty="0.001"),
             constraints=high_min,
         )
@@ -229,6 +232,7 @@ class TestViability:
 # ──────────────────────────────────────────────
 # client_order_id determinismo
 # ──────────────────────────────────────────────
+
 
 class TestClientOrderIdDeterminism:
 
@@ -265,6 +269,7 @@ class TestClientOrderIdDeterminism:
 # ──────────────────────────────────────────────
 # Campos del OrderIntent
 # ──────────────────────────────────────────────
+
 
 class TestOrderIntentFields:
 

@@ -15,6 +15,7 @@ Invariantes testeadas:
 - Ledger: realized PnL persiste tras restart
 - Integración: OMS + Ledger independientes pero coherentes (mismo DB path)
 """
+
 import json
 import uuid
 from datetime import datetime
@@ -25,7 +26,6 @@ import pytest
 
 from src.accounting.ledger import Fill, TradeLedger
 from src.execution.idempotency import IdempotencyStore, OrderIntent, OrderState
-
 
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures" / "event_replays"
 
@@ -129,9 +129,9 @@ class TestOMSRestartRecovery:
         active_ids = [r.intent_id for r in store2.get_pending_or_open()]
 
         for intent_id in terminal_ids:
-            assert intent_id not in active_ids, (
-                f"Intent terminal {intent_id} no debe estar en get_pending_or_open() post-restart"
-            )
+            assert (
+                intent_id not in active_ids
+            ), f"Intent terminal {intent_id} no debe estar en get_pending_or_open() post-restart"
 
     def test_multiple_open_orders_all_recovered(self, tmp_path):
         """N órdenes abiertas pre-restart → todas recuperadas post-restart."""
@@ -162,9 +162,15 @@ class TestLedgerRestartRecovery:
 
         ledger1 = TradeLedger(symbol="BTC-USD", db_path=db_path)
         fill = Fill(
-            side="buy", amount=Decimal("0.15"), price=Decimal("48000"),
-            cost=Decimal("7200"), fee_cost=Decimal("7.20"), fee_currency="USD",
-            ts_ms=1_700_000_000_000, trade_id="t-pos-restart-001", order_id="o-001",
+            side="buy",
+            amount=Decimal("0.15"),
+            price=Decimal("48000"),
+            cost=Decimal("7200"),
+            fee_cost=Decimal("7.20"),
+            fee_currency="USD",
+            ts_ms=1_700_000_000_000,
+            trade_id="t-pos-restart-001",
+            order_id="o-001",
         )
         ledger1.add_fill(fill)
 
@@ -179,14 +185,26 @@ class TestLedgerRestartRecovery:
 
         ledger1 = TradeLedger(symbol="BTC-USD", db_path=db_path)
         buy = Fill(
-            side="buy", amount=Decimal("0.1"), price=Decimal("50000"),
-            cost=Decimal("5000"), fee_cost=Decimal("0"), fee_currency="USD",
-            ts_ms=1_700_000_000_000, trade_id="t-pnl-buy", order_id="o-buy",
+            side="buy",
+            amount=Decimal("0.1"),
+            price=Decimal("50000"),
+            cost=Decimal("5000"),
+            fee_cost=Decimal("0"),
+            fee_currency="USD",
+            ts_ms=1_700_000_000_000,
+            trade_id="t-pnl-buy",
+            order_id="o-buy",
         )
         sell = Fill(
-            side="sell", amount=Decimal("0.1"), price=Decimal("55000"),
-            cost=Decimal("5500"), fee_cost=Decimal("0"), fee_currency="USD",
-            ts_ms=1_700_000_001_000, trade_id="t-pnl-sell", order_id="o-sell",
+            side="sell",
+            amount=Decimal("0.1"),
+            price=Decimal("55000"),
+            cost=Decimal("5500"),
+            fee_cost=Decimal("0"),
+            fee_currency="USD",
+            ts_ms=1_700_000_001_000,
+            trade_id="t-pnl-sell",
+            order_id="o-sell",
         )
         ledger1.add_fill(buy)
         ledger1.add_fill(sell)
@@ -202,9 +220,15 @@ class TestLedgerRestartRecovery:
 
         ledger1 = TradeLedger(symbol="BTC-USD", db_path=db_path)
         fill = Fill(
-            side="buy", amount=Decimal("0.1"), price=Decimal("50000"),
-            cost=Decimal("5000"), fee_cost=Decimal("0"), fee_currency="USD",
-            ts_ms=1_700_000_000_000, trade_id="t-unique-restart", order_id="o-uniq",
+            side="buy",
+            amount=Decimal("0.1"),
+            price=Decimal("50000"),
+            cost=Decimal("5000"),
+            fee_cost=Decimal("0"),
+            fee_currency="USD",
+            ts_ms=1_700_000_000_000,
+            trade_id="t-unique-restart",
+            order_id="o-uniq",
         )
         ledger1.add_fill(fill)
         qty_before = ledger1.position_qty
@@ -269,9 +293,7 @@ class TestRestartRecoveryFromFixture:
         active_ids = [r.intent_id for r in store2.get_pending_or_open()]
 
         for expected_id in expectations["open_oms_orders"]:
-            assert expected_id in active_ids, (
-                f"Intent {expected_id} debe estar activo post-restart"
-            )
+            assert expected_id in active_ids, f"Intent {expected_id} debe estar activo post-restart"
 
         for not_expected_id in expectations.get("filled_oms_orders", []):
             assert not_expected_id not in active_ids

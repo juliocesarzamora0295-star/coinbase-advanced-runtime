@@ -9,33 +9,35 @@ Cubre mediante mocks de CoinbaseRESTClient:
 - CoinbaseAPIError en cancel_order → False
 - get_order_status() con intent existente y no existente
 """
+
+import uuid
 from datetime import datetime
 from decimal import Decimal
-from typing import Optional
-from unittest.mock import MagicMock, patch
-import uuid
+from unittest.mock import MagicMock
 
 import pytest
 
 from src.core.coinbase_exchange import CoinbaseAPIError
-from src.core.quantization import Quantizer, ProductInfo
+from src.core.quantization import ProductInfo, Quantizer
 from src.execution.idempotency import IdempotencyStore, OrderIntent, OrderState
-from src.execution.orders import OrderExecutor, OrderResult
-
+from src.execution.orders import OrderExecutor
 
 # ──────────────────────────────────────────────
 # Helpers
 # ──────────────────────────────────────────────
 
+
 def make_quantizer() -> Quantizer:
-    return Quantizer(ProductInfo(
-        product_id="BTC-USD",
-        base_increment=Decimal("0.00000001"),
-        quote_increment=Decimal("0.01"),
-        min_market_funds=Decimal("1"),
-        base_currency="BTC",
-        quote_currency="USD",
-    ))
+    return Quantizer(
+        ProductInfo(
+            product_id="BTC-USD",
+            base_increment=Decimal("0.00000001"),
+            quote_increment=Decimal("0.01"),
+            min_market_funds=Decimal("1"),
+            base_currency="BTC",
+            quote_currency="USD",
+        )
+    )
 
 
 def make_executor(tmp_path, client_mock) -> OrderExecutor:
@@ -60,6 +62,7 @@ def make_client_mock(order_id: str = "ex-mock-001") -> MagicMock:
 # create_market_order: ValueError path
 # ──────────────────────────────────────────────
 
+
 class TestCreateMarketOrderValueError:
 
     def test_no_qty_no_quote_raises_value_error(self, tmp_path):
@@ -77,6 +80,7 @@ class TestCreateMarketOrderValueError:
 # ──────────────────────────────────────────────
 # create_market_order: quote_size path
 # ──────────────────────────────────────────────
+
 
 class TestCreateMarketOrderQuoteSize:
 
@@ -102,6 +106,7 @@ class TestCreateMarketOrderQuoteSize:
 # ──────────────────────────────────────────────
 # create_market_order: CoinbaseAPIError
 # ──────────────────────────────────────────────
+
 
 class TestCreateMarketOrderAPIError:
 
@@ -147,6 +152,7 @@ class TestCreateMarketOrderAPIError:
 # cancel_order: no exchange_order_id
 # ──────────────────────────────────────────────
 
+
 class TestCancelOrderNoExchangeId:
 
     def test_cancel_without_exchange_id_returns_false(self, tmp_path):
@@ -183,6 +189,7 @@ class TestCancelOrderNoExchangeId:
 # ──────────────────────────────────────────────
 # cancel_order: CoinbaseAPIError
 # ──────────────────────────────────────────────
+
 
 class TestCancelOrderAPIError:
 
@@ -227,6 +234,7 @@ class TestCancelOrderAPIError:
 # ──────────────────────────────────────────────
 # get_order_status
 # ──────────────────────────────────────────────
+
 
 class TestGetOrderStatus:
 

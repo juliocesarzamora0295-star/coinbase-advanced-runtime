@@ -14,6 +14,7 @@ Invariantes testeadas:
 - Restart recovery: nuevo store con mismo DB → mismo estado
 - exchange_order_id enlazado correctamente
 """
+
 import uuid
 from datetime import datetime
 from decimal import Decimal

@@ -16,6 +16,7 @@ Invariantes testeadas:
 - fills no se doble-cuentan en restart
 - validate_equity_invariant pasa tras fills normales
 """
+
 import uuid
 from decimal import Decimal
 
@@ -223,8 +224,12 @@ class TestLedgerDeduplication:
 
     def test_partial_fills_same_order_different_trade_ids(self, ledger):
         """Partial fills del mismo order con distintos trade_ids → todos cuentan."""
-        fill1 = make_fill("buy", Decimal("0.05"), Decimal("50000"), trade_id="t-001", order_id="ord-1")
-        fill2 = make_fill("buy", Decimal("0.05"), Decimal("50000"), trade_id="t-002", order_id="ord-1")
+        fill1 = make_fill(
+            "buy", Decimal("0.05"), Decimal("50000"), trade_id="t-001", order_id="ord-1"
+        )
+        fill2 = make_fill(
+            "buy", Decimal("0.05"), Decimal("50000"), trade_id="t-002", order_id="ord-1"
+        )
 
         ledger.add_fill(fill1)
         ledger.add_fill(fill2)
@@ -240,8 +245,11 @@ class TestLedgerFeesInvariants:
         fee = Decimal("2.5")
         buy = make_fill("buy", Decimal("0.1"), Decimal("50000"))
         sell = make_fill(
-            "sell", Decimal("0.1"), Decimal("55000"),
-            fee_cost=fee, fee_currency="USD",
+            "sell",
+            Decimal("0.1"),
+            Decimal("55000"),
+            fee_cost=fee,
+            fee_currency="USD",
         )
 
         ledger.add_fill(buy)
@@ -254,8 +262,11 @@ class TestLedgerFeesInvariants:
         """Fee en BASE (BTC) reduce qty neta en buy — P1 FIX."""
         fee = Decimal("0.001")  # 0.001 BTC
         buy = make_fill(
-            "buy", Decimal("0.1"), Decimal("50000"),
-            fee_cost=fee, fee_currency="BTC",
+            "buy",
+            Decimal("0.1"),
+            Decimal("50000"),
+            fee_cost=fee,
+            fee_currency="BTC",
         )
         ledger.add_fill(buy)
 

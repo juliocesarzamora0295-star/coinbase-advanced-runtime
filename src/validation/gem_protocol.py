@@ -6,6 +6,7 @@ Adaptado de GuardianBot para Fortress v4:
 - Integración con TradeLedger
 - Métricas de riesgo mejoradas
 """
+
 from __future__ import annotations
 
 import json
@@ -13,13 +14,14 @@ import math
 from dataclasses import dataclass, field
 from datetime import datetime
 from decimal import Decimal
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
 
 try:
     from statsmodels.tsa.stattools import adfuller  # type: ignore
+
     _HAS_ADF = True
 except Exception:
     _HAS_ADF = False
@@ -28,6 +30,7 @@ except Exception:
 @dataclass
 class GemConfig:
     """Configuración para validación GemProtocol."""
+
     commissions: Decimal = Decimal("0.001")
     slippage: Decimal = Decimal("0.0005")
     risk_free_rate: Decimal = Decimal("0.02")
@@ -40,12 +43,14 @@ class GemConfig:
     vr_trend: float = 1.05
     vr_meanrev: float = 0.95
 
-    stress_periods: Dict[str, Tuple[str, str]] = field(default_factory=lambda: {
-        "covid_crisis": ("2020-02-15", "2020-04-15"),
-        "luna_collapse": ("2022-05-01", "2022-06-15"),
-        "ftx_collapse": ("2022-11-01", "2022-12-15"),
-        "bear_2022": ("2022-01-01", "2022-12-31"),
-    })
+    stress_periods: Dict[str, Tuple[str, str]] = field(
+        default_factory=lambda: {
+            "covid_crisis": ("2020-02-15", "2020-04-15"),
+            "luna_collapse": ("2022-05-01", "2022-06-15"),
+            "ftx_collapse": ("2022-11-01", "2022-12-15"),
+            "bear_2022": ("2022-01-01", "2022-12-31"),
+        }
+    )
 
     bootstrap_runs: int = 300
     bootstrap_block: int = 20
@@ -180,13 +185,15 @@ def _backtest_long_only(
                 cash = gross - cost
                 if entry_px is not None:
                     ret = (exec_px - entry_px) / entry_px
-                    trades.append({
-                        "entry_time": entry_t,
-                        "exit_time": t,
-                        "entry_px": float(entry_px),
-                        "exit_px": float(exec_px),
-                        "return": float(ret),
-                    })
+                    trades.append(
+                        {
+                            "entry_time": entry_t,
+                            "exit_time": t,
+                            "entry_px": float(entry_px),
+                            "exit_px": float(exec_px),
+                            "return": float(ret),
+                        }
+                    )
                 qty = 0.0
                 pos = 0
                 entry_px = None
@@ -250,7 +257,7 @@ def _backtest_long_only(
 class GemProtocol:
     """
     Protocolo de validación de estrategias Gem.
-    
+
     Realiza análisis completo de una estrategia:
     1. Análisis de régimen (Hurst, Variance Ratio, ADF)
     2. Backtest base con métricas de riesgo
@@ -270,9 +277,7 @@ class GemProtocol:
         self.price, self.entries, self.exits = _align_inputs(price, entries, exits)
 
         if len(self.price) < self.cfg.min_points:
-            raise ValueError(
-                f"min_points insuficiente: {len(self.price)} < {self.cfg.min_points}"
-            )
+            raise ValueError(f"min_points insuficiente: {len(self.price)} < {self.cfg.min_points}")
 
         if self.cfg.direction != "long":
             raise ValueError("Con entries/exits únicos solo se soporta direction='long'")
@@ -458,9 +463,7 @@ class GemProtocol:
 
         if rf < float(self.cfg.recovery_factor_threshold):
             passed = False
-            issues.append(
-                f"Recovery Factor bajo: {rf:.2f} < {self.cfg.recovery_factor_threshold}"
-            )
+            issues.append(f"Recovery Factor bajo: {rf:.2f} < {self.cfg.recovery_factor_threshold}")
 
         if mdd > float(self.cfg.max_dd_threshold):
             passed = False
@@ -471,9 +474,7 @@ class GemProtocol:
         for name, s in self.stress.items():
             if s["max_drawdown_abs"] > 0.35:
                 passed = False
-                issues.append(
-                    f"Crisis DD catastrófico {name}: {s['max_drawdown_abs']*100:.1f}%"
-                )
+                issues.append(f"Crisis DD catastrófico {name}: {s['max_drawdown_abs']*100:.1f}%")
 
         if self.adv["bootstrap_rf_p05"] < 0.5:
             issues.append(

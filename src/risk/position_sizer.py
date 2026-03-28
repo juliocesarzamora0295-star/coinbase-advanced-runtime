@@ -12,6 +12,7 @@ Invariantes:
 - SizingDecision es inmutable (frozen=True).
 - PositionSizer no tiene acceso a RiskGate ni a OMS.
 """
+
 from dataclasses import dataclass
 from decimal import Decimal
 from typing import Optional
@@ -19,6 +20,7 @@ from typing import Optional
 
 class FailClosedError(Exception):
     """Raised when a required input is missing. Fail-closed invariant."""
+
     pass
 
 
@@ -26,9 +28,9 @@ class FailClosedError(Exception):
 class SymbolConstraints:
     """Constraints del símbolo tal como los reporta el exchange."""
 
-    step_size: Decimal     # mínimo incremento de qty
-    min_qty: Decimal       # qty mínima aceptada
-    max_qty: Decimal       # qty máxima aceptada (usar Decimal("Infinity") si no hay límite)
+    step_size: Decimal  # mínimo incremento de qty
+    min_qty: Decimal  # qty mínima aceptada
+    max_qty: Decimal  # qty máxima aceptada (usar Decimal("Infinity") si no hay límite)
     min_notional: Decimal  # notional mínimo aceptado
 
 
@@ -36,10 +38,10 @@ class SymbolConstraints:
 class SizingDecision:
     """Resultado del cálculo de sizing. Inmutable."""
 
-    target_qty: Decimal        # cantidad propuesta (puede ser 0)
-    target_notional: Decimal   # notional de target_qty al precio de entrada
+    target_qty: Decimal  # cantidad propuesta (puede ser 0)
+    target_notional: Decimal  # notional de target_qty al precio de entrada
     risk_budget_used: Decimal  # fracción del equity comprometida (0.0–1.0)
-    rationale: str             # descripción legible del cálculo
+    rationale: str  # descripción legible del cálculo
 
 
 class PositionSizer:

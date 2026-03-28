@@ -5,6 +5,7 @@ Incluye:
 - MarketDataService: Emite eventos CandleClosed
 - SignalEngine: Genera señales desde velas cerradas
 """
+
 from src.marketdata.service import (
     CandleClosed,
     MarketDataService,

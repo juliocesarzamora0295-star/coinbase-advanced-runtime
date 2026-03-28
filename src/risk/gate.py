@@ -11,11 +11,11 @@ Invariantes:
 - Fail-closed: si falta equity, position, market_price → blocked siempre.
 - Ninguna orden puede bypass-ear este gate.
 """
+
 import logging
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from decimal import Decimal
-from typing import Optional
 
 logger = logging.getLogger("RiskGate")
 
@@ -52,11 +52,11 @@ class RiskDecision:
 class RiskLimits:
     """Límites de riesgo configurables."""
 
-    max_position_pct: Decimal = Decimal("0.20")           # 20% del equity
-    max_notional_per_symbol: Decimal = Decimal("10000")   # $10k por símbolo
+    max_position_pct: Decimal = Decimal("0.20")  # 20% del equity
+    max_notional_per_symbol: Decimal = Decimal("10000")  # $10k por símbolo
     max_orders_per_minute: int = 10
-    max_daily_loss_pct: Decimal = Decimal("0.05")         # 5%
-    max_drawdown_pct: Decimal = Decimal("0.15")           # 15%
+    max_daily_loss_pct: Decimal = Decimal("0.05")  # 5%
+    max_drawdown_pct: Decimal = Decimal("0.15")  # 15%
 
 
 @dataclass
@@ -65,8 +65,8 @@ class RiskSnapshot:
 
     equity: Decimal
     position_qty: Decimal
-    day_pnl_pct: Decimal     # PnL diario como fracción del equity
-    drawdown_pct: Decimal    # Drawdown actual como fracción
+    day_pnl_pct: Decimal  # PnL diario como fracción del equity
+    drawdown_pct: Decimal  # Drawdown actual como fracción
     orders_last_minute: int = 0
 
 
@@ -134,28 +134,18 @@ class RiskGate:
 
         # Check 0: Kill switch — bloqueo total manual
         if kill_switch:
-            logger.warning(
-                "RiskGate blocked: kill_switch=ON symbol=%s side=%s", symbol, side
-            )
+            logger.warning("RiskGate blocked: kill_switch=ON symbol=%s side=%s", symbol, side)
             return _blocked("Kill switch is active", RULE_KILL_SWITCH)
 
         # Check 1: Circuit Breaker (input externo, no puerta paralela)
         if breaker_state == "OPEN":
-            logger.warning(
-                "RiskGate blocked: circuit breaker OPEN symbol=%s side=%s", symbol, side
-            )
-            return _blocked(
-                "Circuit breaker is OPEN", RULE_CIRCUIT_BREAKER_OPEN
-            )
+            logger.warning("RiskGate blocked: circuit breaker OPEN symbol=%s side=%s", symbol, side)
+            return _blocked("Circuit breaker is OPEN", RULE_CIRCUIT_BREAKER_OPEN)
 
         # Check 2: Equity
         if equity is None or equity <= Decimal("0"):
-            logger.warning(
-                "RiskGate blocked: equity=%s symbol=%s", equity, symbol
-            )
-            return _blocked(
-                f"Insufficient equity: {equity}", RULE_EQUITY_ZERO_OR_MISSING
-            )
+            logger.warning("RiskGate blocked: equity=%s symbol=%s", equity, symbol)
+            return _blocked(f"Insufficient equity: {equity}", RULE_EQUITY_ZERO_OR_MISSING)
 
         # Check 3: Daily loss limit
         if snapshot.day_pnl_pct <= -self.limits.max_daily_loss_pct:
@@ -169,9 +159,7 @@ class RiskGate:
 
         # Check 4: Max drawdown
         if snapshot.drawdown_pct >= self.limits.max_drawdown_pct:
-            logger.warning(
-                "RiskGate blocked: drawdown %s symbol=%s", snapshot.drawdown_pct, symbol
-            )
+            logger.warning("RiskGate blocked: drawdown %s symbol=%s", snapshot.drawdown_pct, symbol)
             return _blocked(
                 f"Max drawdown reached: {snapshot.drawdown_pct:.2%}",
                 RULE_MAX_DRAWDOWN,
@@ -184,9 +172,7 @@ class RiskGate:
 
         observed_orders = max(self._orders_this_minute, snapshot.orders_last_minute)
         if observed_orders >= self.limits.max_orders_per_minute:
-            logger.warning(
-                "RiskGate blocked: orders/min=%s symbol=%s", observed_orders, symbol
-            )
+            logger.warning("RiskGate blocked: orders/min=%s symbol=%s", observed_orders, symbol)
             return _blocked(
                 f"Max orders per minute exceeded: {self.limits.max_orders_per_minute}",
                 RULE_MAX_ORDERS_PER_MINUTE,
@@ -194,18 +180,12 @@ class RiskGate:
 
         # Check 6: target_qty > 0
         if target_qty <= Decimal("0"):
-            return _blocked(
-                f"target_qty={target_qty} is zero or negative", RULE_TARGET_QTY_ZERO
-            )
+            return _blocked(f"target_qty={target_qty} is zero or negative", RULE_TARGET_QTY_ZERO)
 
         # Check 7: Spot-only — SELL sin posición bloqueado
         if side_upper == "SELL" and position_qty <= Decimal("0"):
-            logger.warning(
-                "RiskGate blocked: SELL without position symbol=%s", symbol
-            )
-            return _blocked(
-                "SELL without position (spot-only mode)", RULE_SELL_NO_POSITION
-            )
+            logger.warning("RiskGate blocked: SELL without position symbol=%s", symbol)
+            return _blocked("SELL without position (spot-only mode)", RULE_SELL_NO_POSITION)
 
         # Calcular hard_max_qty
         max_qty_by_equity = (equity * self.limits.max_position_pct) / entry_ref
@@ -244,7 +224,10 @@ class RiskGate:
 
         logger.debug(
             "RiskGate allowed: symbol=%s side=%s hard_max_qty=%s notional=%s",
-            symbol, side, hard_max_qty, notional,
+            symbol,
+            side,
+            hard_max_qty,
+            notional,
         )
 
         return RiskDecision(

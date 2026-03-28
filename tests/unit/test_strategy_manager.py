@@ -14,25 +14,34 @@ Invariantes testeadas:
 - StrategyManager por símbolo es independiente (no cross-contamination)
 - bar_count y strategy_count son correctos
 """
+
 from datetime import datetime, timezone
 from decimal import Decimal
-from typing import List, Optional
-from unittest.mock import MagicMock
+from typing import List
 
 import pandas as pd
 import pytest
 
 from src.strategy.base import Strategy
-from src.strategy.signal import Signal, make_signal as _make_new_signal
 from src.strategy.manager import StrategyManager
-
+from src.strategy.signal import Signal
+from src.strategy.signal import make_signal as _make_new_signal
 
 # ──────────────────────────────────────────────
 # Helpers
 # ──────────────────────────────────────────────
 
+
 def make_candle(close: float = 50000.0) -> pd.Series:
-    return pd.Series({"open": close * 0.99, "high": close * 1.01, "low": close * 0.98, "close": close, "volume": 1.0})
+    return pd.Series(
+        {
+            "open": close * 0.99,
+            "high": close * 1.01,
+            "low": close * 0.98,
+            "close": close,
+            "volume": 1.0,
+        }
+    )
 
 
 _BAR_TS = datetime(2024, 1, 15, 10, 0, 0, tzinfo=timezone.utc)
@@ -83,6 +92,7 @@ class EmptyStrategy(Strategy):
 # load_from_config
 # ──────────────────────────────────────────────
 
+
 class TestLoadFromConfig:
 
     def test_load_known_strategy(self):
@@ -126,6 +136,7 @@ class TestLoadFromConfig:
 # Startup bucket (primera barra)
 # ──────────────────────────────────────────────
 
+
 class TestStartupBucket:
 
     def test_first_candle_returns_none(self):
@@ -160,6 +171,7 @@ class TestStartupBucket:
 # Sin warmup suficiente
 # ──────────────────────────────────────────────
 
+
 class TestInsufficientWarmup:
 
     def test_strategy_with_no_data_returns_none(self):
@@ -192,6 +204,7 @@ class TestInsufficientWarmup:
 # Excepciones no propagan
 # ──────────────────────────────────────────────
 
+
 class TestExceptionIsolation:
 
     def test_exploding_strategy_does_not_propagate(self):
@@ -221,6 +234,7 @@ class TestExceptionIsolation:
 # ──────────────────────────────────────────────
 # Composición
 # ──────────────────────────────────────────────
+
 
 class TestCompose:
 
@@ -286,6 +300,7 @@ class TestCompose:
 # ──────────────────────────────────────────────
 # Independencia por símbolo
 # ──────────────────────────────────────────────
+
 
 class TestSymbolIndependence:
 

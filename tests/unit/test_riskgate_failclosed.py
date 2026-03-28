@@ -17,23 +17,20 @@ Invariantes testeadas:
 - allowed=True siempre implica blocking_rule_ids vacío
 - observe_only semantic: gate bloquea según estado — sin rutas de bypass
 """
+
 from decimal import Decimal
 
-import pytest
-
 from src.risk.gate import (
+    RULE_CIRCUIT_BREAKER_OPEN,
+    RULE_DAILY_LOSS_LIMIT,
+    RULE_EQUITY_ZERO_OR_MISSING,
+    RULE_MAX_DRAWDOWN,
+    RULE_SELL_NO_POSITION,
+    RULE_TARGET_QTY_ZERO,
     RiskDecision,
     RiskGate,
     RiskLimits,
     RiskSnapshot,
-    RULE_CIRCUIT_BREAKER_OPEN,
-    RULE_EQUITY_ZERO_OR_MISSING,
-    RULE_DAILY_LOSS_LIMIT,
-    RULE_MAX_DRAWDOWN,
-    RULE_MAX_ORDERS_PER_MINUTE,
-    RULE_SELL_NO_POSITION,
-    RULE_TARGET_QTY_ZERO,
-    RULE_MAX_NOTIONAL_EXCEEDED,
 )
 
 
@@ -108,6 +105,7 @@ def evaluate_sell(
 # Invariante base: allowed=False implica caps=0
 # ──────────────────────────────────────────────
 
+
 class TestBlockedInvariant:
 
     def test_blocked_decision_has_zero_qty(self):
@@ -148,6 +146,7 @@ class TestBlockedInvariant:
 # Circuit Breaker como input
 # ──────────────────────────────────────────────
 
+
 class TestCircuitBreakerInput:
 
     def test_breaker_open_blocks_buy(self):
@@ -187,6 +186,7 @@ class TestCircuitBreakerInput:
 # Equity fail-closed
 # ──────────────────────────────────────────────
 
+
 class TestEquityFailClosed:
 
     def test_equity_zero_blocks(self):
@@ -218,6 +218,7 @@ class TestEquityFailClosed:
 # Daily loss limit
 # ──────────────────────────────────────────────
 
+
 class TestDailyLossLimit:
 
     def test_daily_loss_at_threshold_blocks(self):
@@ -248,6 +249,7 @@ class TestDailyLossLimit:
 # Max drawdown
 # ──────────────────────────────────────────────
 
+
 class TestMaxDrawdown:
 
     def test_drawdown_at_threshold_blocks(self):
@@ -277,6 +279,7 @@ class TestMaxDrawdown:
 # ──────────────────────────────────────────────
 # target_qty = 0
 # ──────────────────────────────────────────────
+
 
 class TestTargetQtyZero:
 
@@ -311,6 +314,7 @@ class TestTargetQtyZero:
 # ──────────────────────────────────────────────
 # SELL sin posición (spot-only)
 # ──────────────────────────────────────────────
+
 
 class TestSellWithoutPosition:
 
@@ -351,6 +355,7 @@ class TestSellWithoutPosition:
 # ──────────────────────────────────────────────
 # Múltiples condiciones simultáneas
 # ──────────────────────────────────────────────
+
 
 class TestMultipleBlockingConditions:
 

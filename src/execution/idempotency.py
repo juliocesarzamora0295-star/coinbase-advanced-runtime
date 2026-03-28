@@ -3,17 +3,19 @@ Sistema de idempotencia con almacén durable (SQLite).
 
 Garantiza 1:1 entre intent_id y client_order_id.
 """
+
 import os
 import sqlite3
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from decimal import Decimal
 from enum import Enum, auto
-from typing import Dict, List, Optional, Any
+from typing import Any, Dict, List, Optional
 
 
 class OrderState(Enum):
     """Estados de una orden."""
+
     NEW = auto()
     OPEN_RESTING = auto()
     OPEN_PENDING = auto()
@@ -27,6 +29,7 @@ class OrderState(Enum):
 @dataclass
 class OrderIntent:
     """Intención de orden antes de enviar a exchange."""
+
     intent_id: str
     client_order_id: str
     product_id: str
@@ -37,7 +40,7 @@ class OrderIntent:
     stop_price: Optional[Decimal]
     post_only: bool
     created_ts_ms: int
-    
+
     def to_dict(self) -> Dict[str, Any]:
         return {
             "intent_id": self.intent_id,
@@ -56,6 +59,7 @@ class OrderIntent:
 @dataclass
 class OrderRecord:
     """Registro completo de orden en el sistema de idempotencia."""
+
     intent_id: str
     client_order_id: str
     exchange_order_id: Optional[str]
@@ -64,12 +68,17 @@ class OrderRecord:
     created_at: datetime
     updated_at: datetime
     error_message: Optional[str] = None
-    
+
     @property
     def is_terminal(self) -> bool:
         """Verificar si el estado es terminal."""
-        return self.state in (OrderState.FILLED, OrderState.CANCELLED, OrderState.EXPIRED, OrderState.FAILED)
-    
+        return self.state in (
+            OrderState.FILLED,
+            OrderState.CANCELLED,
+            OrderState.EXPIRED,
+            OrderState.FAILED,
+        )
+
     @property
     def is_active(self) -> bool:
         """Verificar si la orden está activa."""
@@ -84,19 +93,19 @@ class OrderRecord:
 class IdempotencyStore:
     """
     Almacén durable de intents con SQLite.
-    
+
     Garantiza que un intent_id siempre mapea al mismo client_order_id.
     """
-    
+
     def __init__(self, db_path: str = "state/idempotency.db"):
         self.db_path = db_path
         self._init_db()
-    
+
     def _init_db(self) -> None:
         """Inicializar base de datos SQLite."""
         # Crear directorio si no existe
         os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
-        
+
         with sqlite3.connect(self.db_path) as conn:
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS order_intents (
@@ -116,34 +125,34 @@ class IdempotencyStore:
                     updated_ts_ms INTEGER NOT NULL
                 )
             """)
-            
+
             # Índices para búsquedas eficientes
             conn.execute("""
-                CREATE INDEX IF NOT EXISTS idx_client_order_id 
+                CREATE INDEX IF NOT EXISTS idx_client_order_id
                 ON order_intents(client_order_id)
             """)
-            
+
             conn.execute("""
-                CREATE INDEX IF NOT EXISTS idx_exchange_order_id 
+                CREATE INDEX IF NOT EXISTS idx_exchange_order_id
                 ON order_intents(exchange_order_id)
             """)
-            
+
             conn.execute("""
-                CREATE INDEX IF NOT EXISTS idx_state 
+                CREATE INDEX IF NOT EXISTS idx_state
                 ON order_intents(state)
             """)
-            
+
             conn.commit()
-    
+
     def save_intent(self, intent: OrderIntent, state: OrderState = OrderState.NEW) -> None:
         """Guardar un nuevo intent."""
         now = int(datetime.now().timestamp() * 1000)
-        
+
         with sqlite3.connect(self.db_path) as conn:
             conn.execute(
                 """
-                INSERT OR REPLACE INTO order_intents 
-                (intent_id, client_order_id, exchange_order_id, product_id, side, 
+                INSERT OR REPLACE INTO order_intents
+                (intent_id, client_order_id, exchange_order_id, product_id, side,
                  order_type, qty, price, stop_price, post_only, state, error_message,
                  created_ts_ms, updated_ts_ms)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -163,49 +172,44 @@ class IdempotencyStore:
                     None,
                     intent.created_ts_ms,
                     now,
-                )
+                ),
             )
             conn.commit()
-    
+
     def get_by_intent_id(self, intent_id: str) -> Optional[OrderRecord]:
         """Buscar registro por intent_id."""
         with sqlite3.connect(self.db_path) as conn:
-            cursor = conn.execute(
-                "SELECT * FROM order_intents WHERE intent_id = ?",
-                (intent_id,)
-            )
+            cursor = conn.execute("SELECT * FROM order_intents WHERE intent_id = ?", (intent_id,))
             row = cursor.fetchone()
-            
+
             if row:
                 return self._row_to_record(row)
             return None
-    
+
     def get_by_client_order_id(self, client_order_id: str) -> Optional[OrderRecord]:
         """Buscar registro por client_order_id."""
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.execute(
-                "SELECT * FROM order_intents WHERE client_order_id = ?",
-                (client_order_id,)
+                "SELECT * FROM order_intents WHERE client_order_id = ?", (client_order_id,)
             )
             row = cursor.fetchone()
-            
+
             if row:
                 return self._row_to_record(row)
             return None
-    
+
     def get_by_exchange_order_id(self, exchange_order_id: str) -> Optional[OrderRecord]:
         """Buscar registro por exchange_order_id."""
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.execute(
-                "SELECT * FROM order_intents WHERE exchange_order_id = ?",
-                (exchange_order_id,)
+                "SELECT * FROM order_intents WHERE exchange_order_id = ?", (exchange_order_id,)
             )
             row = cursor.fetchone()
-            
+
             if row:
                 return self._row_to_record(row)
             return None
-    
+
     def update_state(
         self,
         intent_id: str,
@@ -215,37 +219,37 @@ class IdempotencyStore:
     ) -> None:
         """Actualizar estado de un intent."""
         now = int(datetime.now().timestamp() * 1000)
-        
+
         with sqlite3.connect(self.db_path) as conn:
             if exchange_order_id:
                 conn.execute(
                     """
-                    UPDATE order_intents 
+                    UPDATE order_intents
                     SET state = ?, exchange_order_id = ?, updated_ts_ms = ?
                     WHERE intent_id = ?
                     """,
-                    (state.name, exchange_order_id, now, intent_id)
+                    (state.name, exchange_order_id, now, intent_id),
                 )
             elif error_message:
                 conn.execute(
                     """
-                    UPDATE order_intents 
+                    UPDATE order_intents
                     SET state = ?, error_message = ?, updated_ts_ms = ?
                     WHERE intent_id = ?
                     """,
-                    (state.name, error_message, now, intent_id)
+                    (state.name, error_message, now, intent_id),
                 )
             else:
                 conn.execute(
                     """
-                    UPDATE order_intents 
+                    UPDATE order_intents
                     SET state = ?, updated_ts_ms = ?
                     WHERE intent_id = ?
                     """,
-                    (state.name, now, intent_id)
+                    (state.name, now, intent_id),
                 )
             conn.commit()
-    
+
     def get_pending_or_open(self) -> List[OrderRecord]:
         """Obtener órdenes pendientes o abiertas."""
         # CORREGIDO: Incluir CANCEL_QUEUED para consistencia con is_active
@@ -255,28 +259,24 @@ class IdempotencyStore:
             OrderState.OPEN_PENDING.name,
             OrderState.CANCEL_QUEUED.name,
         ]
-        
+
         with sqlite3.connect(self.db_path) as conn:
             placeholders = ",".join(["?"] * len(active_states))
             cursor = conn.execute(
-                f"SELECT * FROM order_intents WHERE state IN ({placeholders})",
-                active_states
+                f"SELECT * FROM order_intents WHERE state IN ({placeholders})", active_states
             )
-            
+
             return [self._row_to_record(row) for row in cursor.fetchall()]
-    
+
     def cleanup_old(self, days: int = 30) -> int:
         """Eliminar registros antiguos (más de N días)."""
         cutoff = int((datetime.now() - timedelta(days=days)).timestamp() * 1000)
-        
+
         with sqlite3.connect(self.db_path) as conn:
-            cursor = conn.execute(
-                "DELETE FROM order_intents WHERE updated_ts_ms < ?",
-                (cutoff,)
-            )
+            cursor = conn.execute("DELETE FROM order_intents WHERE updated_ts_ms < ?", (cutoff,))
             conn.commit()
             return cursor.rowcount
-    
+
     def _row_to_record(self, row: sqlite3.Row) -> OrderRecord:
         """Convertir fila de SQLite a OrderRecord."""
         intent = OrderIntent(
@@ -291,7 +291,7 @@ class IdempotencyStore:
             post_only=bool(row[9]),
             created_ts_ms=row[12],
         )
-        
+
         return OrderRecord(
             intent_id=row[0],
             client_order_id=row[1],

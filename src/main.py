@@ -7,8 +7,9 @@ import logging
 import sys
 import time
 import threading
+import uuid
 from decimal import Decimal
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import pandas as pd
 
@@ -23,7 +24,11 @@ from src.accounting.ledger import TradeLedger
 from src.risk.circuit_breaker import CircuitBreaker, BreakerConfig
 from src.risk.gate import RiskGate, RiskLimits, RiskSnapshot
 from src.oms.reconcile import OMSReconcileService
-from src.marketdata.service import MarketDataService, SignalEngine, create_naive_ma_strategy
+from src.marketdata.service import MarketDataService
+from src.marketdata.orderbook import OrderBook
+from src.strategy.manager import StrategyManager
+from src.risk.position_sizer import PositionSizer, SymbolConstraints, FailClosedError
+from src.execution.order_planner import OrderPlanner, RiskDecisionInput, OrderNotAllowedError
 from src.simulation.paper_engine import PaperEngine
 
 # Configurar logging
@@ -70,15 +75,18 @@ class TradingBot:
         self.quantizers: Dict[str, any] = {}
         self.oms_services: Dict[str, OMSReconcileService] = {}
         
-        # Market data y señales (P0 FIX: SignalEngine por símbolo, no global)
+        # Market data y señales
         self.price_data: Dict[str, List[Dict]] = {}
         self.current_prices: Dict[str, Decimal] = {}
         self.market_data = MarketDataService()
-        self.signal_engines: Dict[str, SignalEngine] = {}  # Uno por símbolo
-        
+        self.strategy_managers: Dict[str, StrategyManager] = {}  # Uno por símbolo
+        self.order_books: Dict[str, OrderBook] = {}  # Uno por símbolo
+
         # Risk Gate (integrado en pipeline)
         self.risk_gate: RiskGate = None
-        
+        self.position_sizer = PositionSizer()
+        self.order_planner = OrderPlanner()
+
         # Paper Engine (simulación)
         self.paper_engine: Optional[PaperEngine] = None
         
@@ -101,7 +109,7 @@ class TradingBot:
         logger.info("- WebSocket: OK")
         logger.info("- Ledger: OK")
         logger.info("- Idempotency: OK")
-        logger.info("- Strategy Layer: NO IMPLEMENTADA")
+        logger.info("- Strategy Layer: StrategyManager v3 pipeline")
         logger.info("- OMS Reconciliation: PARCIAL")
         logger.info("")
         logger.info("El bot opera en modo OBSERVACIÓN (no ejecuta órdenes)")
@@ -246,9 +254,10 @@ class TradingBot:
                 )
                 self.oms_services[symbol] = oms
                 
-                # Inicializar buffer de precios
+                # Inicializar buffer de precios y order book
                 self.price_data[symbol] = []
                 self.current_prices[symbol] = Decimal("0")
+                self.order_books[symbol] = OrderBook(symbol)
                 
             except Exception as e:
                 logger.error(f"Failed to initialize {symbol}: {e}")
@@ -268,104 +277,108 @@ class TradingBot:
     
     def _init_pipeline(self) -> None:
         """
-        Inicializar pipeline de trading:
-        CandleClosed -> SignalEngine -> RiskGate -> OrderExecutor -> OMSReconcile -> Ledger
-        
-        P0 FIX: Un SignalEngine por símbolo, no global.
+        Inicializar pipeline v3:
+        CandleClosed -> StrategyManager -> PositionSizer -> RiskGate -> OrderPlanner -> Executor
         """
-        logger.info("Initializing trading pipeline...")
-        
+        logger.info("Initializing trading pipeline v3...")
+
         for symbol_cfg in self.config.symbols:
             if not symbol_cfg.enabled:
                 continue
-            
+
             symbol = symbol_cfg.symbol
             timeframe = symbol_cfg.timeframe
-            
-            # P0 FIX: Registrar símbolo con timeframe en MarketDataService
+
+            # Registrar símbolo con timeframe en MarketDataService
             self.market_data.register_symbol(symbol, timeframe)
-            
-            # P0 FIX: Crear SignalEngine por símbolo (aislado)
-            engine = SignalEngine(symbol)
-            strategy = create_naive_ma_strategy(symbol=symbol, fast_period=10, slow_period=30)
-            engine.add_strategy(strategy)
-            self.signal_engines[symbol] = engine
-            
+
+            # Crear StrategyManager por símbolo desde config
+            try:
+                sm = StrategyManager.load_from_config(
+                    symbol=symbol,
+                    symbol_config={"strategies": symbol_cfg.strategies},
+                )
+                self.strategy_managers[symbol] = sm
+                logger.info(f"[{symbol}] StrategyManager loaded: {sm.strategy_count} strategy(s)")
+            except ValueError as exc:
+                logger.warning(f"[{symbol}] StrategyManager not loaded: {exc}")
+
             # Suscribir callback a CandleClosed events
-            self.market_data.subscribe(symbol, lambda candle, sym=symbol: self._on_candle_closed(sym, candle))
-        
-        logger.info("Trading pipeline initialized")
+            self.market_data.subscribe(
+                symbol,
+                lambda candle, sym=symbol: self._on_candle_closed(sym, candle),
+            )
+
+        logger.info("Trading pipeline v3 initialized")
     
     def _on_candle_closed(self, symbol: str, candle) -> None:
         """
         Callback para eventos CandleClosed.
-        
-        Pipeline:
-        1. Generar señales con SignalEngine (por símbolo)
-        2. Evaluar riesgo con RiskGate
-        3. Ejecutar órdenes con OrderExecutor (si pasa risk)
+
+        Pipeline v3:
+        1. StrategyManager.on_candle_closed() → Signal | None
+        2. _process_signal_with_risk() → PositionSizer → RiskGate → OrderPlanner → Executor
         """
-        # P0 FIX: Usar SignalEngine del símbolo específico
-        engine = self.signal_engines.get(symbol)
-        if not engine:
-            logger.warning(f"[{symbol}] No SignalEngine found")
+        sm = self.strategy_managers.get(symbol)
+        if not sm:
             return
-        
-        # 1. Generar señales
-        signals = engine.on_candle_closed(candle)
-        
-        if not signals:
+
+        import pandas as pd
+        candle_series = pd.Series({
+            "open": candle.open,
+            "high": candle.high,
+            "low": candle.low,
+            "close": candle.close,
+            "volume": candle.volume,
+        })
+
+        signal = sm.on_candle_closed(candle_series, mid=candle.close)
+        if signal is None:
             return
-        
-        # 2. Evaluar cada señal con RiskGate
-        for signal in signals:
-            self._process_signal_with_risk(symbol, signal, candle)
+
+        self._process_signal_with_risk(symbol, signal, candle)
     
-    def _process_signal_with_risk(self, symbol: str, signal: dict, candle) -> None:
+    def _process_signal_with_risk(self, symbol: str, signal, candle) -> None:
         """
-        Procesar señal a través del RiskGate.
-        
-        Si RiskDecision.allow == True, ejecutar orden.
-        Si RiskDecision.allow == False, loggear rechazo.
+        Procesar señal a través del pipeline v3.
+
+        Signal → PositionSizer → RiskGate → OrderPlanner → Executor.
+        Fail-closed: cualquier input faltante bloquea trading y loggea motivo.
         """
-        side = signal.get("side", "BUY")
-        
-        # Verificar circuit breaker primero
-        allowed, reason = self.circuit_breaker.check_before_trade()
-        if not allowed:
-            logger.warning(f"[{symbol}] Trading blocked by circuit breaker: {reason}")
-            return
-        
-        # Obtener snapshot de riesgo
+        side = signal.side.upper()  # "buy"/"sell" → "BUY"/"SELL"
+
+        # Estado del circuit breaker como input para RiskGate
+        breaker_state = self.circuit_breaker.get_status()["state"].upper()
+
+        # Obtener ledger (fail-closed si no existe)
         ledger = self.ledgers.get(symbol)
         if not ledger:
-            logger.error(f"[{symbol}] No ledger found")
+            logger.error(f"[{symbol}] No ledger found — blocking trading")
             return
-        
+
         current_price = self.current_prices.get(symbol, candle.close)
         equity = ledger.get_equity(current_price)
         position_qty = ledger.position_qty
-        
-        # Calcular métricas de riesgo reales desde ledger (fail-closed: None = bloquear)
+
+        # Métricas de riesgo desde ledger — fail-closed si no disponibles
         day_pnl_pct = ledger.get_day_pnl_pct(current_price)
         drawdown_pct = ledger.get_drawdown_pct(current_price)
-        
-        # Calcular órdenes por minuto desde executor
         executor = self.executors.get(symbol)
         orders_last_minute = executor.get_orders_last_minute() if executor else None
-        
-        # Fail-closed: si CUALQUIER métrica clave no está disponible, bloquear
-        if any(x is None for x in [day_pnl_pct, drawdown_pct, orders_last_minute]):
-            missing = []
-            if day_pnl_pct is None:
-                missing.append("day_pnl_pct")
-            if drawdown_pct is None:
-                missing.append("drawdown_pct")
-            if orders_last_minute is None:
-                missing.append("orders_last_minute")
-            logger.warning(f"[{symbol}] Risk inputs unavailable ({', '.join(missing)}); blocking trading")
+
+        missing = [
+            name for name, val in [
+                ("day_pnl_pct", day_pnl_pct),
+                ("drawdown_pct", drawdown_pct),
+                ("orders_last_minute", orders_last_minute),
+            ] if val is None
+        ]
+        if missing:
+            logger.warning(
+                f"[{symbol}] Risk inputs unavailable ({', '.join(missing)}); blocking trading"
+            )
             return
-        
+
         snapshot = RiskSnapshot(
             equity=equity,
             position_qty=position_qty,
@@ -373,50 +386,89 @@ class TradingBot:
             drawdown_pct=drawdown_pct,
             orders_last_minute=orders_last_minute,
         )
-        
-        # Calcular cost estimate (fees + slippage estimada)
-        cost_estimate = self._estimate_cost(symbol, side, candle.close)
-        
-        # Evaluar con RiskGate
+
         entry_ref = candle.close
-        stop_ref = candle.low * Decimal("0.99") if side == "BUY" else candle.high * Decimal("1.01")
-        
+
+        # PositionSizer — computa target_qty con constraints del símbolo
+        quantizer = self.quantizers.get(symbol)
+        if quantizer is None:
+            logger.error(f"[{symbol}] No quantizer found — blocking trading")
+            return
+
+        constraints = SymbolConstraints(
+            step_size=quantizer.product.base_increment,
+            min_qty=quantizer.product.base_increment,
+            max_qty=Decimal("Infinity"),
+            min_notional=quantizer.product.min_market_funds,
+        )
+        max_notional = Decimal(str(self.config.trading.max_notional_per_symbol))
+
+        try:
+            sizing = self.position_sizer.compute(
+                symbol=symbol,
+                equity=equity,
+                entry_price=entry_ref,
+                risk_per_trade_pct=Decimal("0.01"),
+                constraints=constraints,
+                max_notional=max_notional,
+            )
+        except FailClosedError as exc:
+            logger.error(f"[{symbol}] PositionSizer fail-closed: {exc}")
+            return
+
+        # RiskGate — evalúa con v3 signature
         risk_decision = self.risk_gate.evaluate(
             symbol=symbol,
             side=side,
             snapshot=snapshot,
+            target_qty=sizing.target_qty,
             entry_ref=entry_ref,
-            stop_ref=stop_ref,
-            cost_estimate=cost_estimate,
+            breaker_state=breaker_state,
         )
-        
-        if not risk_decision.allow:
+
+        if not risk_decision.allowed:
             logger.warning(
-                f"[{symbol}] Signal REJECTED by RiskGate: {risk_decision.reason}"
+                f"[{symbol}] Signal REJECTED by RiskGate: {risk_decision.reason} "
+                f"rules={risk_decision.blocking_rule_ids}"
             )
             return
-        
-        # RiskGate aprobó - ejecutar orden según modo configurado
-        self._execute_order(symbol, side, risk_decision.qty, entry_ref, signal.get('reason', 'N/A'))
-    
-    def _estimate_cost(self, symbol: str, side: str, price: Decimal) -> Decimal:
-        """
-        Estimar costo total (fees + slippage) para una orden.
-        
-        Usa fee tier del exchange + estimación de slippage basada en volumen.
-        """
-        # Fee taker por defecto (0.6% para usuarios normales en Coinbase)
-        fee_rate = Decimal("0.006")
-        
-        # Slippage estimado (10 bps para órdenes market pequeñas)
-        slippage_bps = Decimal("0.001")
-        
-        # Costo total como % del notional
-        total_cost_pct = fee_rate + slippage_bps
-        
-        # Retornar costo estimado en términos absolutos (para compatibilidad con RiskGate)
-        # El RiskGate compara contra notional, así que retornamos %
-        return total_cost_pct * Decimal("100")  # Convertir a basis points equivalentes
+
+        # OrderPlanner — final_qty = min(target_qty, hard_max_qty)
+        risk_input = RiskDecisionInput(
+            allowed=risk_decision.allowed,
+            hard_max_qty=risk_decision.hard_max_qty,
+            hard_max_notional=risk_decision.hard_max_notional,
+            reduce_only=risk_decision.reduce_only,
+            reason=risk_decision.reason,
+        )
+        signal_id = str(uuid.uuid4())
+        strategy_id = getattr(signal, "reason", "sma_crossover") or "sma_crossover"
+
+        try:
+            order_intent = self.order_planner.plan(
+                signal_id=signal_id,
+                strategy_id=strategy_id,
+                symbol=symbol,
+                side=side,
+                sizing=sizing,
+                risk=risk_input,
+                constraints=constraints,
+            )
+        except OrderNotAllowedError as exc:
+            logger.warning(f"[{symbol}] OrderPlanner blocked: {exc}")
+            return
+
+        if not order_intent.viable:
+            logger.warning(
+                f"[{symbol}] Order not viable: final_qty={order_intent.final_qty} "
+                f"< min_qty={constraints.min_qty}"
+            )
+            return
+
+        # Ejecutar orden según modo configurado
+        self._execute_order(
+            symbol, order_intent.side, order_intent.final_qty, entry_ref, signal.reason
+        )
     
     def _execute_order(
         self,
@@ -520,10 +572,12 @@ class TradingBot:
         """Inicializar WebSocket."""
         self.ws = CoinbaseWSFeed(self.jwt_auth)
         
-        # Callback para gap detection
+        # Callback para gap detection — invalida order books (L2 stale tras gap)
         def on_gap_detected():
             logger.warning("WebSocket gap detected! Initiating reconciliation...")
             self.circuit_breaker.record_ws_gap()
+            for book in self.order_books.values():
+                book.invalidate_on_gap()
         
         self.ws.on_gap_detected = on_gap_detected
         
@@ -629,8 +683,29 @@ class TradingBot:
                 logger.error(f"Error processing ticker for {sym}: {e}")
         
         def on_level2(msg: WSMessage, sym=symbol):
-            """Procesar order book L2."""
-            pass  # TODO: Implementar order book management
+            """Procesar order book L2 — normaliza eventos Coinbase y actualiza OrderBook."""
+            book = self.order_books.get(sym)
+            if book is None:
+                return
+            try:
+                events_raw = msg.data.get("events", [])
+                normalized: List[dict] = []
+                for ev in events_raw:
+                    event_type = ev.get("type", "update")
+                    for upd in ev.get("updates", []):
+                        raw_side = upd.get("side", "")
+                        # Coinbase usa "offer" para ask
+                        side_norm = "ask" if raw_side == "offer" else raw_side
+                        normalized.append({
+                            "type": event_type,
+                            "side": side_norm,
+                            "price": upd.get("price_level", "0"),
+                            "size": upd.get("new_quantity", "0"),
+                        })
+                if normalized:
+                    book.update(normalized)
+            except Exception as exc:
+                logger.error(f"[{sym}] Error processing L2: {exc}")
         
         # Subscribirse a canales públicos
         self.ws.subscribe_candles(symbol, on_candles)
@@ -837,12 +912,8 @@ class TradingBot:
             logger.debug(f"Insufficient data for {symbol}: {len(df)} candles")
             return
         
-        # MODO OBSERVACIÓN: No se ejecutan estrategias ni órdenes
-        # TODO: Implementar strategy layer con:
-        # - Feature engineering
-        # - Signal generation
-        # - Position sizing
-        # - Risk checks pre-trade
+        # MODO OBSERVACIÓN: Trading triggers vienen de CandleClosed callbacks (_on_candle_closed).
+        # Este método solo loggea estado para smoke test / debug.
         current_price = self.current_prices.get(symbol, Decimal("0"))
         ledger = self.ledgers.get(symbol)
         

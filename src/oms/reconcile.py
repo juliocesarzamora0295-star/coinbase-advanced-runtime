@@ -142,6 +142,8 @@ class OMSReconcileService:
             return
 
         # Mapear status de exchange a OrderState
+        if not isinstance(status, str):
+            return
         new_state = self._map_status_to_state(status)
 
         # Si cambió el estado, actualizar

@@ -40,7 +40,7 @@ class Strategy(ABC):
         self._df = market_data
 
     @abstractmethod
-    def generate_signals(self, *, mid: Decimal, bar_timestamp=None) -> List:
+    def generate_signals(self, *, mid: Decimal, bar_timestamp: Any = None) -> List:
         """Generar señales de trading. Retorna List[src.strategy.signal.Signal]."""
         pass
 

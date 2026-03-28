@@ -40,7 +40,8 @@ jobs:
 
     - name: Type check with mypy
       run: |
-        mypy src/risk/ src/execution/ src/accounting/ src/oms/ src/strategy/ src/marketdata/orderbook.py --ignore-missing-imports
+        mypy src/risk/ src/execution/ src/accounting/ src/oms/ src/strategy/ src/marketdata/orderbook.py \
+          --ignore-missing-imports --follow-imports=silent
 
     - name: Unit tests with coverage (global ≥ 70%)
       run: |

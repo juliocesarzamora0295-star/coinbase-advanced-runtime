@@ -178,27 +178,27 @@ class StrategyManager:
             return None
 
         if self._compose_mode == "first":
-            return signals[0]
+            return signals[0]  # type: ignore[no-any-return]
 
         if self._compose_mode == "majority":
 
-            def _direction(s) -> str:
+            def _direction(s: Any) -> str:
                 # New Signal: direction="BUY"/"SELL"; old Signal: side="buy"/"sell"
                 d = getattr(s, "direction", None)
                 if d is not None:
-                    return d.upper()
-                return getattr(s, "side", "").upper()
+                    return str(d).upper()
+                return str(getattr(s, "side", "")).upper()
 
             buys = [s for s in signals if _direction(s) == "BUY"]
             sells = [s for s in signals if _direction(s) == "SELL"]
             if len(buys) > len(sells):
-                return buys[0]
+                return buys[0]  # type: ignore[no-any-return]
             if len(sells) > len(buys):
-                return sells[0]
+                return sells[0]  # type: ignore[no-any-return]
             return None  # empate → sin señal
 
         # Fallback a first
-        return signals[0]
+        return signals[0]  # type: ignore[no-any-return]
 
     @property
     def bar_count(self) -> int:

@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from decimal import Decimal
 from enum import Enum
-from typing import Callable, Dict, Optional, Tuple
+from typing import Callable, Deque, Dict, Optional, Tuple
 
 from src.accounting.ledger import Fill
 
@@ -29,7 +29,7 @@ class BreakerState(Enum):
 class LatencyMetrics:
     """Métricas de latencia."""
 
-    samples: deque = field(default_factory=lambda: deque(maxlen=100))
+    samples: Deque[float] = field(default_factory=lambda: deque(maxlen=100))
 
     def add(self, latency_ms: float) -> None:
         self.samples.append(latency_ms)
@@ -58,7 +58,7 @@ class ExecutionMetrics:
     total_rejects: int = 0
     rate_limit_hits: int = 0
     ws_gaps: int = 0
-    slippage_observations: deque = field(default_factory=lambda: deque(maxlen=50))
+    slippage_observations: Deque[float] = field(default_factory=lambda: deque(maxlen=50))
     expected_slippage_bps: float = 5.0
 
     def record_request(self, success: bool) -> None:

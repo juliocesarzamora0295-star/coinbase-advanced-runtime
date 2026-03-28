@@ -57,7 +57,7 @@ class SmaCrossoverStrategy(Strategy):
 
         self._df = market_data
 
-    def generate_signals(self, *, mid: Decimal, bar_timestamp=None) -> List:
+    def generate_signals(self, *, mid: Decimal, bar_timestamp: Any = None) -> List:
         """
         Generar señales basadas en cruce de SMAs.
 

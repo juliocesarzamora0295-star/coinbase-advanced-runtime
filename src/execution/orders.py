@@ -172,6 +172,7 @@ class OrderExecutor:
             q_qty = self.quantizer.prepare_market_order_by_base(qty)
             q_quote = None
         else:
+            assert quote_size is not None  # guaranteed by ValueError check above
             q_qty = None
             q_quote = self.quantizer.prepare_market_order_by_quote(quote_size)
 

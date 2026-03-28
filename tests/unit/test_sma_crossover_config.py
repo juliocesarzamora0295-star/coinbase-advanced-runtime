@@ -18,7 +18,7 @@ import pandas as pd
 import pytest
 
 from src.strategy.sma_crossover import SmaCrossoverStrategy
-from src.strategy.base import Signal
+from src.strategy.signal import Signal
 
 
 # ──────────────────────────────────────────────
@@ -76,16 +76,13 @@ class TestConfiguration:
         )
         assert strategy.fast < strategy.slow
 
-    def test_base_order_size_from_config(self):
-        """base_order_size desde config se aplica en señales."""
-        strategy = make_strategy(fast=2, slow=3, base_order_size="0.05")
-        # Construir datos con cruce alcista
-        # slow=3: necesitamos slow+2=5 filas
-        # Para cruce alcista: precios subiendo al final
+    def test_bullish_signal_has_buy_direction(self):
+        """Cruce alcista → señal con direction='BUY'."""
+        strategy = make_strategy(fast=2, slow=3)
         prices = [50000, 49000, 48000, 47000, 48000, 52000, 55000]
         signals = feed_and_generate(strategy, prices)
         if signals:
-            assert signals[0].amount == Decimal("0.05")
+            assert signals[0].direction == "BUY"
 
 
 # ──────────────────────────────────────────────
@@ -156,19 +153,19 @@ class TestSignalGeneration:
         return prices
 
     def test_bullish_crossover_emits_buy(self):
-        """Cruce alcista → señal 'buy'."""
+        """Cruce alcista → señal direction='BUY'."""
         strategy = make_strategy(fast=3, slow=5)
         prices = self._make_bullish_crossover_prices(3, 5)
         signals = feed_and_generate(strategy, prices)
-        buy_signals = [s for s in signals if s.side == "buy"]
+        buy_signals = [s for s in signals if s.direction == "BUY"]
         assert len(buy_signals) >= 1
 
     def test_bearish_crossover_emits_sell(self):
-        """Cruce bajista → señal 'sell'."""
+        """Cruce bajista → señal direction='SELL'."""
         strategy = make_strategy(fast=3, slow=5)
         prices = self._make_bearish_crossover_prices(3, 5)
         signals = feed_and_generate(strategy, prices)
-        sell_signals = [s for s in signals if s.side == "sell"]
+        sell_signals = [s for s in signals if s.direction == "SELL"]
         assert len(sell_signals) >= 1
 
     def test_no_crossover_no_signal(self):
@@ -193,7 +190,7 @@ class TestSignalGeneration:
         # Generar otro cruce alcista — debe ser ignorado
         prices2 = [48000, 47000, 46000, 47000, 56000]
         signals2 = feed_and_generate(strategy, prices2)
-        buy_signals = [s for s in signals2 if s.side == "buy"]
+        buy_signals = [s for s in signals2 if s.direction == "BUY"]
         assert len(buy_signals) == 0  # deduplicado
 
     def test_signal_side_flips_after_opposing_crossover(self):
@@ -203,5 +200,5 @@ class TestSignalGeneration:
 
         prices = self._make_bearish_crossover_prices(2, 3)
         signals = feed_and_generate(strategy, prices)
-        sell_signals = [s for s in signals if s.side == "sell"]
+        sell_signals = [s for s in signals if s.direction == "SELL"]
         assert len(sell_signals) >= 1

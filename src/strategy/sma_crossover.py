@@ -7,12 +7,14 @@ Adaptada de GuardianBot con mejoras:
 - Validación de datos de mercado
 """
 import logging
+from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Dict, List, Optional, Any
 
 import pandas as pd
 
-from src.strategy.base import Strategy, Signal
+from src.strategy.base import Strategy
+from src.strategy.signal import make_signal
 
 logger = logging.getLogger("SmaCrossoverStrategy")
 
@@ -52,15 +54,16 @@ class SmaCrossoverStrategy(Strategy):
         
         self._df = market_data
 
-    def generate_signals(self, *, mid: Decimal) -> List[Signal]:
+    def generate_signals(self, *, mid: Decimal, bar_timestamp=None) -> List:
         """
         Generar señales basadas en cruce de SMAs.
-        
+
         Args:
-            mid: Precio medio actual
-            
+            mid: Precio medio actual.
+            bar_timestamp: Timestamp UTC del bucket cerrado (datetime, opcional).
+
         Returns:
-            Lista de señales (puede estar vacía)
+            Lista de src.strategy.signal.Signal (puede estar vacía).
         """
         if self._df is None or len(self._df) < (self.slow + 2):
             return []
@@ -73,23 +76,20 @@ class SmaCrossoverStrategy(Strategy):
         f_prev, f_now = float(fast_sma.iloc[-2]), float(fast_sma.iloc[-1])
         s_prev, s_now = float(slow_sma.iloc[-2]), float(slow_sma.iloc[-1])
 
-        # Tamaño base de orden
-        base_amount = Decimal(str(self.config.get("base_order_size", "0.001")))
-        
-        signals: List[Signal] = []
+        bt = bar_timestamp if bar_timestamp is not None else datetime.now(tz=timezone.utc)
+        strategy_id = f"sma_crossover_{self.fast}_{self.slow}"
+        signals = []
 
         # Cruce alcista: fast cruza por encima de slow
         if f_prev <= s_prev and f_now > s_now:
             if self._last_signal_side != "buy":
-                signals.append(Signal(
+                signals.append(make_signal(
                     symbol=self.symbol,
-                    side="buy",
-                    position_side="LONG",
-                    order_type="limit",
-                    amount=base_amount,
-                    price=mid,
-                    reduce_only=False,
-                    reason=f"SMA crossover UP ({self.fast}/{self.slow})",
+                    direction="BUY",
+                    strength=Decimal("1.0"),
+                    strategy_id=strategy_id,
+                    bar_timestamp=bt,
+                    metadata={"reason": f"SMA crossover UP ({self.fast}/{self.slow})"},
                 ))
                 self._last_signal_side = "buy"
                 logger.info(f"BUY signal: SMA{self.fast} crossed above SMA{self.slow}")
@@ -97,15 +97,13 @@ class SmaCrossoverStrategy(Strategy):
         # Cruce bajista: fast cruza por debajo de slow
         if f_prev >= s_prev and f_now < s_now:
             if self._last_signal_side != "sell":
-                signals.append(Signal(
+                signals.append(make_signal(
                     symbol=self.symbol,
-                    side="sell",
-                    position_side="SHORT",
-                    order_type="limit",
-                    amount=base_amount,
-                    price=mid,
-                    reduce_only=False,
-                    reason=f"SMA crossover DOWN ({self.fast}/{self.slow})",
+                    direction="SELL",
+                    strength=Decimal("1.0"),
+                    strategy_id=strategy_id,
+                    bar_timestamp=bt,
+                    metadata={"reason": f"SMA crossover DOWN ({self.fast}/{self.slow})"},
                 ))
                 self._last_signal_side = "sell"
                 logger.info(f"SELL signal: SMA{self.fast} crossed below SMA{self.slow}")

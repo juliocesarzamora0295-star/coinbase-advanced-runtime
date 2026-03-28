@@ -16,12 +16,13 @@ Lo que NO hace:
 - No lee estado OMS.
 """
 import logging
+from datetime import datetime
 from decimal import Decimal
 from typing import Dict, Any, List, Optional
 
 import pandas as pd
 
-from src.strategy.base import Strategy, Signal
+from src.strategy.base import Strategy
 from src.strategy.sma_crossover import SmaCrossoverStrategy
 
 logger = logging.getLogger("StrategyManager")
@@ -112,7 +113,8 @@ class StrategyManager:
         self,
         candle: pd.Series,
         mid: Optional[Decimal] = None,
-    ) -> Optional[Signal]:
+        bar_timestamp: Optional[datetime] = None,
+    ) -> Optional[object]:
         """
         Procesar una vela cerrada y obtener señal compuesta.
 
@@ -143,11 +145,11 @@ class StrategyManager:
 
         price = mid if mid is not None else Decimal(str(candle.get("close", 0)))
 
-        all_signals: List[Signal] = []
+        all_signals: List = []
         for strategy in self._strategies:
             try:
                 strategy.update_market_data(self._candles)
-                signals = strategy.generate_signals(mid=price)
+                signals = strategy.generate_signals(mid=price, bar_timestamp=bar_timestamp)
                 all_signals.extend(signals)
             except Exception as exc:
                 logger.error(
@@ -160,12 +162,15 @@ class StrategyManager:
 
         return self._compose(all_signals)
 
-    def _compose(self, signals: List[Signal]) -> Optional[Signal]:
+    def _compose(self, signals: List) -> Optional[object]:
         """
         Componer lista de señales en una sola según compose_mode.
 
         "first": primera señal válida gana.
         "majority": mayoría de señales en la misma dirección.
+
+        Compatible con src.strategy.signal.Signal (direction="BUY"/"SELL")
+        y con src.strategy.base.Signal (side="buy"/"sell").
 
         Returns:
             Signal o None.
@@ -177,8 +182,15 @@ class StrategyManager:
             return signals[0]
 
         if self._compose_mode == "majority":
-            buys = [s for s in signals if s.side == "buy"]
-            sells = [s for s in signals if s.side == "sell"]
+            def _direction(s) -> str:
+                # New Signal: direction="BUY"/"SELL"; old Signal: side="buy"/"sell"
+                d = getattr(s, "direction", None)
+                if d is not None:
+                    return d.upper()
+                return getattr(s, "side", "").upper()
+
+            buys = [s for s in signals if _direction(s) == "BUY"]
+            sells = [s for s in signals if _direction(s) == "SELL"]
             if len(buys) > len(sells):
                 return buys[0]
             if len(sells) > len(buys):

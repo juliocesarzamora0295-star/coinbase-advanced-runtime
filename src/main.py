@@ -7,7 +7,7 @@ import logging
 import sys
 import time
 import threading
-import uuid
+from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Dict, List, Optional
 
@@ -331,8 +331,9 @@ class TradingBot:
             "close": candle.close,
             "volume": candle.volume,
         })
+        bar_ts = datetime.fromtimestamp(candle.timestamp_ms / 1000, tz=timezone.utc)
 
-        signal = sm.on_candle_closed(candle_series, mid=candle.close)
+        signal = sm.on_candle_closed(candle_series, mid=candle.close, bar_timestamp=bar_ts)
         if signal is None:
             return
 
@@ -345,7 +346,7 @@ class TradingBot:
         Signal → PositionSizer → RiskGate → OrderPlanner → Executor.
         Fail-closed: cualquier input faltante bloquea trading y loggea motivo.
         """
-        side = signal.side.upper()  # "buy"/"sell" → "BUY"/"SELL"
+        side = signal.direction  # src.strategy.signal.Signal: "BUY" | "SELL"
 
         # Estado del circuit breaker como input para RiskGate
         breaker_state = self.circuit_breaker.get_status()["state"].upper()
@@ -408,7 +409,7 @@ class TradingBot:
                 symbol=symbol,
                 equity=equity,
                 entry_price=entry_ref,
-                risk_per_trade_pct=Decimal("0.01"),
+                risk_per_trade_pct=Decimal(str(self.config.trading.risk_per_trade_pct)),
                 constraints=constraints,
                 max_notional=max_notional,
             )
@@ -441,8 +442,8 @@ class TradingBot:
             reduce_only=risk_decision.reduce_only,
             reason=risk_decision.reason,
         )
-        signal_id = str(uuid.uuid4())
-        strategy_id = getattr(signal, "reason", "sma_crossover") or "sma_crossover"
+        signal_id = signal.signal_id
+        strategy_id = signal.strategy_id
 
         try:
             order_intent = self.order_planner.plan(
@@ -467,7 +468,8 @@ class TradingBot:
 
         # Ejecutar orden según modo configurado
         self._execute_order(
-            symbol, order_intent.side, order_intent.final_qty, entry_ref, signal.reason
+            symbol, order_intent.side, order_intent.final_qty, entry_ref,
+            signal.metadata.get("reason", signal.strategy_id)
         )
     
     def _execute_order(

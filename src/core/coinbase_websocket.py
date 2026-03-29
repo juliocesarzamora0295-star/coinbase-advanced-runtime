@@ -66,8 +66,8 @@ class CoinbaseWSFeed:
 
         # CORREGIDO P0: Gap detection con ambos mecanismos
         self._last_heartbeat_counter: Optional[int] = None
-        # CORREGIDO: Sequence tracking por product_id (no global)
-        self._last_sequence_num: Dict[str, int] = {}
+        # FIX: Sequence tracking por (channel, product_id) — evita falsos gaps cross-channel
+        self._last_sequence_num: Dict[tuple[str, str], int] = {}
         self._ws_gap_flag = False
 
         self._market_thread: Optional[threading.Thread] = None
@@ -304,9 +304,9 @@ class CoinbaseWSFeed:
         if channel == "heartbeats":
             self._check_heartbeat(data)
 
-        # CORREGIDO P0: Gap detection con sequence_num (por producto)
+        # FIX: Gap detection con sequence_num por (channel, product_id)
         if "sequence_num" in data and product_id:
-            self._check_sequence(product_id, data["sequence_num"])
+            self._check_sequence(channel, product_id, data["sequence_num"])
 
         # CORREGIDO P0: Parsear timestamps ISO-8601 en market_trades
         if channel == "market_trades":
@@ -384,26 +384,29 @@ class CoinbaseWSFeed:
             if counter is not None:
                 self._last_heartbeat_counter = counter
 
-    def _check_sequence(self, product_id: str, sequence_num: int) -> None:
+    def _check_sequence(self, channel: str, product_id: str, sequence_num: int) -> None:
         """
-        Verificar sequence_num para gap detection (por producto).
+        Verificar sequence_num para gap detection por (channel, product_id).
 
-        CORREGIDO: Sequence tracking es por product_id, no global.
+        FIX: cada canal mantiene su propio stream de secuencia por símbolo.
+        Clave anterior era solo product_id → falsos gaps cuando candles/market_trades/level2
+        comparten el mismo símbolo y llegan intercalados con sequence_nums independientes.
         """
-        last_seq = self._last_sequence_num.get(product_id)
+        key = (channel, product_id)
+        last_seq = self._last_sequence_num.get(key)
         if last_seq is not None:
             expected = last_seq + 1
             if sequence_num != expected:
                 gap_size = sequence_num - last_seq - 1
                 logger.warning(
-                    f"Sequence gap detected for {product_id}: expected {expected}, got {sequence_num} "
-                    f"(missed {gap_size} messages)"
+                    f"Sequence gap detected for {channel}/{product_id}: "
+                    f"expected {expected}, got {sequence_num} (missed {gap_size} messages)"
                 )
                 self._ws_gap_flag = True
                 if self.on_gap_detected:
                     self.on_gap_detected()
 
-        self._last_sequence_num[product_id] = sequence_num
+        self._last_sequence_num[key] = sequence_num
 
     def _on_user_message(self, ws, message: str) -> None:
         """Procesar mensaje de user data."""

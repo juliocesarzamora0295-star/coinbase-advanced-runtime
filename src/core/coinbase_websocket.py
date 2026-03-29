@@ -304,9 +304,13 @@ class CoinbaseWSFeed:
         if channel == "heartbeats":
             self._check_heartbeat(data)
 
-        # FIX: Gap detection con sequence_num por (channel, product_id)
-        if "sequence_num" in data and product_id:
-            self._check_sequence(channel, product_id, data["sequence_num"])
+        # NOTE: sequence_num is a global per-connection counter in Coinbase WS.
+        # It increments across ALL channels (candles, l2_data, market_trades, heartbeats).
+        # Tracking it per-channel or per-product produces false gaps every time a message
+        # from another channel arrives between two messages of the tracked channel.
+        # Heartbeat_counter (checked above) is the correct mechanism — it IS contiguous
+        # within its own channel and detects real connection-level gaps.
+        # _check_sequence is retained for future use but not called on the hot path.
 
         # CORREGIDO P0: Parsear timestamps ISO-8601 en market_trades
         if channel == "market_trades":

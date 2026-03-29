@@ -3,14 +3,11 @@ Tests para WebSocket callback routing y sequence tracking.
 
 Verifica corrección de bugs:
 - WS callback routing por (channel, product_id)
-- Sequence tracking por producto (no global)
+- Sequence tracking por (channel, product_id) — evita falsos gaps cross-channel
 """
 
 import json
-import sys
 from unittest.mock import MagicMock
-
-sys.path.insert(0, "/mnt/okcomputer/output/fortress_v4")
 
 from src.core.coinbase_websocket import CoinbaseWSFeed
 
@@ -84,18 +81,16 @@ class TestWSCallbackRouting:
 
 
 class TestSequencePerProduct:
-    """Test que sequence_num se tracke por producto, no globalmente."""
+    """Test que sequence_num se tracke por (channel, product_id)."""
 
     def test_sequence_tracking_per_product(self):
         """
         Verificar que sequence_num se tracke independientemente por producto.
 
-        Bug corregido: sequence_num global generaba false positives de gap
-        en multi-producto y multi-canal.
+        Clave ahora es (channel, product_id).
         """
         ws = CoinbaseWSFeed(jwt_auth=None)
 
-        # Simular mensajes con sequence_num diferentes para cada producto
         btc_msg1 = {
             "channel": "candles",
             "sequence_num": 100,
@@ -106,48 +101,147 @@ class TestSequencePerProduct:
             "sequence_num": 101,
             "events": [{"product_id": "BTC-USD"}],
         }
-
         eth_msg1 = {
             "channel": "candles",
-            "sequence_num": 50,  # Secuencia diferente para ETH
+            "sequence_num": 50,
             "events": [{"product_id": "ETH-USD"}],
         }
 
-        # Procesar mensajes
         ws._on_market_message(None, json.dumps(btc_msg1))
-        assert ws._last_sequence_num.get("BTC-USD") == 100
+        assert ws._last_sequence_num.get(("candles", "BTC-USD")) == 100
 
         ws._on_market_message(None, json.dumps(eth_msg1))
-        assert ws._last_sequence_num.get("ETH-USD") == 50
+        assert ws._last_sequence_num.get(("candles", "ETH-USD")) == 50
         # BTC no debe verse afectado
-        assert ws._last_sequence_num.get("BTC-USD") == 100
+        assert ws._last_sequence_num.get(("candles", "BTC-USD")) == 100
 
         ws._on_market_message(None, json.dumps(btc_msg2))
-        assert ws._last_sequence_num.get("BTC-USD") == 101
+        assert ws._last_sequence_num.get(("candles", "BTC-USD")) == 101
         # ETH no debe verse afectado
-        assert ws._last_sequence_num.get("ETH-USD") == 50
+        assert ws._last_sequence_num.get(("candles", "ETH-USD")) == 50
 
     def test_gap_detection_per_product(self):
         """
-        Verificar que gap detection funcione por producto.
+        Verificar que gap detection funcione por (channel, product_id).
         """
         ws = CoinbaseWSFeed(jwt_auth=None)
         gap_detected = MagicMock()
         ws.on_gap_detected = gap_detected
 
-        # Mensajes consecutivos para BTC
-        ws._check_sequence("BTC-USD", 100)
-        ws._check_sequence("BTC-USD", 101)
-
-        # No debe haber gap
+        # Mensajes consecutivos para BTC — sin gap
+        ws._check_sequence("level2", "BTC-USD", 100)
+        ws._check_sequence("level2", "BTC-USD", 101)
         assert not gap_detected.called
 
         # Gap en ETH no debe afectar BTC
-        ws._check_sequence("ETH-USD", 50)
-        ws._check_sequence("ETH-USD", 52)  # Gap: falta 51
-
-        # Gap debe ser detectado
+        ws._check_sequence("level2", "ETH-USD", 50)
+        ws._check_sequence("level2", "ETH-USD", 52)  # Gap: falta 51
         assert gap_detected.called
+
+
+class TestSequenceCrossChannel:
+    """
+    FIX: Verificar que canales distintos para el mismo símbolo no mezclen secuencias.
+
+    Antes: key = product_id → market_trades seq 10 → level2 seq 1 → falso gap
+    Ahora: key = (channel, product_id) → trackers independientes
+    """
+
+    def test_level2_consecutive_no_gap(self):
+        """level2 BTC-USD seq 1,2,3 → sin gap."""
+        ws = CoinbaseWSFeed(jwt_auth=None)
+        gap = MagicMock()
+        ws.on_gap_detected = gap
+
+        ws._check_sequence("level2", "BTC-USD", 1)
+        ws._check_sequence("level2", "BTC-USD", 2)
+        ws._check_sequence("level2", "BTC-USD", 3)
+
+        assert not gap.called
+
+    def test_market_trades_does_not_contaminate_level2_tracker(self):
+        """
+        market_trades BTC-USD seq 10,11 no debe afectar el tracker de level2.
+
+        Escenario de fallo anterior:
+          level2 seq 3 → market_trades seq 10 → level2 seq 4
+          Con key=product_id: last["BTC-USD"]=10, next level2=4 → falso gap (4 != 11)
+        """
+        ws = CoinbaseWSFeed(jwt_auth=None)
+        gap = MagicMock()
+        ws.on_gap_detected = gap
+
+        # Establecer estado en level2
+        ws._check_sequence("level2", "BTC-USD", 3)
+
+        # Llegan mensajes de market_trades con su propia secuencia
+        ws._check_sequence("market_trades", "BTC-USD", 10)
+        ws._check_sequence("market_trades", "BTC-USD", 11)
+
+        # Continúa level2 de forma consecutiva — no debe ser gap
+        ws._check_sequence("level2", "BTC-USD", 4)
+
+        assert not gap.called
+
+    def test_level2_real_gap_detected(self):
+        """level2 BTC-USD seq 3 → 5 → gap real detectado."""
+        ws = CoinbaseWSFeed(jwt_auth=None)
+        gap = MagicMock()
+        ws.on_gap_detected = gap
+
+        ws._check_sequence("level2", "BTC-USD", 3)
+        ws._check_sequence("level2", "BTC-USD", 5)  # falta 4
+
+        assert gap.called
+
+    def test_level2_btc_and_eth_independent(self):
+        """level2 BTC-USD y level2 ETH-USD tienen trackers separados."""
+        ws = CoinbaseWSFeed(jwt_auth=None)
+        gap = MagicMock()
+        ws.on_gap_detected = gap
+
+        ws._check_sequence("level2", "BTC-USD", 100)
+        ws._check_sequence("level2", "ETH-USD", 200)
+
+        # Continuar BTC de forma consecutiva — sin gap
+        ws._check_sequence("level2", "BTC-USD", 101)
+        # ETH salta (gap real)
+        ws._check_sequence("level2", "ETH-USD", 205)
+
+        # Solo un gap en ETH
+        assert gap.call_count == 1
+
+    def test_candles_market_trades_level2_same_symbol_no_false_gaps(self):
+        """
+        candles + market_trades + level2 para BTC-USD intercalados → 0 falsos gaps.
+
+        Replica la condición exacta que explotó en shadow-live:
+        todos los canales generan sequence_nums desde 1 de forma independiente.
+        """
+        ws = CoinbaseWSFeed(jwt_auth=None)
+        gap = MagicMock()
+        ws.on_gap_detected = gap
+
+        # Simular mensajes intercalados como llegan en producción
+        # Cada canal empieza su propia secuencia desde 1
+        interleaved = [
+            ("candles", "BTC-USD", 1),
+            ("level2", "BTC-USD", 1),
+            ("market_trades", "BTC-USD", 1),
+            ("candles", "BTC-USD", 2),
+            ("level2", "BTC-USD", 2),
+            ("market_trades", "BTC-USD", 2),
+            ("level2", "BTC-USD", 3),
+            ("candles", "BTC-USD", 3),
+            ("market_trades", "BTC-USD", 3),
+        ]
+
+        for channel, product_id, seq in interleaved:
+            ws._check_sequence(channel, product_id, seq)
+
+        assert not gap.called, (
+            f"No gaps expected, but gap_detected was called {gap.call_count} time(s)"
+        )
 
 
 class TestHeartbeatsNoCrossContamination:
@@ -182,18 +276,12 @@ class TestUserChannelRouting:
     def test_user_channel_routing_uses_orders_product_ids(self):
         """
         Verificar P0: user channel usa orders[].product_id, no events[0].product_id.
-
-        Bug P0: _extract_product_id() busca events[0].product_id pero en el schema
-        oficial de user, product_id está dentro de cada orden (orders[].product_id).
-        Resultado: product_id="" y el filtro descarta el callback.
-        Impacto: OMSReconcileService queda muerto aunque el canal user esté conectado.
         """
         ws = CoinbaseWSFeed(jwt_auth=None)
 
         cb = MagicMock()
         ws.subscribe("user", ["BTC-USD", "ETH-USD"], cb)
 
-        # Mensaje user con schema oficial de Coinbase
         user_msg = {
             "channel": "user",
             "events": [
@@ -226,7 +314,6 @@ class TestUserChannelRouting:
         ws.subscribe("user", ["BTC-USD"], btc_cb)
         ws.subscribe("user", ["ETH-USD"], eth_cb)
 
-        # Mensaje con órdenes de ambos productos
         user_msg = {
             "channel": "user",
             "events": [
@@ -242,7 +329,6 @@ class TestUserChannelRouting:
 
         ws._on_user_message(None, json.dumps(user_msg))
 
-        # Ambos callbacks deben ser llamados porque el mensaje contiene ambos productos
         assert btc_cb.called, "BTC callback should be called"
         assert eth_cb.called, "ETH callback should be called"
 

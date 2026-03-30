@@ -47,6 +47,10 @@ class CoinbaseWSFeed:
 
     AUTH_CHANNELS = {"user"}
 
+    # Coinbase WS channel name mapping: subscribe name → message name.
+    # Coinbase accepts "level2" in subscribe but sends "l2_data" in messages.
+    _SUBSCRIBE_TO_MSG_CHANNEL = {"level2": "l2_data"}
+
     def __init__(
         self,
         jwt_auth: Optional[JWTAuth] = None,
@@ -81,16 +85,22 @@ class CoinbaseWSFeed:
         product_ids: List[str],
         callback: Callable[[WSMessage], None],
     ) -> None:
-        """Suscribirse a un canal."""
+        """Suscribirse a un canal.
+
+        _subscriptions stores the subscribe-name (for sending to Coinbase).
+        _callbacks stores under the message-name (for lookup on receive).
+        """
+        # Channel name that Coinbase uses in response messages
+        msg_channel = self._SUBSCRIBE_TO_MSG_CHANNEL.get(channel, channel)
+
         with self._lock:
             key = f"{channel}:{','.join(product_ids)}"
             self._subscriptions.add(key)
 
-            if channel not in self._callbacks:
-                self._callbacks[channel] = []
-            # CORREGIDO: Almacenar product_ids con el callback para filtrar
+            if msg_channel not in self._callbacks:
+                self._callbacks[msg_channel] = []
             product_ids_set = set(product_ids) if product_ids else set()
-            self._callbacks[channel].append((product_ids_set, callback))
+            self._callbacks[msg_channel].append((product_ids_set, callback))
 
         logger.info(f"Subscribed to {channel} for {product_ids}")
 
@@ -445,11 +455,41 @@ class CoinbaseWSFeed:
                     logger.error(f"Callback error: {e}")
 
     def _extract_product_id(self, data: Dict) -> str:
-        """Extraer product_id del mensaje."""
+        """
+        Extraer product_id del mensaje WS.
+
+        Coinbase Advanced Trade WS usa schemas distintos por canal:
+        - level2 (l2_data): events[0].product_id
+        - candles:          events[0].candles[0].product_id
+        - market_trades:    events[0].trades[0].product_id
+        - heartbeats:       sin product_id (retorna "")
+        """
         events = data.get("events", [])
-        if events:
-            return events[0].get("product_id", "")
-        return data.get("product_id", "")
+        if not events:
+            return data.get("product_id", "")
+
+        event = events[0]
+
+        # Caso directo: product_id a nivel de evento (level2 / l2_data)
+        pid = event.get("product_id", "")
+        if pid:
+            return pid
+
+        # candles: product_id dentro de event.candles[]
+        candles = event.get("candles", [])
+        if candles:
+            pid = candles[0].get("product_id", "")
+            if pid:
+                return pid
+
+        # market_trades: product_id dentro de event.trades[]
+        trades = event.get("trades", [])
+        if trades:
+            pid = trades[0].get("product_id", "")
+            if pid:
+                return pid
+
+        return ""
 
     def _extract_user_product_ids(self, data: Dict) -> Set[str]:
         """

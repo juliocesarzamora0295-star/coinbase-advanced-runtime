@@ -6,9 +6,11 @@ Valida que cambiar trading, risk, monitoring en YAML cambie el comportamiento re
 
 import sys
 
+import pytest
+
 sys.path.insert(0, "/mnt/okcomputer/output/fortress_v4")
 
-from src.config import MonitoringConfig, RiskConfig, TradingConfig
+from src.config import MonitoringConfig, RiskConfig, SymbolConfig, TradingConfig, validate_config
 
 
 class TestConfigYAMLEffective:
@@ -114,7 +116,129 @@ class TestConfigYAMLEffective:
         ), f"Expected slippage_drift_threshold_bps=20.0, got {cfg.slippage_drift_threshold_bps}"
 
 
-if __name__ == "__main__":
-    import pytest
+class TestConfigStartupValidation:
+    """validate_config es fail-closed: lanza ValueError ante misconfiguration silenciosa."""
 
+    _VALID_SYMBOLS = [SymbolConfig(symbol="BTC-USD", enabled=True)]
+
+    def _valid_trading(self, **overrides) -> TradingConfig:
+        base = dict(risk_per_trade_pct=0.01, max_notional_per_symbol=1000.0)
+        base.update(overrides)
+        return TradingConfig(**base)
+
+    def _valid_risk(self, **overrides) -> RiskConfig:
+        base = dict(max_daily_loss=0.05, max_drawdown=0.15)
+        base.update(overrides)
+        return RiskConfig(**base)
+
+    # --- risk_per_trade_pct ---
+
+    def test_zero_risk_per_trade_pct_raises(self):
+        with pytest.raises(ValueError, match="risk_per_trade_pct"):
+            validate_config(
+                self._valid_trading(risk_per_trade_pct=0.0),
+                self._valid_risk(),
+                self._VALID_SYMBOLS,
+            )
+
+    def test_negative_risk_per_trade_pct_raises(self):
+        with pytest.raises(ValueError, match="risk_per_trade_pct"):
+            validate_config(
+                self._valid_trading(risk_per_trade_pct=-0.01),
+                self._valid_risk(),
+                self._VALID_SYMBOLS,
+            )
+
+    # --- max_notional_per_symbol ---
+
+    def test_zero_max_notional_raises(self):
+        with pytest.raises(ValueError, match="max_notional_per_symbol"):
+            validate_config(
+                self._valid_trading(max_notional_per_symbol=0.0),
+                self._valid_risk(),
+                self._VALID_SYMBOLS,
+            )
+
+    def test_negative_max_notional_raises(self):
+        with pytest.raises(ValueError, match="max_notional_per_symbol"):
+            validate_config(
+                self._valid_trading(max_notional_per_symbol=-100.0),
+                self._valid_risk(),
+                self._VALID_SYMBOLS,
+            )
+
+    # --- max_daily_loss ---
+
+    def test_zero_max_daily_loss_raises(self):
+        with pytest.raises(ValueError, match="max_daily_loss"):
+            validate_config(
+                self._valid_trading(),
+                self._valid_risk(max_daily_loss=0.0),
+                self._VALID_SYMBOLS,
+            )
+
+    def test_max_daily_loss_over_one_raises(self):
+        with pytest.raises(ValueError, match="max_daily_loss"):
+            validate_config(
+                self._valid_trading(),
+                self._valid_risk(max_daily_loss=1.1),
+                self._VALID_SYMBOLS,
+            )
+
+    # --- max_drawdown ---
+
+    def test_zero_max_drawdown_raises(self):
+        with pytest.raises(ValueError, match="max_drawdown"):
+            validate_config(
+                self._valid_trading(),
+                self._valid_risk(max_drawdown=0.0),
+                self._VALID_SYMBOLS,
+            )
+
+    def test_max_drawdown_over_one_raises(self):
+        with pytest.raises(ValueError, match="max_drawdown"):
+            validate_config(
+                self._valid_trading(),
+                self._valid_risk(max_drawdown=2.0),
+                self._VALID_SYMBOLS,
+            )
+
+    # --- symbols enabled ---
+
+    def test_no_enabled_symbols_raises(self):
+        disabled_only = [SymbolConfig(symbol="BTC-USD", enabled=False)]
+        with pytest.raises(ValueError, match="ningún símbolo"):
+            validate_config(self._valid_trading(), self._valid_risk(), disabled_only)
+
+    def test_empty_symbols_list_passes(self):
+        # Lista vacía no levanta — es estado válido (sin símbolos aún configurados)
+        validate_config(self._valid_trading(), self._valid_risk(), [])
+
+    # --- válido ---
+
+    def test_valid_config_passes(self):
+        validate_config(self._valid_trading(), self._valid_risk(), self._VALID_SYMBOLS)
+
+    def test_boundary_values_pass(self):
+        # max_daily_loss=1.0 y max_drawdown=1.0 son válidos (límite superior inclusivo)
+        validate_config(
+            self._valid_trading(risk_per_trade_pct=0.001, max_notional_per_symbol=0.01),
+            self._valid_risk(max_daily_loss=1.0, max_drawdown=1.0),
+            self._VALID_SYMBOLS,
+        )
+
+    def test_multiple_errors_reported_together(self):
+        """Un ValueError debe listar todos los problemas, no solo el primero."""
+        with pytest.raises(ValueError) as exc_info:
+            validate_config(
+                self._valid_trading(risk_per_trade_pct=0.0, max_notional_per_symbol=0.0),
+                self._valid_risk(),
+                self._VALID_SYMBOLS,
+            )
+        msg = str(exc_info.value)
+        assert "risk_per_trade_pct" in msg
+        assert "max_notional_per_symbol" in msg
+
+
+if __name__ == "__main__":
     pytest.main([__file__, "-v"])

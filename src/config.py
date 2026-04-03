@@ -17,10 +17,21 @@ Ejemplo:
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, List, Optional
 
 import yaml
 from dotenv import load_dotenv
+
+
+class ConfigValidationError(ValueError):
+    """
+    Lanzada en startup cuando la configuración tiene valores que harían
+    que el bot arrancara silenciosamente sin operar o con riesgo mal definido.
+
+    Hereda de ValueError para compatibilidad con manejadores genéricos.
+    """
+
+    pass
 
 
 def get_repo_path() -> Path:
@@ -179,6 +190,19 @@ class PathsConfig:
             path.mkdir(parents=True, exist_ok=True)
 
 
+def _extract_strategy_names(strategies: List[Any]) -> List[str]:
+    """Extraer nombres de strategies desde lista mixta de str o dict."""
+    names: List[str] = []
+    for entry in strategies:
+        if isinstance(entry, str):
+            names.append(entry)
+        elif isinstance(entry, dict):
+            name = entry.get("name", "")
+            if name:
+                names.append(name)
+    return names
+
+
 @dataclass
 class Config:
     """Configuración global."""
@@ -194,6 +218,75 @@ class Config:
         """Inicialización posterior."""
         self.paths.ensure_directories()
         self._load_yaml_config()
+        self.validate_config()
+
+    def validate_config(self) -> None:
+        """
+        Validar coherencia de configuración. Fail-closed en startup.
+
+        Lanza ConfigValidationError listando todos los errores encontrados
+        si algún valor crítico haría que el bot arrancara sin operar o con
+        parámetros de riesgo fuera de rango.
+
+        Invariantes:
+        - risk_per_trade_pct > 0       (0 → PositionSizer retorna qty=0 siempre)
+        - max_notional_per_symbol > 0  (0 → toda orden bloqueada por cap)
+        - max_position_pct en (0, 1]   (fuera de rango → cap de posición inoperable)
+        - max_daily_loss en (0, 1]     (fuera de rango → RiskGate inoperable)
+        - max_drawdown en (0, 1]       (fuera de rango → RiskGate inoperable)
+        - símbolos enabled tienen strategies no vacías
+        - símbolos enabled tienen al menos una strategy implementada en el registry
+        """
+        errors: List[str] = []
+
+        if self.trading.risk_per_trade_pct <= 0:
+            errors.append(
+                f"trading.risk_per_trade_pct={self.trading.risk_per_trade_pct} "
+                "debe ser > 0 (con 0 el PositionSizer retorna qty=0 para toda señal)"
+            )
+
+        if self.trading.max_notional_per_symbol <= 0:
+            errors.append(
+                f"trading.max_notional_per_symbol={self.trading.max_notional_per_symbol} "
+                "debe ser > 0 (con 0 toda orden queda bloqueada por cap de notional)"
+            )
+
+        if not (0 < self.trading.max_position_pct <= 1.0):
+            errors.append(
+                f"trading.max_position_pct={self.trading.max_position_pct} " "debe estar en (0, 1]"
+            )
+
+        if not (0 < self.risk.max_daily_loss <= 1.0):
+            errors.append(f"risk.max_daily_loss={self.risk.max_daily_loss} " "debe estar en (0, 1]")
+
+        if not (0 < self.risk.max_drawdown <= 1.0):
+            errors.append(f"risk.max_drawdown={self.risk.max_drawdown} " "debe estar en (0, 1]")
+
+        for s in self.symbols:
+            if not s.enabled:
+                continue
+            if not s.strategies:
+                errors.append(
+                    f"símbolo '{s.symbol}' está enabled pero no tiene strategies definidas"
+                )
+                continue
+            # Importación lazy para evitar dependencia circular en nivel de módulo
+            from src.strategy.manager import _STRATEGY_REGISTRY  # noqa: PLC0415
+
+            names = _extract_strategy_names(s.strategies)
+            implementable = [n for n in names if _STRATEGY_REGISTRY.get(n) is not None]
+            if names and not implementable:
+                errors.append(
+                    f"símbolo '{s.symbol}': ninguna strategy implementada en registry "
+                    f"(configuradas: {names!r}, implementadas: "
+                    f"{[k for k, v in _STRATEGY_REGISTRY.items() if v is not None]!r})"
+                )
+
+        if errors:
+            raise ConfigValidationError(
+                "Configuración inválida — corrige antes de arrancar:\n"
+                + "\n".join(f"  - {e}" for e in errors)
+            )
 
     def _load_yaml_config(self) -> None:
         """Cargar configuración completa desde YAML."""

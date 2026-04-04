@@ -6,6 +6,7 @@ Garantiza 1:1 entre intent_id y client_order_id.
 
 import os
 import sqlite3
+import time as _time
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from decimal import Decimal
@@ -40,6 +41,45 @@ class OrderIntent:
     stop_price: Optional[Decimal]
     post_only: bool
     created_ts_ms: int
+
+    @classmethod
+    def from_planner_intent(
+        cls,
+        planner_intent: Any,
+        *,
+        qty: Optional[Decimal] = None,
+        price: Optional[Decimal] = None,
+        stop_price: Optional[Decimal] = None,
+        post_only: bool = False,
+        created_ts_ms: Optional[int] = None,
+    ) -> "OrderIntent":
+        """
+        Construir OrderIntent (idempotencia) desde un OrderPlanner.OrderIntent.
+
+        Preserva client_order_id determinista (sha256(signal_id:symbol)[:32]).
+        intent_id == client_order_id — no genera uuid4.
+
+        Args:
+            planner_intent: OrderPlanner.OrderIntent con client_order_id, symbol,
+                            side, order_type, final_qty, price.
+            qty:            Cantidad ya cuantizada. Si None usa planner_intent.final_qty.
+            price:          Precio ya cuantizado. Si None usa planner_intent.price.
+            stop_price:     Precio de stop (opcional).
+            post_only:      Si la orden es post-only (solo LIMIT).
+            created_ts_ms:  Timestamp ms. Si None usa tiempo actual.
+        """
+        return cls(
+            intent_id=planner_intent.client_order_id,
+            client_order_id=planner_intent.client_order_id,
+            product_id=planner_intent.symbol,
+            side=planner_intent.side,
+            order_type=planner_intent.order_type,
+            qty=qty if qty is not None else planner_intent.final_qty,
+            price=price if price is not None else planner_intent.price,
+            stop_price=stop_price,
+            post_only=post_only,
+            created_ts_ms=created_ts_ms if created_ts_ms is not None else int(_time.time() * 1000),
+        )
 
     def to_dict(self) -> Dict[str, Any]:
         return {

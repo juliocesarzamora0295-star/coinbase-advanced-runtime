@@ -10,7 +10,7 @@ import threading
 import time
 from datetime import datetime, timezone
 from decimal import Decimal
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 import pandas as pd
 
@@ -473,10 +473,10 @@ class TradingBot:
             return
 
         # Ejecutar orden según modo configurado
+        # Pasar order_intent completo para preservar client_order_id determinista
         self._execute_order(
             symbol,
-            order_intent.side,
-            order_intent.final_qty,
+            order_intent,
             entry_ref,
             signal.metadata.get("reason", signal.strategy_id),
         )
@@ -484,21 +484,26 @@ class TradingBot:
     def _execute_order(
         self,
         symbol: str,
-        side: str,
-        qty: Decimal,
+        order_intent: Any,
         price: Decimal,
         reason: str,
     ) -> None:
         """
         Ejecutar orden según modo configurado.
 
+        Recibe el OrderPlanner.OrderIntent completo para preservar
+        client_order_id determinista (sha256(signal_id:symbol)[:32])
+        a lo largo de todo el pipeline hasta el exchange.
+
         Modos mutuamente excluyentes:
         - observe_only=True: solo observa, nunca ejecuta
-        - dry_run=True: simula ejecución sin enviar al exchange
-        - ambos=False: trading real (envía orden al exchange)
+        - dry_run=True: simula ejecución con PaperEngine
+        - ambos=False: trading real via executor.submit_intent()
 
         Invariante: observe_only tiene prioridad sobre dry_run.
         """
+        side = order_intent.side
+        qty = order_intent.final_qty
         observe = self.config.trading.observe_only
         dry_run = self.config.trading.dry_run
 
@@ -516,18 +521,18 @@ class TradingBot:
         # Modo dry run: simular con PaperEngine, no enviar al exchange
         if dry_run:
             if self.paper_engine:
-                intent = {
-                    "client_id": f"paper_{symbol}_{side}_{int(time.time() * 1000)}",
+                paper_intent = {
+                    "client_id": order_intent.client_order_id,  # determinista
                     "symbol": symbol,
                     "side": side.lower(),
-                    "type": "market",
+                    "type": order_intent.order_type.lower(),
                     "amount": qty,
                     "position_side": "LONG" if side == "BUY" else "SHORT",
-                    "reduce_only": False,
+                    "reduce_only": order_intent.reduce_only,
                 }
                 bid = self.current_prices.get(symbol, price) * Decimal("0.999")
                 ask = self.current_prices.get(symbol, price) * Decimal("1.001")
-                result = self.paper_engine.submit_order(intent, bid, ask)
+                result = self.paper_engine.submit_order(paper_intent, bid, ask)
                 if result.get("status") == "filled":
                     fill = result.get("fill")
                     ledger = self.ledgers.get(symbol)
@@ -559,16 +564,13 @@ class TradingBot:
                 logger.info(f"[{symbol}] DRY RUN: {side} {qty} @ {price} " f"(reason: {reason})")
             return
 
-        # Trading real: enviar orden al exchange
+        # Trading real: enviar via submit_intent para preservar client_order_id
         # Solo llegamos aquí si observe_only=False y dry_run=False
         try:
-            result = executor.create_market_order(
-                product_id=symbol,
-                side=side,
-                qty=qty,
-            )
+            result = executor.submit_intent(order_intent)
             logger.info(
                 f"[{symbol}] ORDER SUBMITTED: {side} {qty} @ {price} "
+                f"client_order_id={order_intent.client_order_id} "
                 f"(reason: {reason}, result: {result})"
             )
         except Exception as e:

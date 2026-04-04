@@ -195,6 +195,26 @@ class Config:
         self.paths.ensure_directories()
         self._load_yaml_config()
 
+    def validate_config(self) -> None:
+        """Validación cruzada de invariantes entre secciones de config.
+
+        Raises:
+            ValueError: si algún invariante crítico de riesgo o trading es inválido.
+        """
+        if not (0 < self.risk.max_position_pct <= 1.0):
+            raise ValueError(
+                f"risk.max_position_pct={self.risk.max_position_pct} fuera de rango (0, 1]"
+            )
+        if not (0 < self.trading.max_position_pct <= 1.0):
+            raise ValueError(
+                f"trading.max_position_pct={self.trading.max_position_pct} fuera de rango (0, 1]"
+            )
+        if self.risk.max_daily_loss > self.risk.max_drawdown:
+            raise ValueError(
+                f"risk.max_daily_loss={self.risk.max_daily_loss} no puede exceder "
+                f"risk.max_drawdown={self.risk.max_drawdown}"
+            )
+
     def _load_yaml_config(self) -> None:
         """Cargar configuración completa desde YAML."""
         symbols_file = self.paths.repo / "configs" / "symbols.yaml"
@@ -230,7 +250,7 @@ class Config:
                 max_daily_loss=risk_cfg.get("max_daily_loss", 0.05),
                 max_drawdown=risk_cfg.get("max_drawdown", 0.15),
                 max_consecutive_losses=risk_cfg.get("max_consecutive_losses", 3),
-                max_position_pct=trading_cfg.get("max_position_pct", 0.20),
+                max_position_pct=risk_cfg.get("max_position_pct", 0.20),
             )
 
             # P0 FIX: Cargar monitoring config
@@ -278,3 +298,9 @@ def reset_config() -> None:
     """Resetear configuración (útil para tests)."""
     global _config
     _config = None
+
+
+def validate_config(cfg: Optional[Config] = None) -> None:
+    """Ejecutar validación cruzada sobre la config global (o la instancia dada)."""
+    target = cfg if cfg is not None else get_config()
+    target.validate_config()

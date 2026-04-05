@@ -340,6 +340,26 @@ class CircuitBreaker:
             return True, f"WebSocket gaps: {self.execution.ws_gaps}"
         return False, ""
 
+    def trip_orphan_detected(self, order_id: str) -> None:
+        """
+        Disparar el breaker por orden desconocida detectada en el exchange.
+
+        Una orden abierta en el exchange sin registro en el IdempotencyStore
+        indica pérdida de estado interno o actividad externa no controlada.
+        Fail-closed: se considera condición de riesgo inmediata.
+
+        Args:
+            order_id: ID de la orden huérfana (exchange_order_id o client_order_id)
+        """
+        reason = f"ORPHAN_DETECTED: orden desconocida en exchange order_id={order_id!r}"
+        logger.critical(
+            "ORPHAN DETECTED — circuit breaker OPEN: %s. "
+            "Orden encontrada en exchange sin registro en IdempotencyStore. "
+            "Trading detenido hasta revisión manual.",
+            order_id,
+        )
+        self._trip(reason)
+
     def _trip(self, reason: str) -> Tuple[bool, str]:
         """Disparar circuit breaker."""
         if self.state != BreakerState.OPEN:

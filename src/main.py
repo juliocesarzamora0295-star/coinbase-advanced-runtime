@@ -11,7 +11,7 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from decimal import Decimal
-from typing import Dict, List, Optional, Set
+from typing import Callable, Dict, List, Optional, Set
 
 import pandas as pd
 
@@ -314,11 +314,24 @@ class TradingBot:
 
                     return _on_bootstrap
 
+                def _make_orphan_callback(sym: str) -> Callable[[str], None]:
+                    def _on_orphan(order_id: str) -> None:
+                        logger.critical(
+                            "[%s] ORPHAN_DETECTED: order_id=%r — tripping circuit breaker",
+                            sym,
+                            order_id,
+                        )
+                        if self.circuit_breaker:
+                            self.circuit_breaker.trip_orphan_detected(order_id)
+
+                    return _on_orphan
+
                 oms = OMSReconcileService(
                     idempotency=idempotency,
                     ledger=ledger,
                     fill_fetcher=lambda order_id: self.client.list_fills(order_id=order_id),
                     on_bootstrap_complete=_make_bootstrap_callback(symbol),
+                    on_orphan_detected=_make_orphan_callback(symbol),
                 )
                 self.oms_services[symbol] = oms
 

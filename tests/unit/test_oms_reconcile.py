@@ -475,6 +475,126 @@ class TestOMSInitialReconcile:
         assert self.oms.is_initial_reconcile_clean() is True
 
 
+class TestOMSOrphanCallback:
+    """Tests para on_orphan_detected callback."""
+
+    def setup_method(self):
+        self.temp_dir = tempfile.mkdtemp()
+        idem_path = os.path.join(self.temp_dir, "idempotency.db")
+        self.idempotency = IdempotencyStore(db_path=idem_path)
+        ledger_path = os.path.join(self.temp_dir, "ledger.db")
+        self.ledger = TradeLedger("BTC-USD", db_path=ledger_path)
+        self.orphan_calls: list = []
+
+        self.oms = OMSReconcileService(
+            idempotency=self.idempotency,
+            ledger=self.ledger,
+            on_orphan_detected=lambda oid: self.orphan_calls.append(oid),
+        )
+
+    def teardown_method(self):
+        import shutil
+
+        shutil.rmtree(self.temp_dir, ignore_errors=True)
+
+    def test_orphan_callback_fired_on_unknown_order(self):
+        """on_orphan_detected se llama por cada orden desconocida."""
+        open_orders = [
+            {"order_id": "ex-unknown", "client_order_id": "ghost-coid"},
+        ]
+        self.oms.run_initial_reconcile(open_orders)
+
+        assert len(self.orphan_calls) == 1
+        assert "ghost-coid" in self.orphan_calls
+
+    def test_orphan_callback_fired_on_missing_client_order_id(self):
+        """on_orphan_detected se llama si client_order_id está ausente."""
+        open_orders = [{"order_id": "ex-mystery"}]
+        self.oms.run_initial_reconcile(open_orders)
+
+        assert len(self.orphan_calls) == 1
+        assert "ex-mystery" in self.orphan_calls
+
+    def test_no_orphan_callback_on_clean_reconcile(self):
+        """on_orphan_detected NO se llama si reconcile es limpio."""
+        # Lista vacía → limpio
+        self.oms.run_initial_reconcile([])
+        assert self.orphan_calls == []
+
+    def test_orphan_callback_fired_per_unknown_order(self):
+        """Callback se llama una vez por cada orden desconocida."""
+        open_orders = [{"order_id": f"ex-{i}", "client_order_id": f"ghost-{i}"} for i in range(3)]
+        self.oms.run_initial_reconcile(open_orders)
+
+        assert len(self.orphan_calls) == 3
+        for i in range(3):
+            assert f"ghost-{i}" in self.orphan_calls
+
+    def test_orphan_callback_not_fired_on_known_orders(self):
+        """Callback solo se dispara para órdenes desconocidas, no para conocidas."""
+        # Registrar orden conocida
+        intent = StoredIntent(
+            intent_id="known-intent",
+            client_order_id="known-coid",
+            product_id="BTC-USD",
+            side="BUY",
+            order_type="MARKET",
+            qty=Decimal("0.001"),
+            price=None,
+            stop_price=None,
+            post_only=False,
+            created_ts_ms=1234567890,
+        )
+        self.idempotency.save_intent(intent, OrderState.OPEN_RESTING)
+
+        open_orders = [
+            {"order_id": "ex-known", "client_order_id": "known-coid"},
+            {"order_id": "ex-ghost", "client_order_id": "ghost-coid"},
+        ]
+        self.oms.run_initial_reconcile(open_orders)
+
+        # Solo la orden desconocida dispara el callback
+        assert self.orphan_calls == ["ghost-coid"]
+
+    def test_orphan_callback_post_bootstrap_via_live_update(self):
+        """
+        Orphan detectado en update live (post-bootstrap) también dispara callback.
+
+        El canal user puede traer órdenes que no están en nuestro store
+        después del bootstrap — esto indica actividad externa no controlada.
+        """
+        # Simular bootstrap completo
+        self.oms.handle_user_event("snapshot", [])
+        assert self.oms.is_bootstrap_complete()
+
+        # Update con orden desconocida
+        self.oms.handle_user_event(
+            "update",
+            [
+                {
+                    "order_id": "ex-post-bootstrap",
+                    "client_order_id": "ghost-post-bootstrap",
+                    "product_id": "BTC-USD",
+                    "status": "OPEN",
+                    "number_of_fills": "0",
+                }
+            ],
+        )
+
+        assert "ghost-post-bootstrap" in self.orphan_calls
+
+    def test_callback_exception_does_not_propagate(self):
+        """Excepción en el callback no interrumpe el reconcile."""
+        oms_bad = OMSReconcileService(
+            idempotency=self.idempotency,
+            ledger=self.ledger,
+            on_orphan_detected=lambda oid: (_ for _ in ()).throw(RuntimeError("boom")),
+        )
+        # No debe lanzar
+        result = oms_bad.run_initial_reconcile([{"order_id": "ex-x", "client_order_id": "ghost-x"}])
+        assert result is False  # Sigue retornando False (NOT clean)
+
+
 if __name__ == "__main__":
     import pytest
 

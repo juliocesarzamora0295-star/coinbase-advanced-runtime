@@ -61,11 +61,15 @@ class OMSReconcileService:
         ledger: TradeLedger,
         fill_fetcher: Optional[Callable[[str], List[Dict]]] = None,
         on_bootstrap_complete: Optional[Callable[[], None]] = None,
+        on_orphan_detected: Optional[Callable[[str], None]] = None,
     ):
         self.idempotency = idempotency
         self.ledger = ledger
         self.fill_fetcher = fill_fetcher  # REST list_fills(order_id)
         self.on_bootstrap_complete = on_bootstrap_complete
+        # Callback(order_id) invocado cuando se detecta una orden desconocida.
+        # El caller debe disparar el circuit breaker y detener trading.
+        self.on_orphan_detected = on_orphan_detected
 
         # Estado de bootstrap
         self._bootstrap_complete = False
@@ -138,10 +142,22 @@ class OMSReconcileService:
         record = self.idempotency.get_by_client_order_id(client_order_id)
 
         if not record:
-            logger.debug(
-                "OMS: Order not found in idempotency: %s",
-                client_order_id,
-            )
+            # Orden activa en el exchange que no está en nuestro store.
+            # Durante bootstrap esto es manejado por run_initial_reconcile.
+            # En updates live tras bootstrap → orphan inesperado → breaker.
+            if self._bootstrap_complete:
+                logger.error(
+                    "OMS: ORPHAN_DETECTED post-bootstrap — "
+                    "order_id=%r client_order_id=%r not in store",
+                    order_id,
+                    client_order_id,
+                )
+                self._fire_orphan_detected(client_order_id or order_id)
+            else:
+                logger.debug(
+                    "OMS: Order not found in idempotency (pre-bootstrap): %s",
+                    client_order_id,
+                )
             return
 
         # Mapear status de exchange a OrderState
@@ -281,26 +297,28 @@ class OMSReconcileService:
             coid = order.get("client_order_id")
             if not coid:
                 # Orden sin client_order_id — no podemos rastrearla
-                order_id = order.get("order_id", "<unknown>")
+                orphan_id = order.get("order_id", "<unknown>")
                 logger.warning(
-                    "OMS: Initial reconcile: order %s has no client_order_id — NOT clean",
-                    order_id,
+                    "OMS: ORPHAN_DETECTED — order %s has no client_order_id",
+                    orphan_id,
                 )
-                unknown.append(order_id)
+                unknown.append(orphan_id)
+                self._fire_orphan_detected(orphan_id)
                 continue
 
             record = self.idempotency.get_by_client_order_id(coid)
             if record is None:
                 logger.warning(
-                    "OMS: Initial reconcile: unknown client_order_id=%r not in store",
+                    "OMS: ORPHAN_DETECTED — client_order_id=%r not in store",
                     coid,
                 )
                 unknown.append(coid)
+                self._fire_orphan_detected(coid)
 
         if unknown:
             logger.error(
-                "OMS: Initial reconcile FAILED — %d unknown order(s): %s. "
-                "Order pipeline BLOCKED until resolved.",
+                "OMS: Initial reconcile FAILED — %d ORPHAN(s) detected: %s. "
+                "Circuit breaker OPEN. Trading detenido.",
                 len(unknown),
                 unknown,
             )
@@ -313,6 +331,14 @@ class OMSReconcileService:
             self._initial_reconcile_clean = True
 
         return self._initial_reconcile_clean
+
+    def _fire_orphan_detected(self, order_id: str) -> None:
+        """Disparar callback on_orphan_detected de forma segura."""
+        if self.on_orphan_detected:
+            try:
+                self.on_orphan_detected(order_id)
+            except Exception as exc:
+                logger.error("OMS: on_orphan_detected callback raised: %s", exc)
 
     def is_initial_reconcile_clean(self) -> Optional[bool]:
         """

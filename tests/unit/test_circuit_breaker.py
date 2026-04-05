@@ -336,3 +336,49 @@ class TestGetStatus:
         status = breaker.get_status()
         assert status["state"] == BreakerState.OPEN.value
         assert status["trip_reason"] is not None
+
+
+class TestTripOrphanDetected:
+
+    def test_trip_orphan_detected_opens_breaker(self):
+        """trip_orphan_detected() → breaker OPEN."""
+        breaker = make_breaker()
+        breaker.reset_day(Decimal("10000"))
+        assert breaker.state == BreakerState.CLOSED
+
+        breaker.trip_orphan_detected("ghost-coid-001")
+
+        assert breaker.state == BreakerState.OPEN
+
+    def test_trip_orphan_detected_sets_reason(self):
+        """trip_reason incluye ORPHAN_DETECTED y el order_id."""
+        breaker = make_breaker()
+        breaker.reset_day(Decimal("10000"))
+
+        breaker.trip_orphan_detected("ghost-coid-001")
+
+        assert breaker.trip_reason is not None
+        assert "ORPHAN_DETECTED" in breaker.trip_reason
+        assert "ghost-coid-001" in breaker.trip_reason
+
+    def test_trip_orphan_check_before_trade_blocked(self):
+        """Tras orphan trip, check_before_trade() bloquea trading."""
+        breaker = make_breaker(recovery_cooldown_minutes=9999)
+        breaker.reset_day(Decimal("10000"))
+
+        breaker.trip_orphan_detected("ghost-coid-001")
+
+        allowed, reason = breaker.check_before_trade()
+        assert allowed is False
+        assert reason is not None
+
+    def test_trip_orphan_idempotent_when_already_open(self):
+        """Si el breaker ya está OPEN, trip_orphan_detected no sobreescribe reason."""
+        breaker = make_breaker()
+        breaker.reset_day(Decimal("10000"))
+        breaker.trip_orphan_detected("first-orphan")
+        original_reason = breaker.trip_reason
+
+        # Segunda detección: el breaker ya estaba OPEN, reason no cambia
+        breaker.trip_orphan_detected("second-orphan")
+        assert breaker.trip_reason == original_reason

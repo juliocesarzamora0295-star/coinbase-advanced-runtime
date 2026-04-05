@@ -61,16 +61,23 @@ class OMSReconcileService:
         ledger: TradeLedger,
         fill_fetcher: Optional[Callable[[str], List[Dict]]] = None,
         on_bootstrap_complete: Optional[Callable[[], None]] = None,
+        on_orphan_detected: Optional[Callable[[str], None]] = None,
     ):
         self.idempotency = idempotency
         self.ledger = ledger
         self.fill_fetcher = fill_fetcher  # REST list_fills(order_id)
         self.on_bootstrap_complete = on_bootstrap_complete
+        # Callback(order_id) invocado cuando se detecta una orden desconocida.
+        # El caller debe disparar el circuit breaker y detener trading.
+        self.on_orphan_detected = on_orphan_detected
 
         # Estado de bootstrap
         self._bootstrap_complete = False
         self._snapshot_batches = 0
         self._orders_in_snapshot = 0
+
+        # Estado de reconcile inicial (None = no ejecutado aún)
+        self._initial_reconcile_clean: Optional[bool] = None
 
         # Tracking de fills para evitar duplicados
         self._seen_trade_ids: set = set()
@@ -135,10 +142,22 @@ class OMSReconcileService:
         record = self.idempotency.get_by_client_order_id(client_order_id)
 
         if not record:
-            logger.debug(
-                "OMS: Order not found in idempotency: %s",
-                client_order_id,
-            )
+            # Orden activa en el exchange que no está en nuestro store.
+            # Durante bootstrap esto es manejado por run_initial_reconcile.
+            # En updates live tras bootstrap → orphan inesperado → breaker.
+            if self._bootstrap_complete:
+                logger.error(
+                    "OMS: ORPHAN_DETECTED post-bootstrap — "
+                    "order_id=%r client_order_id=%r not in store",
+                    order_id,
+                    client_order_id,
+                )
+                self._fire_orphan_detected(client_order_id or order_id)
+            else:
+                logger.debug(
+                    "OMS: Order not found in idempotency (pre-bootstrap): %s",
+                    client_order_id,
+                )
             return
 
         # Mapear status de exchange a OrderState
@@ -257,6 +276,81 @@ class OMSReconcileService:
         """Verificar si el bootstrap está completo."""
         return self._bootstrap_complete
 
+    def run_initial_reconcile(self, open_orders: List[Dict]) -> bool:
+        """
+        Verificar que todas las órdenes abiertas en el exchange tienen
+        un registro en el IdempotencyStore.
+
+        Debe llamarse una vez, después de completar el bootstrap, con la lista
+        de órdenes abiertas obtenida vía REST. En modos no-live (paper, observe)
+        el caller pasa [] para auto-pasar el check.
+
+        Retorna True si el estado es limpio (sin órdenes desconocidas).
+        Setea _initial_reconcile_clean.
+
+        Fail-closed: si hay órdenes en el exchange que no conocemos,
+        retorna False y bloquea el pipeline de órdenes.
+        """
+        unknown: List[str] = []
+
+        for order in open_orders:
+            coid = order.get("client_order_id")
+            if not coid:
+                # Orden sin client_order_id — no podemos rastrearla
+                orphan_id = order.get("order_id", "<unknown>")
+                logger.warning(
+                    "OMS: ORPHAN_DETECTED — order %s has no client_order_id",
+                    orphan_id,
+                )
+                unknown.append(orphan_id)
+                self._fire_orphan_detected(orphan_id)
+                continue
+
+            record = self.idempotency.get_by_client_order_id(coid)
+            if record is None:
+                logger.warning(
+                    "OMS: ORPHAN_DETECTED — client_order_id=%r not in store",
+                    coid,
+                )
+                unknown.append(coid)
+                self._fire_orphan_detected(coid)
+
+        if unknown:
+            logger.error(
+                "OMS: Initial reconcile FAILED — %d ORPHAN(s) detected: %s. "
+                "Circuit breaker OPEN. Trading detenido.",
+                len(unknown),
+                unknown,
+            )
+            self._initial_reconcile_clean = False
+        else:
+            logger.info(
+                "OMS: Initial reconcile OK — %d open order(s) all accounted for.",
+                len(open_orders),
+            )
+            self._initial_reconcile_clean = True
+
+        return self._initial_reconcile_clean
+
+    def _fire_orphan_detected(self, order_id: str) -> None:
+        """Disparar callback on_orphan_detected de forma segura."""
+        if self.on_orphan_detected:
+            try:
+                self.on_orphan_detected(order_id)
+            except Exception as exc:
+                logger.error("OMS: on_orphan_detected callback raised: %s", exc)
+
+    def is_initial_reconcile_clean(self) -> Optional[bool]:
+        """
+        Estado del reconcile inicial.
+
+        Returns:
+            None  — no ejecutado aún
+            True  — limpio, sin órdenes desconocidas
+            False — hay órdenes desconocidas en el exchange
+        """
+        return self._initial_reconcile_clean
+
     def get_stats(self) -> Dict:
         """Obtener estadísticas del servicio."""
         return {
@@ -264,4 +358,5 @@ class OMSReconcileService:
             "snapshot_batches": self._snapshot_batches,
             "orders_in_snapshot": self._orders_in_snapshot,
             "seen_trade_ids": len(self._seen_trade_ids),
+            "initial_reconcile_clean": self._initial_reconcile_clean,
         }

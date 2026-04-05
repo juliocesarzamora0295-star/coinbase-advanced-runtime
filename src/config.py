@@ -16,11 +16,34 @@ Ejemplo:
 
 import os
 from dataclasses import dataclass, field
+from enum import Enum
 from pathlib import Path
 from typing import List, Optional
 
 import yaml
 from dotenv import load_dotenv
+
+
+class RuntimeMode(str, Enum):
+    """
+    Modo de ejecución del runtime.
+
+    Rutas mutuamente excluyentes — no se puede activar más de una a la vez.
+
+    OBSERVE_ONLY  — pipeline completo, nunca se envía orden ni a paper ni a exchange.
+    PAPER         — pipeline completo + PaperEngine local, sin exchange real.
+    SHADOW        — igual que PAPER pero emparejado con feed real para comparar.
+    LIVE_CERT     — exchange real con límites mínimos de certificación.
+    LIVE_PROD     — exchange real con límites de producción.
+                    REQUIERE variable de entorno FORTRESS_LIVE_PROD_UNLOCK=1.
+                    Sin esa variable, el runtime se niega a arrancar.
+    """
+
+    OBSERVE_ONLY = "observe_only"
+    PAPER = "paper"
+    SHADOW = "shadow"
+    LIVE_CERT = "live_cert"
+    LIVE_PROD = "live_prod"
 
 
 def get_repo_path() -> Path:
@@ -88,6 +111,9 @@ class CoinbaseConfig:
 class TradingConfig:
     """Configuración de trading."""
 
+    runtime_mode: RuntimeMode = RuntimeMode.OBSERVE_ONLY
+    # Legacy booleans mantenidos para compatibilidad backward con tests y loaders.
+    # El dispatch real usa runtime_mode. Estos se derivan del modo al cargar YAML.
     dry_run: bool = True
     observe_only: bool = True
     max_position_pct: float = 0.20
@@ -213,9 +239,30 @@ class Config:
 
             # P0 FIX: Cargar trading config
             trading_cfg = data.get("trading", {})
+            raw_mode = trading_cfg.get("runtime_mode", None)
+            if raw_mode is not None:
+                try:
+                    mode = RuntimeMode(raw_mode)
+                except ValueError:
+                    raise ValueError(
+                        f"runtime_mode inválido en YAML: '{raw_mode}'. "
+                        f"Valores permitidos: {[m.value for m in RuntimeMode]}"
+                    )
+            else:
+                # Derivar modo de los booleans legacy para compatibilidad
+                observe_only = trading_cfg.get("observe_only", True)
+                dry_run = trading_cfg.get("dry_run", True)
+                if observe_only:
+                    mode = RuntimeMode.OBSERVE_ONLY
+                elif dry_run:
+                    mode = RuntimeMode.PAPER
+                else:
+                    mode = RuntimeMode.LIVE_CERT
+
             self.trading = TradingConfig(
-                dry_run=trading_cfg.get("dry_run", True),
-                observe_only=trading_cfg.get("observe_only", True),
+                runtime_mode=mode,
+                dry_run=mode in (RuntimeMode.PAPER, RuntimeMode.SHADOW),
+                observe_only=mode == RuntimeMode.OBSERVE_ONLY,
                 max_position_pct=trading_cfg.get("max_position_pct", 0.20),
                 max_notional_per_symbol=trading_cfg.get("max_notional_per_symbol", 10000.0),
                 max_orders_per_minute=trading_cfg.get("max_orders_per_minute", 10),
@@ -230,7 +277,9 @@ class Config:
                 max_daily_loss=risk_cfg.get("max_daily_loss", 0.05),
                 max_drawdown=risk_cfg.get("max_drawdown", 0.15),
                 max_consecutive_losses=risk_cfg.get("max_consecutive_losses", 3),
-                max_position_pct=trading_cfg.get("max_position_pct", 0.20),
+                max_position_pct=risk_cfg.get(
+                    "max_position_pct", trading_cfg.get("max_position_pct", 0.20)
+                ),
             )
 
             # P0 FIX: Cargar monitoring config
@@ -255,11 +304,66 @@ class Config:
                         strategies=item.get("strategies", ["ma_crossover", "breakout"]),
                     )
                 )
+        except ValueError:
+            # ValueError = configuración inválida explícita (ej: runtime_mode desconocido).
+            # Fail-closed: no silenciar — propagar para que el runtime se niegue a arrancar.
+            raise
         except Exception as e:
             print(f"Warning: Could not load symbols config: {e}")
             self.symbols = [
                 SymbolConfig(symbol="BTC-USD", enabled=True, timeframe="1h"),
             ]
+
+
+def validate_config(cfg: "Config") -> None:
+    """
+    Validar invariantes cross-sección de configuración.
+
+    Lanza ValueError en la primera violación encontrada.
+    El runtime debe llamar esto antes de arrancar.
+    """
+    t = cfg.trading
+    r = cfg.risk
+
+    # --- RuntimeMode: live_prod requiere unlock explícito ---
+    if t.runtime_mode == RuntimeMode.LIVE_PROD:
+        unlock = os.getenv("FORTRESS_LIVE_PROD_UNLOCK", "")
+        if unlock != "1":
+            raise ValueError(
+                "runtime_mode=live_prod requiere FORTRESS_LIVE_PROD_UNLOCK=1. "
+                "Esta variable debe setearse de forma explícita y consciente. "
+                "El runtime no arranca en producción por accidente."
+            )
+
+    # --- Rango de posición ---
+    if not (0 < t.max_position_pct <= 1.0):
+        raise ValueError(f"trading.max_position_pct={t.max_position_pct} fuera de rango (0, 1]")
+    if not (0 < r.max_position_pct <= 1.0):
+        raise ValueError(f"risk.max_position_pct={r.max_position_pct} fuera de rango (0, 1]")
+
+    # --- Riesgo: daily_loss ≤ drawdown ---
+    if r.max_daily_loss > r.max_drawdown:
+        raise ValueError(
+            f"risk.max_daily_loss={r.max_daily_loss} > max_drawdown={r.max_drawdown}: "
+            "una pérdida diaria no puede exceder el drawdown máximo permitido."
+        )
+
+    # --- Notional positivo ---
+    if t.max_notional_per_symbol <= 0:
+        raise ValueError(
+            f"trading.max_notional_per_symbol={t.max_notional_per_symbol} debe ser > 0"
+        )
+
+    # --- Orders per minute positivo ---
+    if t.max_orders_per_minute <= 0:
+        raise ValueError(f"trading.max_orders_per_minute={t.max_orders_per_minute} debe ser > 0")
+
+    # --- risk_per_trade_pct en rango razonable ---
+    if not (0 < t.risk_per_trade_pct <= 0.10):
+        raise ValueError(
+            f"trading.risk_per_trade_pct={t.risk_per_trade_pct} fuera de rango (0, 0.10]. "
+            "Riesgo por trade > 10% es inusualmente alto — confirmar configuración."
+        )
 
 
 # Instancia global

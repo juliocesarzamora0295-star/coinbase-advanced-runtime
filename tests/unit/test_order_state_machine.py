@@ -23,8 +23,8 @@ import pytest
 
 from src.execution.idempotency import (
     IdempotencyStore,
-    OrderIntent,
     OrderState,
+    StoredIntent,
 )
 
 
@@ -32,9 +32,9 @@ def make_intent(
     product_id: str = "BTC-USD",
     side: str = "BUY",
     order_type: str = "MARKET",
-) -> OrderIntent:
-    """Factory para OrderIntent de prueba."""
-    return OrderIntent(
+) -> StoredIntent:
+    """Factory para StoredIntent de prueba."""
+    return StoredIntent(
         intent_id=str(uuid.uuid4()),
         client_order_id=str(uuid.uuid4()),
         product_id=product_id,

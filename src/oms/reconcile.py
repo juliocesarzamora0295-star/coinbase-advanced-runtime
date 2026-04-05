@@ -72,6 +72,9 @@ class OMSReconcileService:
         self._snapshot_batches = 0
         self._orders_in_snapshot = 0
 
+        # Estado de reconcile inicial (None = no ejecutado aún)
+        self._initial_reconcile_clean: Optional[bool] = None
+
         # Tracking de fills para evitar duplicados
         self._seen_trade_ids: set = set()
         self._last_fill_counts: Dict[str, int] = {}
@@ -257,6 +260,71 @@ class OMSReconcileService:
         """Verificar si el bootstrap está completo."""
         return self._bootstrap_complete
 
+    def run_initial_reconcile(self, open_orders: List[Dict]) -> bool:
+        """
+        Verificar que todas las órdenes abiertas en el exchange tienen
+        un registro en el IdempotencyStore.
+
+        Debe llamarse una vez, después de completar el bootstrap, con la lista
+        de órdenes abiertas obtenida vía REST. En modos no-live (paper, observe)
+        el caller pasa [] para auto-pasar el check.
+
+        Retorna True si el estado es limpio (sin órdenes desconocidas).
+        Setea _initial_reconcile_clean.
+
+        Fail-closed: si hay órdenes en el exchange que no conocemos,
+        retorna False y bloquea el pipeline de órdenes.
+        """
+        unknown: List[str] = []
+
+        for order in open_orders:
+            coid = order.get("client_order_id")
+            if not coid:
+                # Orden sin client_order_id — no podemos rastrearla
+                order_id = order.get("order_id", "<unknown>")
+                logger.warning(
+                    "OMS: Initial reconcile: order %s has no client_order_id — NOT clean",
+                    order_id,
+                )
+                unknown.append(order_id)
+                continue
+
+            record = self.idempotency.get_by_client_order_id(coid)
+            if record is None:
+                logger.warning(
+                    "OMS: Initial reconcile: unknown client_order_id=%r not in store",
+                    coid,
+                )
+                unknown.append(coid)
+
+        if unknown:
+            logger.error(
+                "OMS: Initial reconcile FAILED — %d unknown order(s): %s. "
+                "Order pipeline BLOCKED until resolved.",
+                len(unknown),
+                unknown,
+            )
+            self._initial_reconcile_clean = False
+        else:
+            logger.info(
+                "OMS: Initial reconcile OK — %d open order(s) all accounted for.",
+                len(open_orders),
+            )
+            self._initial_reconcile_clean = True
+
+        return self._initial_reconcile_clean
+
+    def is_initial_reconcile_clean(self) -> Optional[bool]:
+        """
+        Estado del reconcile inicial.
+
+        Returns:
+            None  — no ejecutado aún
+            True  — limpio, sin órdenes desconocidas
+            False — hay órdenes desconocidas en el exchange
+        """
+        return self._initial_reconcile_clean
+
     def get_stats(self) -> Dict:
         """Obtener estadísticas del servicio."""
         return {
@@ -264,4 +332,5 @@ class OMSReconcileService:
             "snapshot_batches": self._snapshot_batches,
             "orders_in_snapshot": self._orders_in_snapshot,
             "seen_trade_ids": len(self._seen_trade_ids),
+            "initial_reconcile_clean": self._initial_reconcile_clean,
         }

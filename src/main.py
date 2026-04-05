@@ -8,9 +8,10 @@ import logging
 import sys
 import threading
 import time
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from decimal import Decimal
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Set
 
 import pandas as pd
 
@@ -65,6 +66,41 @@ def setup_file_logging(logs_path: PathsConfig) -> None:
     root_logger.addHandler(file_handler)
 
 
+@dataclass
+class RuntimeReadinessGate:
+    """
+    Compuerta de readiness antes de habilitar el pipeline de órdenes.
+
+    Tres condiciones deben cumplirse:
+    - oms_bootstrap_complete: snapshot user-channel recibido y procesado
+    - ws_connected: primer dato de precio recibido (feed activo)
+    - initial_reconcile_clean: reconcile REST confirmó que no hay
+      órdenes abiertas desconocidas en el exchange
+
+    El pipeline de señales (StrategyManager → Signal) corre siempre.
+    El pipeline de órdenes (_execute_order) está bloqueado hasta ready=True.
+    """
+
+    oms_bootstrap_complete: bool = False
+    ws_connected: bool = False
+    initial_reconcile_clean: bool = False
+
+    # Tracking interno: símbolos pendientes de bootstrap / reconcile
+    _pending_bootstrap: Set[str] = field(default_factory=set)
+    _pending_reconcile: Set[str] = field(default_factory=set)
+
+    @property
+    def ready(self) -> bool:
+        return self.oms_bootstrap_complete and self.ws_connected and self.initial_reconcile_clean
+
+    def status_str(self) -> str:
+        return (
+            f"oms_bootstrap={'OK' if self.oms_bootstrap_complete else 'PENDING'} "
+            f"ws={'OK' if self.ws_connected else 'PENDING'} "
+            f"reconcile={'OK' if self.initial_reconcile_clean else 'PENDING'}"
+        )
+
+
 class TradingBot:
     """Bot de trading principal."""
 
@@ -99,6 +135,9 @@ class TradingBot:
         # Modo smoke test - desde config YAML
         self.smoke_test_mode: bool = self.config.trading.smoke_test_mode
         self.cycle_count: int = 0
+
+        # Readiness gate — bloquea pipeline de órdenes hasta que todo esté listo
+        self._readiness = RuntimeReadinessGate()
 
         # Control
         self._running = False
@@ -265,11 +304,21 @@ class TradingBot:
                 )
                 self.executors[symbol] = executor
 
-                # Crear OMS reconcile service con REST fill fetcher
+                # Crear OMS reconcile service con REST fill fetcher y callback de bootstrap
+                self._readiness._pending_bootstrap.add(symbol)
+                self._readiness._pending_reconcile.add(symbol)
+
+                def _make_bootstrap_callback(sym: str) -> None:
+                    def _on_bootstrap() -> None:
+                        self._on_oms_bootstrap(sym)
+
+                    return _on_bootstrap
+
                 oms = OMSReconcileService(
                     idempotency=idempotency,
                     ledger=ledger,
                     fill_fetcher=lambda order_id: self.client.list_fills(order_id=order_id),
+                    on_bootstrap_complete=_make_bootstrap_callback(symbol),
                 )
                 self.oms_services[symbol] = oms
 
@@ -293,6 +342,60 @@ class TradingBot:
         self._init_pipeline()
 
         return True
+
+    def _on_oms_bootstrap(self, symbol: str) -> None:
+        """
+        Callback invocado cuando OMSReconcileService completa el bootstrap
+        del canal user para un símbolo.
+
+        Ejecuta el reconcile inicial REST para verificar que no hay
+        órdenes abiertas desconocidas. En modos no-live pasa lista vacía
+        (no hay órdenes reales que reconciliar).
+        """
+        self._readiness._pending_bootstrap.discard(symbol)
+
+        mode = self.config.trading.runtime_mode
+        oms = self.oms_services.get(symbol)
+        if oms is None:
+            logger.error(f"[{symbol}] OMS bootstrap callback: no OMS service found")
+            return
+
+        if mode in (RuntimeMode.OBSERVE_ONLY, RuntimeMode.PAPER, RuntimeMode.SHADOW):
+            # Sin exchange real: reconcile auto-pasa con lista vacía
+            oms.run_initial_reconcile([])
+        else:
+            # Modos live: obtener órdenes abiertas vía REST
+            try:
+                open_orders = self.client.list_orders(
+                    product_id=symbol, order_status=["OPEN", "PENDING"]
+                )
+                oms.run_initial_reconcile(open_orders)
+            except Exception as exc:
+                logger.error(
+                    f"[{symbol}] Initial reconcile REST call failed: {exc} — "
+                    f"order pipeline BLOCKED for {symbol}"
+                )
+                # No llamar run_initial_reconcile → _initial_reconcile_clean=None → blocked
+
+        # Actualizar flags globales de readiness
+        reconcile_ok = oms.is_initial_reconcile_clean()
+        if reconcile_ok is False:
+            # Reconcile falló para este símbolo — bloquear pipeline global
+            logger.error(f"[{symbol}] Initial reconcile FAILED — order pipeline BLOCKED globally")
+            # No marcar como listo
+        elif reconcile_ok is True:
+            self._readiness._pending_reconcile.discard(symbol)
+
+        # Actualizar flags globales si todos los símbolos están listos
+        if not self._readiness._pending_bootstrap:
+            self._readiness.oms_bootstrap_complete = True
+            logger.info("OMS bootstrap complete for all symbols")
+
+        if not self._readiness._pending_reconcile:
+            self._readiness.initial_reconcile_clean = True
+            logger.info("Initial reconcile clean for all symbols")
+
+        logger.info(f"Readiness: {self._readiness.status_str()}")
 
     def _init_pipeline(self) -> None:
         """
@@ -519,6 +622,16 @@ class TradingBot:
         side = order_intent.side
         qty = order_intent.final_qty
 
+        # --- READINESS GATE: pipeline de órdenes bloqueado hasta readiness completo ---
+        # El pipeline de señales (StrategyManager → Signal → OrderPlanner) ya corrió.
+        # Este es el único punto de bloqueo antes de cualquier ejecución.
+        if not self._readiness.ready:
+            logger.warning(
+                f"[{symbol}] ORDER BLOCKED — runtime not ready: {self._readiness.status_str()} "
+                f"| intent={order_intent.client_order_id[:8]} side={side} qty={qty}"
+            )
+            return
+
         # --- OBSERVE ONLY: pipeline corre, nunca ejecuta ---
         if mode == RuntimeMode.OBSERVE_ONLY:
             logger.info(
@@ -715,6 +828,13 @@ class TradingBot:
                         if price > 0:
                             with self._lock:
                                 self.current_prices[sym] = price
+                                # Primer precio recibido = WS feed activo
+                                if not self._readiness.ws_connected:
+                                    self._readiness.ws_connected = True
+                                    logger.info(
+                                        f"[{sym}] WS feed active — ws_connected=True. "
+                                        f"Readiness: {self._readiness.status_str()}"
+                                    )
             except Exception as e:
                 logger.error(f"Error processing ticker for {sym}: {e}")
 

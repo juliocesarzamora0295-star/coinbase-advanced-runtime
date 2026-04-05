@@ -373,6 +373,108 @@ class TestOMSFillsDeduplication:
         assert trade_ids == {"t-1", "t-2", "t-3"}
 
 
+class TestOMSInitialReconcile:
+    """Tests para run_initial_reconcile (readiness gate)."""
+
+    def setup_method(self):
+        self.temp_dir = tempfile.mkdtemp()
+
+        idem_path = os.path.join(self.temp_dir, "idempotency.db")
+        self.idempotency = IdempotencyStore(db_path=idem_path)
+
+        ledger_path = os.path.join(self.temp_dir, "ledger.db")
+        self.ledger = TradeLedger("BTC-USD", db_path=ledger_path)
+
+        self.oms = OMSReconcileService(
+            idempotency=self.idempotency,
+            ledger=self.ledger,
+        )
+
+    def teardown_method(self):
+        import shutil
+
+        shutil.rmtree(self.temp_dir, ignore_errors=True)
+
+    def _make_intent(self, idx: int) -> StoredIntent:
+        return StoredIntent(
+            intent_id=f"intent-{idx}",
+            client_order_id=f"coid-{idx}",
+            product_id="BTC-USD",
+            side="BUY",
+            order_type="LIMIT",
+            qty=Decimal("0.01"),
+            price=Decimal("50000"),
+            stop_price=None,
+            post_only=True,
+            created_ts_ms=1234567890 + idx,
+        )
+
+    def test_initial_reconcile_not_run_returns_none(self):
+        """is_initial_reconcile_clean() es None antes de llamar run_initial_reconcile."""
+        assert self.oms.is_initial_reconcile_clean() is None
+
+    def test_empty_open_orders_is_clean(self):
+        """Sin órdenes abiertas en exchange → reconcile limpio."""
+        result = self.oms.run_initial_reconcile([])
+        assert result is True
+        assert self.oms.is_initial_reconcile_clean() is True
+
+    def test_all_known_orders_is_clean(self):
+        """Todas las órdenes abiertas en exchange están en el store → limpio."""
+        # Pre-populate store
+        for i in range(3):
+            self.idempotency.save_intent(self._make_intent(i), OrderState.OPEN_RESTING)
+
+        open_orders = [{"order_id": f"ex-{i}", "client_order_id": f"coid-{i}"} for i in range(3)]
+        result = self.oms.run_initial_reconcile(open_orders)
+        assert result is True
+        assert self.oms.is_initial_reconcile_clean() is True
+
+    def test_unknown_order_is_not_clean(self):
+        """Orden en exchange sin registro en store → NOT clean."""
+        # Solo registrar 2 de 3 órdenes en store
+        for i in range(2):
+            self.idempotency.save_intent(self._make_intent(i), OrderState.OPEN_RESTING)
+
+        # Exchange reporta 3, la tercera es desconocida
+        open_orders = [{"order_id": f"ex-{i}", "client_order_id": f"coid-{i}"} for i in range(3)]
+        result = self.oms.run_initial_reconcile(open_orders)
+        assert result is False
+        assert self.oms.is_initial_reconcile_clean() is False
+
+    def test_order_without_client_order_id_is_not_clean(self):
+        """Orden sin client_order_id → NOT clean (no rastreable)."""
+        open_orders = [{"order_id": "ex-mystery"}]  # sin client_order_id
+        result = self.oms.run_initial_reconcile(open_orders)
+        assert result is False
+        assert self.oms.is_initial_reconcile_clean() is False
+
+    def test_clean_result_appears_in_stats(self):
+        """get_stats() incluye estado de reconcile inicial."""
+        self.oms.run_initial_reconcile([])
+        stats = self.oms.get_stats()
+        assert "initial_reconcile_clean" in stats
+        assert stats["initial_reconcile_clean"] is True
+
+    def test_not_clean_result_appears_in_stats(self):
+        """get_stats() muestra False si reconcile falló."""
+        open_orders = [{"order_id": "ex-unknown", "client_order_id": "unknown-coid"}]
+        self.oms.run_initial_reconcile(open_orders)
+        stats = self.oms.get_stats()
+        assert stats["initial_reconcile_clean"] is False
+
+    def test_reconcile_called_twice_uses_last_result(self):
+        """Segunda llamada a run_initial_reconcile sobreescribe el resultado anterior."""
+        # Primera vez: fallo
+        open_orders = [{"order_id": "ex-unknown", "client_order_id": "ghost-coid"}]
+        self.oms.run_initial_reconcile(open_orders)
+        assert self.oms.is_initial_reconcile_clean() is False
+
+        # Segunda vez: limpio (lista vacía)
+        self.oms.run_initial_reconcile([])
+        assert self.oms.is_initial_reconcile_clean() is True
+
+
 if __name__ == "__main__":
     import pytest
 

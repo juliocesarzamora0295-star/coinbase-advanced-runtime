@@ -4,10 +4,16 @@ OMS Reconcile Service - Reconciliación de órdenes con Coinbase.
 Procesa eventos del canal user y REST fills para mantener estado interno sincronizado.
 
 NOTA: El canal user NO trae fills[] embebidos. Los fills se obtienen vía REST list_fills.
+
+Invariantes:
+- is_ready() = False hasta que bootstrap complete + reconcile limpio + no degradado
+- Orphan order (desconocida en OMS) = incidente crítico → degradado + callback
+- fill_fetcher failure = OMS degradado → trading bloqueado
+- Trading no puede ocurrir con OMS incompleta
 """
 
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from decimal import Decimal
 from typing import Callable, Dict, List, Optional
@@ -43,6 +49,17 @@ class OrderUpdate:
     avg_filled_price: Decimal
 
 
+@dataclass
+class OMSIncident:
+    """Registro de incidente OMS."""
+
+    incident_type: str  # "ORPHAN_ORDER", "FILL_FETCH_FAILED", "DIVERGENCE"
+    detail: str
+    timestamp_ms: int
+    order_id: Optional[str] = None
+    client_order_id: Optional[str] = None
+
+
 class OMSReconcileService:
     """
     Servicio de reconciliación OMS.
@@ -51,8 +68,9 @@ class OMSReconcileService:
     - IdempotencyStore (estado de órdenes)
     - TradeLedger (fills y PnL) - vía REST list_fills
 
-    NOTA: El canal user documentado por Coinbase NO incluye fills[] embebidos.
-    Los fills se obtienen vía REST list_fills(order_id) cuando number_of_fills aumenta.
+    Readiness gate: is_ready() = bootstrap_complete AND NOT degraded
+    Orphan handling: orden desconocida = incidente crítico
+    Fill failure: marca OMS como degradado
     """
 
     def __init__(
@@ -61,23 +79,66 @@ class OMSReconcileService:
         ledger: TradeLedger,
         fill_fetcher: Optional[Callable[[str], List[Dict]]] = None,
         on_bootstrap_complete: Optional[Callable[[], None]] = None,
+        on_degraded: Optional[Callable[[OMSIncident], None]] = None,
     ):
         self.idempotency = idempotency
         self.ledger = ledger
         self.fill_fetcher = fill_fetcher  # REST list_fills(order_id)
         self.on_bootstrap_complete = on_bootstrap_complete
+        self.on_degraded = on_degraded
 
         # Estado de bootstrap
         self._bootstrap_complete = False
         self._snapshot_batches = 0
         self._orders_in_snapshot = 0
 
+        # Degradation state
+        self._degraded = False
+        self._degraded_reason: str = ""
+        self._incidents: List[OMSIncident] = []
+
         # Tracking de fills para evitar duplicados
         self._seen_trade_ids: set = set()
         self._last_fill_counts: Dict[str, int] = {}
 
-        # Tracking de órdenes para rate limiting (orders per minute)
-        self._order_timestamps_ms: List[int] = []
+    # ──────────────────────────────────────────────
+    # Readiness gate
+    # ──────────────────────────────────────────────
+
+    def is_ready(self) -> bool:
+        """
+        OMS está listo para trading.
+
+        True solo cuando:
+        - Bootstrap completo (snapshot procesado)
+        - No degradado (sin orphans, sin fill fetch failures)
+        """
+        return self._bootstrap_complete and not self._degraded
+
+    def is_bootstrap_complete(self) -> bool:
+        """Verificar si el bootstrap está completo."""
+        return self._bootstrap_complete
+
+    def is_degraded(self) -> bool:
+        """Verificar si el OMS está degradado."""
+        return self._degraded
+
+    def clear_degraded(self) -> None:
+        """
+        Limpiar estado degradado explícitamente.
+
+        Solo debe llamarse después de un reconcile full exitoso.
+        """
+        if self._degraded:
+            logger.info(
+                "OMS: Degradation cleared (was: %s)", self._degraded_reason
+            )
+            self._degraded = False
+            self._degraded_reason = ""
+
+    # ──────────────────────────────────────────────
+    # Event handling
+    # ──────────────────────────────────────────────
 
     def handle_user_event(
         self,
@@ -120,8 +181,8 @@ class OMSReconcileService:
         """
         Reconciliar una orden individual.
 
-        Args:
-            order: Datos de la orden desde el exchange (canal user)
+        Orphan detection: si la orden no está en el idempotency store,
+        es un incidente crítico → OMS degradado.
         """
         order_id = order.get("order_id")
         client_order_id = order.get("client_order_id")
@@ -135,10 +196,8 @@ class OMSReconcileService:
         record = self.idempotency.get_by_client_order_id(client_order_id)
 
         if not record:
-            logger.debug(
-                "OMS: Order not found in idempotency: %s",
-                client_order_id,
-            )
+            # ORPHAN: orden en exchange que no está en nuestro OMS
+            self._on_orphan_detected(order_id, client_order_id, status)
             return
 
         # Mapear status de exchange a OrderState
@@ -160,8 +219,7 @@ class OMSReconcileService:
                 exchange_order_id=order_id,
             )
 
-        # Detectar nuevos fills via number_of_fills (campo documentado en user channel)
-        # NOTA: El user channel NO trae fills[] embebidos
+        # Detectar nuevos fills via number_of_fills
         fill_count = int(order.get("number_of_fills", "0") or 0)
         prev_count = self._last_fill_counts.get(order_id, 0)
         self._last_fill_counts[order_id] = fill_count
@@ -178,29 +236,87 @@ class OMSReconcileService:
                 for fill_data in fills:
                     self._apply_fill(fill_data, order)
             except Exception as e:
-                logger.error("OMS: Error fetching fills: %s", e)
+                # fill_fetcher failure → OMS degradado
+                self._on_fill_fetch_failed(order_id, str(e))
+
+    # ──────────────────────────────────────────────
+    # Orphan handling
+    # ──────────────────────────────────────────────
+
+    def _on_orphan_detected(
+        self, order_id: str, client_order_id: str, status: Optional[str]
+    ) -> None:
+        """
+        Orden en exchange no encontrada en OMS → incidente crítico.
+
+        Acción: marcar OMS como degradado. El caller (main.py) debe:
+        - Abrir circuit breaker
+        - Iniciar reconcile full
+        - No emitir nuevas órdenes
+        """
+        incident = OMSIncident(
+            incident_type="ORPHAN_ORDER",
+            detail=f"Order {order_id} (client={client_order_id}, status={status}) "
+            f"not found in OMS idempotency store",
+            timestamp_ms=int(datetime.now().timestamp() * 1000),
+            order_id=order_id,
+            client_order_id=client_order_id,
+        )
+        self._mark_degraded(incident)
+
+    def _on_fill_fetch_failed(self, order_id: str, error: str) -> None:
+        """
+        fill_fetcher falló → OMS degradado.
+
+        No podemos confirmar fills → estado inconsistente posible.
+        """
+        incident = OMSIncident(
+            incident_type="FILL_FETCH_FAILED",
+            detail=f"Failed to fetch fills for order {order_id}: {error}",
+            timestamp_ms=int(datetime.now().timestamp() * 1000),
+            order_id=order_id,
+        )
+        self._mark_degraded(incident)
+
+    def report_divergence(self, detail: str) -> None:
+        """
+        Reportar divergencia detectada externamente (e.g. reconcile periódico).
+
+        Marca OMS como degradado.
+        """
+        incident = OMSIncident(
+            incident_type="DIVERGENCE",
+            detail=detail,
+            timestamp_ms=int(datetime.now().timestamp() * 1000),
+        )
+        self._mark_degraded(incident)
+
+    def _mark_degraded(self, incident: OMSIncident) -> None:
+        """Marcar OMS como degradado y notificar."""
+        self._degraded = True
+        self._degraded_reason = incident.detail
+        self._incidents.append(incident)
+        logger.error(
+            "OMS DEGRADED: [%s] %s",
+            incident.incident_type,
+            incident.detail,
+        )
+        if self.on_degraded:
+            self.on_degraded(incident)
+
+    # ──────────────────────────────────────────────
+    # Fill handling
+    # ──────────────────────────────────────────────
 
     def _apply_fill(self, fill_data: Dict, order: Dict) -> None:
-        """
-        Aplicar un fill al ledger.
-
-        Args:
-            fill_data: Datos del fill desde REST list_fills
-            order: Orden asociada (del canal user)
-        """
+        """Aplicar un fill al ledger."""
         trade_id = fill_data.get("trade_id")
 
-        # Evitar duplicados
         if not trade_id or trade_id in self._seen_trade_ids:
             return
 
         try:
-            # Schema de REST list_fills (no user channel):
-            # - trade_id, product_id, side, size, price, commission, trade_time
-            # El user channel trae: order_side (no side)
             fill_side = fill_data.get("side", order.get("order_side", "")).lower()
-
-            # Inferir fee_currency del product_id
             product_id = order.get("product_id", "")
             fee_currency = product_id.split("-")[1] if "-" in product_id else ""
 
@@ -231,37 +347,39 @@ class OMSReconcileService:
         except Exception as e:
             logger.error("OMS: Error applying fill: %s", e)
 
+    # ──────────────────────────────────────────────
+    # Status mapping
+    # ──────────────────────────────────────────────
+
     def _map_status_to_state(self, status: str) -> OrderState:
-        """
-        Mapear status de Coinbase a OrderState interno.
-
-        Args:
-            status: Status desde Coinbase (OPEN, FILLED, CANCELLED, etc.)
-
-        Returns:
-            OrderState correspondiente
-        """
+        """Mapear status de Coinbase a OrderState interno."""
         status_map = {
             "OPEN": OrderState.OPEN_RESTING,
             "PENDING": OrderState.OPEN_PENDING,
-            "CANCEL_QUEUED": OrderState.CANCEL_QUEUED,  # Estado documentado
+            "CANCEL_QUEUED": OrderState.CANCEL_QUEUED,
             "FILLED": OrderState.FILLED,
             "CANCELLED": OrderState.CANCELLED,
             "EXPIRED": OrderState.EXPIRED,
             "FAILED": OrderState.FAILED,
         }
-
         return status_map.get(status.upper(), OrderState.OPEN_PENDING)
 
-    def is_bootstrap_complete(self) -> bool:
-        """Verificar si el bootstrap está completo."""
-        return self._bootstrap_complete
+    # ──────────────────────────────────────────────
+    # Stats
+    # ──────────────────────────────────────────────
 
     def get_stats(self) -> Dict:
         """Obtener estadísticas del servicio."""
         return {
             "bootstrap_complete": self._bootstrap_complete,
+            "degraded": self._degraded,
+            "degraded_reason": self._degraded_reason,
             "snapshot_batches": self._snapshot_batches,
             "orders_in_snapshot": self._orders_in_snapshot,
             "seen_trade_ids": len(self._seen_trade_ids),
+            "incidents": len(self._incidents),
         }
+
+    def get_incidents(self) -> List[OMSIncident]:
+        """Obtener lista de incidentes."""
+        return list(self._incidents)

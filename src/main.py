@@ -248,10 +248,27 @@ class TradingBot:
                 self.executors[symbol] = executor
 
                 # Crear OMS reconcile service con REST fill fetcher
+                # on_degraded: abrir circuit breaker cuando OMS detecta divergencia
+                def _make_degraded_handler(sym: str):
+                    def handler(incident):
+                        logger.error(
+                            "[%s] OMS DEGRADED: %s — opening circuit breaker",
+                            sym, incident.detail,
+                        )
+                        if self.circuit_breaker:
+                            self.circuit_breaker.force_open(
+                                f"OMS degraded: {incident.incident_type}"
+                            )
+                    return handler
+
                 oms = OMSReconcileService(
                     idempotency=idempotency,
                     ledger=ledger,
                     fill_fetcher=lambda order_id: self.client.list_fills(order_id=order_id),
+                    on_bootstrap_complete=lambda: logger.info(
+                        f"[{symbol}] OMS bootstrap complete — trading enabled"
+                    ),
+                    on_degraded=_make_degraded_handler(symbol),
                 )
                 self.oms_services[symbol] = oms
 
@@ -347,9 +364,20 @@ class TradingBot:
         """
         Procesar señal a través del pipeline v3.
 
-        Signal → PositionSizer → RiskGate → OrderPlanner → Executor.
+        Signal → OMS readiness check → PositionSizer → RiskGate → OrderPlanner → Executor.
         Fail-closed: cualquier input faltante bloquea trading y loggea motivo.
         """
+        # OMS readiness gate — no trading con OMS incompleta o degradada
+        oms = self.oms_services.get(symbol)
+        if oms and not oms.is_ready():
+            stats = oms.get_stats()
+            logger.warning(
+                f"[{symbol}] Signal BLOCKED: OMS not ready "
+                f"(bootstrap={stats['bootstrap_complete']}, "
+                f"degraded={stats['degraded']})"
+            )
+            return
+
         side = signal.direction  # src.strategy.signal.Signal: "BUY" | "SELL"
 
         # Estado del circuit breaker como input para RiskGate

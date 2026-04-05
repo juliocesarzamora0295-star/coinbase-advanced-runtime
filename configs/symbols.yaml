@@ -6,16 +6,14 @@ symbols:
     enabled: true
     timeframe: "1h"
     strategies:
-      - "ma_crossover"
-      - "breakout"
-    
+      - "ma_crossover"   # única estrategia implementada
+
   - symbol: "ETH-USD"
     enabled: true
     timeframe: "1h"
     strategies:
-      - "ma_crossover"
-      - "mean_reversion"
-    
+      - "ma_crossover"   # única estrategia implementada
+
   # Descomentar para activar más símbolos
   # - symbol: "SOL-USD"
   #   enabled: false
@@ -25,19 +23,31 @@ symbols:
 
 # Configuración global de trading
 trading:
-  dry_run: true           # true = no ejecuta órdenes reales
-  observe_only: true      # true = solo observa, no genera señales de trading
-  max_position_pct: 0.20  # Máximo 20% del capital por posición
-  max_notional_per_symbol: 10000  # Máximo notional por símbolo ($)
-  max_orders_per_minute: 10       # Máximo órdenes por minuto
-  smoke_test_mode: false  # true = modo smoke test con validaciones
-  max_cycles: 0           # 0 = sin límite, N = detener después de N ciclos
-  
+  # MODOS MUTUAMENTE EXCLUYENTES (prioridad: observe_only > dry_run > live):
+  #
+  # observe_only=true : pipeline completo (señales + riesgo), SIN ejecución.
+  #                     No llama ni a PaperEngine ni al exchange.
+  #
+  # dry_run=true      : pipeline completo + ejecución simulada (PaperEngine).
+  #                     No llama al exchange real.
+  #
+  # ambos=false       : trading real. BLOQUEADO — ver README "Estado actual".
+  #
+  dry_run: true
+  observe_only: true
+
+  max_position_pct: 0.20        # Máximo 20% del equity por posición
+  max_notional_per_symbol: 10000 # Máximo notional por símbolo ($)
+  max_orders_per_minute: 10      # Máximo órdenes por minuto
+  smoke_test_mode: false
+  max_cycles: 0                  # 0 = sin límite
+
 # Configuración de riesgo
 risk:
+  max_position_pct: 0.20    # Máximo 20% del equity por posición (leído por RiskGate)
   max_daily_loss: 0.05      # 5% pérdida diaria máxima
   max_drawdown: 0.15        # 15% drawdown máximo
-  max_consecutive_losses: 3 # Máximo 3 pérdidas consecutivas
+  max_consecutive_losses: 3
 
 # Configuración de monitoreo
 monitoring:

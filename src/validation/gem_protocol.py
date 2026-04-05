@@ -381,11 +381,11 @@ class GemProtocol:
         n = len(r)
 
         def sample_path() -> pd.Series:
-            out = []
-            while len(out) < n:
+            buf: list[float] = []
+            while len(buf) < n:
                 start = np.random.randint(0, max(1, n - block))
-                out.extend(r[start : start + block].tolist())
-            out = np.array(out[:n], dtype=float)
+                buf.extend(r[start : start + block].tolist())
+            out = np.array(buf[:n], dtype=float)
             e = np.empty(n + 1, dtype=float)
             e[0] = float(self.cfg.init_cash)
             e[1:] = e[0] * np.cumprod(1.0 + out)

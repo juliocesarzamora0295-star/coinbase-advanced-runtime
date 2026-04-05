@@ -95,6 +95,7 @@ class TradeLedger:
         self.avg_entry: Decimal = Decimal("0")
         self.cost_basis_quote: Decimal = Decimal("0")
         self.realized_pnl_quote: Decimal = Decimal("0")
+        self.fees_accrued_quote: Decimal = Decimal("0")  # Total fees en QUOTE equivalente
         self.last_trade_ts_ms: int = 0
         self.last_trade_id: str = ""
 
@@ -258,10 +259,12 @@ class TradeLedger:
         Recomputar estado desde fills.
 
         CORREGIDO P1: Fees en base currency ajustan qty neta.
+        Acumula fees_accrued_quote para portfolio accounting institucional.
         """
         qty = Decimal("0")
         cost_basis = Decimal("0")
         realized = Decimal("0")
+        fees_accrued = Decimal("0")
 
         last_ts = 0
         last_id = ""
@@ -281,6 +284,12 @@ class TradeLedger:
             fee_base = (
                 f.fee_cost if f.fee_currency.upper() == self.base_currency.upper() else Decimal("0")
             )
+
+            # Acumular fees en quote equivalente (fee base convertida al precio del fill)
+            if fee_quote > 0:
+                fees_accrued += fee_quote
+            elif fee_base > 0:
+                fees_accrued += fee_base * f.price
 
             if f.side == "buy":
                 # Cantidad neta = amount - fee_base (si fee en base)
@@ -319,6 +328,7 @@ class TradeLedger:
         self.cost_basis_quote = cost_basis
         self.avg_entry = cost_basis / qty if qty > 0 else Decimal("0")
         self.realized_pnl_quote = realized
+        self.fees_accrued_quote = fees_accrued
         self.last_trade_ts_ms = last_ts
         self.last_trade_id = last_id
 

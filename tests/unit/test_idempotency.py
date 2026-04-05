@@ -105,6 +105,101 @@ class TestIdempotencyStore:
         pending = store.get_pending_or_open()
         assert len(pending) == 2  # NEW y OPEN_RESTING
 
+    def test_reconcile_states_in_enum(self, temp_db):
+        """Los tres estados de reconciliación existen en el enum."""
+        assert hasattr(OrderState, "RECONCILE_PENDING")
+        assert hasattr(OrderState, "RECONCILE_CONFLICT")
+        assert hasattr(OrderState, "RECONCILE_RESOLVED")
+
+    def test_reconcile_conflict_not_terminal(self, temp_db):
+        """RECONCILE_CONFLICT no es terminal: ledger no convergió."""
+        store = IdempotencyStore(db_path=temp_db)
+        intent = OrderIntent(
+            intent_id="i1",
+            client_order_id="i1",
+            product_id="BTC-USD",
+            side="BUY",
+            order_type="LIMIT",
+            qty=Decimal("0.01"),
+            price=Decimal("50000"),
+            stop_price=None,
+            post_only=True,
+            created_ts_ms=1000,
+        )
+        store.save_intent(intent, OrderState.RECONCILE_CONFLICT)
+        record = store.get_by_intent_id("i1")
+        assert record.is_terminal is False
+        assert record.is_ledger_conflict is True
+
+    def test_reconcile_pending_not_terminal_but_active(self, temp_db):
+        """RECONCILE_PENDING no es terminal y está activo (esperando fills)."""
+        store = IdempotencyStore(db_path=temp_db)
+        intent = OrderIntent(
+            intent_id="i2",
+            client_order_id="i2",
+            product_id="BTC-USD",
+            side="BUY",
+            order_type="LIMIT",
+            qty=Decimal("0.01"),
+            price=Decimal("50000"),
+            stop_price=None,
+            post_only=True,
+            created_ts_ms=1000,
+        )
+        store.save_intent(intent, OrderState.RECONCILE_PENDING)
+        record = store.get_by_intent_id("i2")
+        assert record.is_terminal is False
+        assert record.is_active is True
+        assert record.is_ledger_conflict is False
+
+    def test_reconcile_resolved_is_terminal(self, temp_db):
+        """RECONCILE_RESOLVED es terminal: todos los fills confirmados."""
+        store = IdempotencyStore(db_path=temp_db)
+        intent = OrderIntent(
+            intent_id="i3",
+            client_order_id="i3",
+            product_id="BTC-USD",
+            side="BUY",
+            order_type="LIMIT",
+            qty=Decimal("0.01"),
+            price=Decimal("50000"),
+            stop_price=None,
+            post_only=True,
+            created_ts_ms=1000,
+        )
+        store.save_intent(intent, OrderState.RECONCILE_RESOLVED)
+        record = store.get_by_intent_id("i3")
+        assert record.is_terminal is True
+        assert record.is_active is False
+        assert record.is_ledger_conflict is False
+
+    def test_get_pending_or_open_includes_reconcile_pending(self, temp_db):
+        """RECONCILE_PENDING aparece en get_pending_or_open (ledger pendiente)."""
+        store = IdempotencyStore(db_path=temp_db)
+        for i, state in enumerate([
+            OrderState.RECONCILE_PENDING,
+            OrderState.RECONCILE_CONFLICT,  # no activo
+            OrderState.RECONCILE_RESOLVED,  # terminal
+        ]):
+            intent = OrderIntent(
+                intent_id=f"ir-{i}",
+                client_order_id=f"ir-{i}",
+                product_id="BTC-USD",
+                side="BUY",
+                order_type="LIMIT",
+                qty=Decimal("0.01"),
+                price=Decimal("50000"),
+                stop_price=None,
+                post_only=True,
+                created_ts_ms=1000 + i,
+            )
+            store.save_intent(intent, state)
+        pending = store.get_pending_or_open()
+        states = {r.state for r in pending}
+        assert OrderState.RECONCILE_PENDING in states
+        assert OrderState.RECONCILE_CONFLICT not in states
+        assert OrderState.RECONCILE_RESOLVED not in states
+
     def test_cleanup_old(self, temp_db):
         store = IdempotencyStore(db_path=temp_db)
 

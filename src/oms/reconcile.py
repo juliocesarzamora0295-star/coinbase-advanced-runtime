@@ -76,6 +76,11 @@ class OMSReconcileService:
         self._seen_trade_ids: set = set()
         self._last_fill_counts: Dict[str, int] = {}
 
+        # Convergencia del ledger: fills aplicados por order_id
+        self._applied_fill_counts: Dict[str, int] = {}
+        # Órdenes en estado RECONCILE_CONFLICT detectadas en esta sesión
+        self._reconcile_conflict_count: int = 0
+
         # Tracking de órdenes para rate limiting (orders per minute)
         self._order_timestamps_ms: List[int] = []
 
@@ -146,7 +151,72 @@ class OMSReconcileService:
             return
         new_state = self._map_status_to_state(status)
 
-        # Si cambió el estado, actualizar
+        # Detectar nuevos fills via number_of_fills (campo documentado en user channel)
+        # NOTA: El user channel NO trae fills[] embebidos
+        fill_count = int(order.get("number_of_fills", "0") or 0)
+        prev_count = self._last_fill_counts.get(order_id, 0)
+        self._last_fill_counts[order_id] = fill_count
+
+        # Para órdenes FILLED: determinar convergencia del ledger antes de escribir estado
+        if new_state == OrderState.FILLED and fill_count > 0:
+            # Fetch fills nuevos si el count aumentó
+            if self.fill_fetcher and fill_count > prev_count:
+                logger.debug(
+                    "OMS: Fetching fills for FILLED order %s (%d > %d)",
+                    order_id,
+                    fill_count,
+                    prev_count,
+                )
+                try:
+                    fills = self.fill_fetcher(order_id)
+                    for fill_data in fills:
+                        self._apply_fill(fill_data, order)
+                except Exception as e:
+                    logger.error("OMS: Error fetching fills for order %s: %s", order_id, e)
+
+            # Evaluar convergencia: fills esperados == fills aplicados al ledger
+            if not self.fill_fetcher:
+                # Sin fetcher no podemos verificar convergencia — marcar pendiente
+                new_state = OrderState.RECONCILE_PENDING
+                logger.warning(
+                    "OMS: Order %s RECONCILE_PENDING — fill_count=%d pero sin fill_fetcher",
+                    order_id,
+                    fill_count,
+                )
+            elif self._is_ledger_converged(order_id, fill_count):
+                new_state = OrderState.RECONCILE_RESOLVED
+                logger.info(
+                    "OMS: Order %s RECONCILE_RESOLVED — %d fills confirmados en ledger",
+                    order_id,
+                    fill_count,
+                )
+            else:
+                new_state = OrderState.RECONCILE_CONFLICT
+                applied = self._applied_fill_counts.get(order_id, 0)
+                logger.error(
+                    "OMS: Order %s RECONCILE_CONFLICT — esperados %d fills, aplicados %d. "
+                    "Ledger no convergió. Trading detenido recomendado.",
+                    order_id,
+                    fill_count,
+                    applied,
+                )
+                self._reconcile_conflict_count += 1
+        elif fill_count > prev_count and self.fill_fetcher:
+            # Fills parciales en órdenes no-FILLED (ej: OPEN_RESTING con partial fill)
+            logger.debug(
+                "OMS: Fetching partial fills for order %s (%d > %d)",
+                order_id,
+                fill_count,
+                prev_count,
+            )
+            try:
+                fills = self.fill_fetcher(order_id)
+                for fill_data in fills:
+                    self._apply_fill(fill_data, order)
+            except Exception as e:
+                logger.error("OMS: Error fetching fills: %s", e)
+
+        # Actualizar estado si cambió
         if new_state != record.state:
             logger.info(
                 "OMS: Order %s state change: %s -> %s",
@@ -159,26 +229,6 @@ class OMSReconcileService:
                 state=new_state,
                 exchange_order_id=order_id,
             )
-
-        # Detectar nuevos fills via number_of_fills (campo documentado en user channel)
-        # NOTA: El user channel NO trae fills[] embebidos
-        fill_count = int(order.get("number_of_fills", "0") or 0)
-        prev_count = self._last_fill_counts.get(order_id, 0)
-        self._last_fill_counts[order_id] = fill_count
-
-        if self.fill_fetcher and fill_count > prev_count:
-            logger.debug(
-                "OMS: Fetching fills for order %s (%d > %d)",
-                order_id,
-                fill_count,
-                prev_count,
-            )
-            try:
-                fills = self.fill_fetcher(order_id)
-                for fill_data in fills:
-                    self._apply_fill(fill_data, order)
-            except Exception as e:
-                logger.error("OMS: Error fetching fills: %s", e)
 
     def _apply_fill(self, fill_data: Dict, order: Dict) -> None:
         """
@@ -220,6 +270,9 @@ class OMSReconcileService:
             added = self.ledger.add_fill(fill)
             if added:
                 self._seen_trade_ids.add(trade_id)
+                oid = order.get("order_id", "")
+                if oid:
+                    self._applied_fill_counts[oid] = self._applied_fill_counts.get(oid, 0) + 1
                 logger.info(
                     "OMS: Fill applied: %s %s @ %s (fee: %s %s)",
                     fill.side,
@@ -230,6 +283,17 @@ class OMSReconcileService:
                 )
         except Exception as e:
             logger.error("OMS: Error applying fill: %s", e)
+
+    def _is_ledger_converged(self, order_id: str, expected_fill_count: int) -> bool:
+        """
+        Verificar que el ledger tiene todos los fills esperados para esta orden.
+
+        Returns True si applied >= expected (convergencia confirmada).
+        Un expected_fill_count de 0 siempre converge (no hay fills que verificar).
+        """
+        if expected_fill_count == 0:
+            return True
+        return self._applied_fill_counts.get(order_id, 0) >= expected_fill_count
 
     def _map_status_to_state(self, status: str) -> OrderState:
         """
@@ -264,4 +328,5 @@ class OMSReconcileService:
             "snapshot_batches": self._snapshot_batches,
             "orders_in_snapshot": self._orders_in_snapshot,
             "seen_trade_ids": len(self._seen_trade_ids),
+            "reconcile_conflicts": self._reconcile_conflict_count,
         }

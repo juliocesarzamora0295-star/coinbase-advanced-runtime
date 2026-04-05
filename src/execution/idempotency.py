@@ -24,6 +24,10 @@ class OrderState(Enum):
     CANCELLED = auto()
     EXPIRED = auto()
     FAILED = auto()
+    # Estados de reconciliación de fills (post-FILLED)
+    RECONCILE_PENDING = auto()   # Exchange FILLED, fills pendientes de aplicar al ledger
+    RECONCILE_CONFLICT = auto()  # Exchange FILLED, fills en ledger no convergen con exchange
+    RECONCILE_RESOLVED = auto()  # Exchange FILLED, todos los fills confirmados en ledger
 
 
 @dataclass
@@ -71,23 +75,36 @@ class OrderRecord:
 
     @property
     def is_terminal(self) -> bool:
-        """Verificar si el estado es terminal."""
+        """
+        Verificar si el estado es terminal limpio.
+
+        RECONCILE_CONFLICT y RECONCILE_PENDING NO son terminales:
+        el ledger no ha convergido y el estado requiere resolución.
+        RECONCILE_RESOLVED sí es terminal: todos los fills confirmados.
+        """
         return self.state in (
             OrderState.FILLED,
             OrderState.CANCELLED,
             OrderState.EXPIRED,
             OrderState.FAILED,
+            OrderState.RECONCILE_RESOLVED,
         )
 
     @property
     def is_active(self) -> bool:
-        """Verificar si la orden está activa."""
+        """Verificar si la orden está activa (incluyendo pendiente de reconcile)."""
         return self.state in (
             OrderState.NEW,
             OrderState.OPEN_RESTING,
             OrderState.OPEN_PENDING,
             OrderState.CANCEL_QUEUED,
+            OrderState.RECONCILE_PENDING,
         )
+
+    @property
+    def is_ledger_conflict(self) -> bool:
+        """Fill count del exchange no converge con fills aplicados al ledger."""
+        return self.state == OrderState.RECONCILE_CONFLICT
 
 
 class IdempotencyStore:
@@ -252,12 +269,13 @@ class IdempotencyStore:
 
     def get_pending_or_open(self) -> List[OrderRecord]:
         """Obtener órdenes pendientes o abiertas."""
-        # CORREGIDO: Incluir CANCEL_QUEUED para consistencia con is_active
+        # Incluir CANCEL_QUEUED y RECONCILE_PENDING para consistencia con is_active
         active_states = [
             OrderState.NEW.name,
             OrderState.OPEN_RESTING.name,
             OrderState.OPEN_PENDING.name,
             OrderState.CANCEL_QUEUED.name,
+            OrderState.RECONCILE_PENDING.name,
         ]
 
         with sqlite3.connect(self.db_path) as conn:

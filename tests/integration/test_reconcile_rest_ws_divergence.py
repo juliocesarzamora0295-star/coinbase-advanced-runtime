@@ -125,12 +125,14 @@ class TestWSOpenRESTFilled:
         )
 
         record = store.get_by_intent_id(intent_id)
-        assert record.state == OrderState.FILLED
+        # fill_count=1, fetcher retorna 1 fill → ledger converge → RECONCILE_RESOLVED
+        assert record.state == OrderState.RECONCILE_RESOLVED
+        assert record.is_terminal is True
         assert ledger.position_qty == Decimal("0.1")
 
     def test_ws_filled_directly_updates_oms(self, tmp_path):
         """
-        WS dice FILLED directamente → OMS = FILLED, fill aplicado.
+        WS dice FILLED directamente → OMS = RECONCILE_RESOLVED (fills confirmados), fill aplicado.
         """
         store = IdempotencyStore(db_path=str(tmp_path / "oms.db"))
         ledger = TradeLedger(symbol="BTC-USD", db_path=str(tmp_path / "ledger.db"))
@@ -150,7 +152,9 @@ class TestWSOpenRESTFilled:
         )
 
         record = store.get_by_intent_id(intent_id)
-        assert record.state == OrderState.FILLED
+        # fill_count=1, fetcher retorna 1 fill → ledger converge → RECONCILE_RESOLVED
+        assert record.state == OrderState.RECONCILE_RESOLVED
+        assert record.is_terminal is True
         assert ledger.position_qty == Decimal("0.1")
 
 
@@ -309,10 +313,12 @@ class TestEdgeCases:
             "update", [make_order_event(exchange_id, client_id, "FILLED", number_of_fills=1)]
         )
 
-        # Estado OMS debe haberse actualizado a FILLED aunque fill_fetcher falló
+        # fill_fetcher falló → ledger no convergió → RECONCILE_CONFLICT (fail-closed)
         record = store.get_by_intent_id(intent_id)
-        assert record.state == OrderState.FILLED
-        # Ledger sin fill (fill_fetcher falló)
+        assert record.state == OrderState.RECONCILE_CONFLICT
+        assert record.is_terminal is False  # no terminal limpio: fills sin confirmar
+        assert record.is_ledger_conflict is True
+        # Ledger vacío (fill_fetcher falló)
         assert ledger.position_qty == Decimal("0")
 
     def test_bootstrap_complete_after_small_snapshot(self, tmp_path):
@@ -349,8 +355,10 @@ class TestEdgeCases:
             "update", [make_order_event(exchange_id, client_id, "FILLED", number_of_fills=1)]
         )
 
-        # Estado actualizado aunque no haya fills
+        # Sin fill_fetcher y fill_count>0 → RECONCILE_PENDING (no podemos verificar convergencia)
         record = store.get_by_intent_id(intent_id)
-        assert record.state == OrderState.FILLED
+        assert record.state == OrderState.RECONCILE_PENDING
+        assert record.is_terminal is False
+        assert record.is_active is True
         # Ledger vacío (sin fill_fetcher)
         assert ledger.position_qty == Decimal("0")

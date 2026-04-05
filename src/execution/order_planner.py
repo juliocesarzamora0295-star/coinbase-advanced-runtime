@@ -1,22 +1,23 @@
 """
 Contrato de dominio: OrderPlanner + OrderIntent
 
-OrderPlanner combina SizingDecision y RiskDecision para producir el OrderIntent final.
+OrderPlanner combina SizingDecision y RiskVerdict para producir el OrderIntent final.
 Es la única entidad que decide final_qty.
 
 Invariantes:
 - final_qty = min(sizing.target_qty, risk.hard_max_qty, cap_por_notional)
-- Si RiskDecision.allowed=False → no produce OrderIntent (lanza error o retorna None)
+- Si RiskVerdict.allowed=False → no produce OrderIntent (lanza error)
 - Si final_qty < min_qty del símbolo → OrderIntent marcada inviable (viable=False), no se envía
 - client_order_id es determinista dado signal_id + symbol (permite idempotencia)
 - OrderIntent es inmutable (frozen=True)
 - OrderPlanner no llama a RiskGate ni a PositionSizer ni a OMS directamente
+- OrderIntent es el contrato canónico para execution + persistence
 """
 
 import hashlib
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import Literal, Optional
+from typing import Any, Dict, Literal, Optional
 
 from src.risk.position_sizer import SizingDecision, SymbolConstraints
 
@@ -24,7 +25,7 @@ PLANNER_VERSION = "1.0"
 
 
 class OrderNotAllowedError(Exception):
-    """Raised when RiskDecision.allowed=False. No OrderIntent debe crearse."""
+    """Raised when RiskVerdict.allowed=False. No OrderIntent debe crearse."""
 
     pass
 
@@ -32,7 +33,7 @@ class OrderNotAllowedError(Exception):
 @dataclass(frozen=True)
 class RiskDecisionInput:
     """
-    Subset de RiskDecision relevante para OrderPlanner.
+    Subset de RiskVerdict relevante para OrderPlanner.
     Evita acoplamiento directo a src.risk.gate para imports circulares.
     """
 
@@ -46,24 +47,48 @@ class RiskDecisionInput:
 @dataclass(frozen=True)
 class OrderIntent:
     """
-    Intención de orden ejecutable.
+    Intención de orden ejecutable — contrato canónico.
 
     Producida por OrderPlanner. Inmutable.
-    No contiene el objeto Signal completo — solo referencias planas
-    para mantener auditabilidad y serialización limpia.
+    Única fuente de verdad para execution y persistence.
+
+    Trazabilidad: signal_id → client_order_id → exchange_order_id
     """
 
-    client_order_id: str  # determinista dado signal_id + symbol
+    # Identidad (determinista)
+    client_order_id: str  # sha256(signal_id:symbol)[:32]
     signal_id: str  # referencia al Signal que lo originó
     strategy_id: str  # referencia a la estrategia
+
+    # Orden
     symbol: str
     side: Literal["BUY", "SELL"]
     final_qty: Decimal  # min(target_qty, hard_max_qty, notional_cap)
     order_type: Literal["MARKET", "LIMIT"]
-    price: Optional[Decimal]  # None para órdenes MARKET
+    price: Optional[Decimal]  # None para MARKET
     reduce_only: bool
+    post_only: bool  # solo relevante para LIMIT
+
+    # Metadata
     viable: bool  # False si final_qty < min_qty: no enviar
     planner_version: str
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Serialización para persistencia."""
+        return {
+            "client_order_id": self.client_order_id,
+            "signal_id": self.signal_id,
+            "strategy_id": self.strategy_id,
+            "symbol": self.symbol,
+            "side": self.side,
+            "final_qty": str(self.final_qty),
+            "order_type": self.order_type,
+            "price": str(self.price) if self.price else None,
+            "reduce_only": self.reduce_only,
+            "post_only": self.post_only,
+            "viable": self.viable,
+            "planner_version": self.planner_version,
+        }
 
 
 def _make_client_order_id(signal_id: str, symbol: str) -> str:
@@ -77,7 +102,7 @@ def _make_client_order_id(signal_id: str, symbol: str) -> str:
 
 class OrderPlanner:
     """
-    Combina SizingDecision + RiskDecision para producir OrderIntent.
+    Combina SizingDecision + RiskVerdict para producir OrderIntent.
 
     No tiene acceso directo a RiskGate, PositionSizer, ni OMS.
     Recibe los resultados ya calculados y aplica la lógica de planificación.
@@ -95,20 +120,10 @@ class OrderPlanner:
         constraints: SymbolConstraints,
         order_type: Literal["MARKET", "LIMIT"] = "MARKET",
         price: Optional[Decimal] = None,
+        post_only: bool = False,
     ) -> OrderIntent:
         """
         Producir OrderIntent final.
-
-        Args:
-            signal_id: ID del Signal original.
-            strategy_id: ID de la estrategia que generó el Signal.
-            symbol: Símbolo a operar.
-            side: Dirección ("BUY" o "SELL").
-            sizing: Resultado de PositionSizer.
-            risk: Resultado de RiskGate (como RiskDecisionInput).
-            constraints: Constraints del símbolo.
-            order_type: Tipo de orden.
-            price: Precio límite (solo para LIMIT orders).
 
         Returns:
             OrderIntent (viable=False si final_qty < min_qty).
@@ -118,7 +133,7 @@ class OrderPlanner:
         """
         if not risk.allowed:
             raise OrderNotAllowedError(
-                f"RiskDecision.allowed=False for {symbol} {side}: {risk.reason}"
+                f"RiskVerdict.allowed=False for {symbol} {side}: {risk.reason}"
             )
 
         # final_qty = min(target_qty, hard_max_qty)
@@ -128,15 +143,14 @@ class OrderPlanner:
         if price is not None and price > Decimal("0"):
             qty_by_notional = risk.hard_max_notional / price
         elif sizing.target_qty > Decimal("0") and sizing.target_notional > Decimal("0"):
-            # Estimar precio desde sizing
             implied_price = sizing.target_notional / sizing.target_qty
             qty_by_notional = risk.hard_max_notional / implied_price
         else:
-            qty_by_notional = final_qty  # sin cap adicional por notional
+            qty_by_notional = final_qty
 
         final_qty = min(final_qty, qty_by_notional)
 
-        # Cuantización por step_size (no inventar qty)
+        # Cuantización por step_size
         if constraints.step_size > Decimal("0") and final_qty > Decimal("0"):
             final_qty = (final_qty // constraints.step_size) * constraints.step_size
 
@@ -153,6 +167,7 @@ class OrderPlanner:
             order_type=order_type,
             price=price,
             reduce_only=risk.reduce_only,
+            post_only=post_only,
             viable=viable,
             planner_version=PLANNER_VERSION,
         )

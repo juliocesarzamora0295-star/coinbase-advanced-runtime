@@ -14,29 +14,31 @@ Invariantes testeadas:
 
 import itertools
 import uuid
-from datetime import datetime
 from decimal import Decimal
 
 from src.accounting.ledger import Fill, TradeLedger
-from src.execution.idempotency import IdempotencyStore, OrderIntent, OrderState
+from src.execution.idempotency import IdempotencyStore, OrderState
+from src.execution.order_planner import OrderIntent
 
 # ──────────────────────────────────────────────
 # Helpers
 # ──────────────────────────────────────────────
 
 
-def make_intent(intent_id: str, client_id: str) -> OrderIntent:
+def make_intent(client_order_id: str) -> OrderIntent:
     return OrderIntent(
-        intent_id=intent_id,
-        client_order_id=client_id,
-        product_id="BTC-USD",
+        client_order_id=client_order_id,
+        signal_id="test-signal",
+        strategy_id="test-strategy",
+        symbol="BTC-USD",
         side="BUY",
+        final_qty=Decimal("0.1"),
         order_type="LIMIT",
-        qty=Decimal("0.1"),
         price=Decimal("50000"),
-        stop_price=None,
+        reduce_only=False,
         post_only=False,
-        created_ts_ms=int(datetime.now().timestamp() * 1000),
+        viable=True,
+        planner_version="test",
     )
 
 
@@ -145,23 +147,22 @@ class TestOMSStatePermutations:
         store = IdempotencyStore(db_path=db_path)
 
         # Crear 3 intents y moverlos todos a OPEN_RESTING
-        intent_ids = []
+        client_order_ids = []
         for i in range(3):
-            intent_id = str(uuid.uuid4())
-            client_id = str(uuid.uuid4())
-            intent = make_intent(intent_id, client_id)
+            client_order_id = str(uuid.uuid4())
+            intent = make_intent(client_order_id)
             store.save_intent(intent, OrderState.NEW)
             store.update_state(
-                intent_id=intent_id,
+                client_order_id=client_order_id,
                 state=OrderState.OPEN_RESTING,
                 exchange_order_id=f"ex-{i}",
             )
-            intent_ids.append(intent_id)
+            client_order_ids.append(client_order_id)
 
         # Todos deben ser activos
         active_ids = [r.intent_id for r in store.get_pending_or_open()]
-        for intent_id in intent_ids:
-            assert intent_id in active_ids
+        for coid in client_order_ids:
+            assert coid in active_ids
 
     def test_cancel_queued_before_fill_keeps_active(self, tmp_path):
         """
@@ -170,17 +171,17 @@ class TestOMSStatePermutations:
         db_path = str(tmp_path / "oms_cq.db")
         store = IdempotencyStore(db_path=db_path)
 
-        intent_id = str(uuid.uuid4())
-        intent = make_intent(intent_id, str(uuid.uuid4()))
+        client_order_id = str(uuid.uuid4())
+        intent = make_intent(client_order_id)
         store.save_intent(intent, OrderState.OPEN_RESTING)
-        store.update_state(intent_id=intent_id, state=OrderState.CANCEL_QUEUED)
+        store.update_state(client_order_id=client_order_id, state=OrderState.CANCEL_QUEUED)
 
-        record = store.get_by_intent_id(intent_id)
+        record = store.get_by_intent_id(client_order_id)
         assert record.state == OrderState.CANCEL_QUEUED
         assert record.is_active is True
 
         active_ids = [r.intent_id for r in store.get_pending_or_open()]
-        assert intent_id in active_ids
+        assert client_order_id in active_ids
 
     def test_terminal_state_not_active_in_all_permutations(self, tmp_path):
         """
@@ -199,14 +200,14 @@ class TestOMSStatePermutations:
 
         terminal_ids = []
         for state, error in terminal_cases:
-            intent_id = str(uuid.uuid4())
-            intent = make_intent(intent_id, str(uuid.uuid4()))
+            client_order_id = str(uuid.uuid4())
+            intent = make_intent(client_order_id)
             store.save_intent(intent, state)
-            terminal_ids.append(intent_id)
+            terminal_ids.append(client_order_id)
 
         active_ids = [r.intent_id for r in store.get_pending_or_open()]
-        for intent_id in terminal_ids:
-            assert intent_id not in active_ids, f"{intent_id} terminal no debe estar activo"
+        for coid in terminal_ids:
+            assert coid not in active_ids, f"{coid} terminal no debe estar activo"
 
     def test_open_and_terminal_mixed_only_open_active(self, tmp_path):
         """
@@ -219,20 +220,20 @@ class TestOMSStatePermutations:
         terminal_ids = []
 
         for i in range(3):
-            intent_id = str(uuid.uuid4())
-            intent = make_intent(intent_id, str(uuid.uuid4()))
+            client_order_id = str(uuid.uuid4())
+            intent = make_intent(client_order_id)
             store.save_intent(intent, OrderState.OPEN_RESTING)
-            open_ids.append(intent_id)
+            open_ids.append(client_order_id)
 
         for state in [OrderState.FILLED, OrderState.CANCELLED]:
-            intent_id = str(uuid.uuid4())
-            intent = make_intent(intent_id, str(uuid.uuid4()))
+            client_order_id = str(uuid.uuid4())
+            intent = make_intent(client_order_id)
             store.save_intent(intent, state)
-            terminal_ids.append(intent_id)
+            terminal_ids.append(client_order_id)
 
         active_ids = [r.intent_id for r in store.get_pending_or_open()]
 
-        for intent_id in open_ids:
-            assert intent_id in active_ids
-        for intent_id in terminal_ids:
-            assert intent_id not in active_ids
+        for coid in open_ids:
+            assert coid in active_ids
+        for coid in terminal_ids:
+            assert coid not in active_ids

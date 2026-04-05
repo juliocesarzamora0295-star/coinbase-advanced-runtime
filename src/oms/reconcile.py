@@ -155,7 +155,7 @@ class OMSReconcileService:
                 new_state.name,
             )
             self.idempotency.update_state(
-                intent_id=record.intent_id,
+                client_order_id=record.client_order_id,
                 state=new_state,
                 exchange_order_id=order_id,
             )

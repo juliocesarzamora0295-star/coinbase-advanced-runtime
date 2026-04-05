@@ -17,10 +17,10 @@ Invariantes testeadas:
 """
 
 import uuid
-from datetime import datetime
 from decimal import Decimal
 
-from src.execution.idempotency import IdempotencyStore, OrderIntent, OrderState
+from src.execution.idempotency import IdempotencyStore, OrderState
+from src.execution.order_planner import OrderIntent
 from src.risk.gate import (
     RULE_CIRCUIT_BREAKER_OPEN,
     RULE_KILL_SWITCH,
@@ -72,18 +72,20 @@ def make_snapshot(
     )
 
 
-def make_intent(intent_id: str, client_id: str) -> OrderIntent:
+def make_intent(client_order_id: str) -> OrderIntent:
     return OrderIntent(
-        intent_id=intent_id,
-        client_order_id=client_id,
-        product_id="BTC-USD",
+        client_order_id=client_order_id,
+        signal_id="test-signal",
+        strategy_id="test-strategy",
+        symbol="BTC-USD",
         side="BUY",
+        final_qty=Decimal("0.1"),
         order_type="LIMIT",
-        qty=Decimal("0.1"),
         price=Decimal("50000"),
-        stop_price=None,
+        reduce_only=False,
         post_only=False,
-        created_ts_ms=int(datetime.now().timestamp() * 1000),
+        viable=True,
+        planner_version="test",
     )
 
 
@@ -192,8 +194,8 @@ class TestOpenOrdersDuringKillSwitch:
         """
         store = IdempotencyStore(db_path=str(tmp_path / "oms.db"))
 
-        intent_id = str(uuid.uuid4())
-        intent = make_intent(intent_id, str(uuid.uuid4()))
+        client_order_id = str(uuid.uuid4())
+        intent = make_intent(client_order_id)
         store.save_intent(intent, OrderState.OPEN_RESTING)
 
         gate = make_gate()
@@ -204,7 +206,7 @@ class TestOpenOrdersDuringKillSwitch:
 
         # La orden abierta sigue en OMS — el gate no la toca
         active_ids = [r.intent_id for r in store.get_pending_or_open()]
-        assert intent_id in active_ids
+        assert client_order_id in active_ids
 
     def test_paper_engine_never_called_when_kill_switch_on(self):
         """

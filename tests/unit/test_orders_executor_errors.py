@@ -19,7 +19,7 @@ import pytest
 
 from src.core.coinbase_exchange import CoinbaseAPIError
 from src.core.quantization import ProductInfo, Quantizer
-from src.execution.idempotency import IdempotencyStore, OrderIntent, OrderState
+from src.execution.idempotency import IdempotencyStore, OrderState, StoredIntent
 from src.execution.orders import OrderExecutor
 
 # ──────────────────────────────────────────────
@@ -74,6 +74,7 @@ class TestCreateMarketOrderValueError:
                 side="BUY",
                 qty=None,
                 quote_size=None,
+                client_order_id=str(uuid.uuid4()),
             )
 
 
@@ -94,6 +95,7 @@ class TestCreateMarketOrderQuoteSize:
             side="BUY",
             qty=None,
             quote_size=Decimal("100"),
+            client_order_id=str(uuid.uuid4()),
         )
 
         assert result.success is True
@@ -120,6 +122,7 @@ class TestCreateMarketOrderAPIError:
             product_id="BTC-USD",
             side="BUY",
             qty=Decimal("0.01"),
+            client_order_id=str(uuid.uuid4()),
         )
 
         assert result.success is False
@@ -141,6 +144,7 @@ class TestCreateMarketOrderAPIError:
             product_id="BTC-USD",
             side="BUY",
             qty=Decimal("0.01"),
+            client_order_id=str(uuid.uuid4()),
         )
 
         record = store.get_by_intent_id(result.intent_id)
@@ -167,7 +171,7 @@ class TestCancelOrderNoExchangeId:
 
         # Guardar intent en NEW sin exchange_order_id
         intent_id = str(uuid.uuid4())
-        intent = OrderIntent(
+        intent = StoredIntent(
             intent_id=intent_id,
             client_order_id=str(uuid.uuid4()),
             product_id="BTC-USD",
@@ -195,7 +199,7 @@ class TestCancelOrderAPIError:
 
     def _make_intent_with_exchange_id(self, store: IdempotencyStore) -> str:
         intent_id = str(uuid.uuid4())
-        intent = OrderIntent(
+        intent = StoredIntent(
             intent_id=intent_id,
             client_order_id=str(uuid.uuid4()),
             product_id="BTC-USD",
@@ -248,7 +252,7 @@ class TestGetOrderStatus:
         )
 
         intent_id = str(uuid.uuid4())
-        intent = OrderIntent(
+        intent = StoredIntent(
             intent_id=intent_id,
             client_order_id=str(uuid.uuid4()),
             product_id="BTC-USD",

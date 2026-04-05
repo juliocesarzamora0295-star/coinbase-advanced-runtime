@@ -27,8 +27,13 @@ class OrderState(Enum):
 
 
 @dataclass
-class OrderIntent:
-    """Intención de orden antes de enviar a exchange."""
+class StoredIntent:
+    """
+    Row de persistencia para IdempotencyStore (SQLite).
+
+    Representa los campos que se persisten en la tabla order_intents.
+    No es la entidad de dominio — ver OrderIntent en order_planner.py.
+    """
 
     intent_id: str
     client_order_id: str
@@ -64,7 +69,7 @@ class OrderRecord:
     client_order_id: str
     exchange_order_id: Optional[str]
     state: OrderState
-    intent: OrderIntent
+    intent: StoredIntent
     created_at: datetime
     updated_at: datetime
     error_message: Optional[str] = None
@@ -144,7 +149,7 @@ class IdempotencyStore:
 
             conn.commit()
 
-    def save_intent(self, intent: OrderIntent, state: OrderState = OrderState.NEW) -> None:
+    def save_intent(self, intent: StoredIntent, state: OrderState = OrderState.NEW) -> None:
         """Guardar un nuevo intent."""
         now = int(datetime.now().timestamp() * 1000)
 
@@ -279,7 +284,7 @@ class IdempotencyStore:
 
     def _row_to_record(self, row: sqlite3.Row) -> OrderRecord:
         """Convertir fila de SQLite a OrderRecord."""
-        intent = OrderIntent(
+        intent = StoredIntent(
             intent_id=row[0],
             client_order_id=row[1],
             product_id=row[3],

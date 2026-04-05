@@ -10,7 +10,8 @@ from typing import List, Optional
 
 from src.core.coinbase_exchange import CoinbaseAPIError, CoinbaseRESTClient
 from src.core.quantization import Quantizer
-from src.execution.idempotency import IdempotencyStore, OrderIntent, OrderState
+from src.execution.idempotency import IdempotencyStore, OrderState, StoredIntent
+from src.execution.order_planner import OrderIntent
 
 logger = logging.getLogger("OrderExecutor")
 
@@ -49,6 +50,30 @@ class OrderExecutor:
         # Tracking de órdenes para rate limiting (orders per minute)
         self._order_timestamps_ms: List[int] = []
 
+    def execute(self, intent: OrderIntent) -> OrderResult:
+        """
+        Ejecutar un OrderIntent canónico del planner.
+
+        Usa intent.client_order_id — no genera identidad propia.
+        Despacha a create_limit_order o create_market_order según intent.order_type.
+        """
+        if intent.order_type == "LIMIT" and intent.price is not None:
+            return self.create_limit_order(
+                product_id=intent.symbol,
+                side=intent.side,
+                qty=intent.final_qty,
+                price=intent.price,
+                post_only=False,
+                client_order_id=intent.client_order_id,
+            )
+        else:
+            return self.create_market_order(
+                product_id=intent.symbol,
+                side=intent.side,
+                qty=intent.final_qty,
+                client_order_id=intent.client_order_id,
+            )
+
     def create_limit_order(
         self,
         product_id: str,
@@ -56,6 +81,8 @@ class OrderExecutor:
         qty: Decimal,
         price: Decimal,
         post_only: bool = True,
+        *,
+        client_order_id: str,
     ) -> OrderResult:
         """
         Crear orden limit con idempotencia.
@@ -66,6 +93,8 @@ class OrderExecutor:
             qty: Cantidad en base (ej: BTC)
             price: Precio limit
             post_only: Si es True, la orden no se ejecuta como taker
+            client_order_id: ID determinista provisto por OrderPlanner.
+                             No se genera internamente.
 
         Returns:
             OrderResult con el resultado de la operación
@@ -73,11 +102,10 @@ class OrderExecutor:
         # Cuantizar
         q_qty, q_price = self.quantizer.prepare_limit_order(side, qty, price)
 
-        # Crear intent
+        # intent_id: ID interno de store (separado de client_order_id)
         intent_id = str(uuid.uuid4())
-        client_order_id = intent_id  # 1:1 mapping
 
-        intent = OrderIntent(
+        intent = StoredIntent(
             intent_id=intent_id,
             client_order_id=client_order_id,
             product_id=product_id,
@@ -94,7 +122,7 @@ class OrderExecutor:
         self.idempotency.save_intent(intent, OrderState.NEW)
 
         try:
-            # Enviar a exchange
+            # Enviar a exchange — usa client_order_id del planner
             response = self.client.create_limit_order_gtc(
                 client_order_id=client_order_id,
                 product_id=product_id,
@@ -151,6 +179,8 @@ class OrderExecutor:
         side: str,
         qty: Optional[Decimal] = None,
         quote_size: Optional[Decimal] = None,
+        *,
+        client_order_id: str,
     ) -> OrderResult:
         """
         Crear orden market con idempotencia.
@@ -160,6 +190,8 @@ class OrderExecutor:
             side: "BUY" o "SELL"
             qty: Cantidad en base (opcional)
             quote_size: Cantidad en quote (opcional)
+            client_order_id: ID determinista provisto por OrderPlanner.
+                             No se genera internamente.
 
         Returns:
             OrderResult con el resultado de la operación
@@ -176,11 +208,10 @@ class OrderExecutor:
             q_qty = None
             q_quote = self.quantizer.prepare_market_order_by_quote(quote_size)
 
-        # Crear intent
+        # intent_id: ID interno de store (separado de client_order_id)
         intent_id = str(uuid.uuid4())
-        client_order_id = intent_id
 
-        intent = OrderIntent(
+        intent = StoredIntent(
             intent_id=intent_id,
             client_order_id=client_order_id,
             product_id=product_id,

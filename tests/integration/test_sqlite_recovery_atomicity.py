@@ -16,29 +16,31 @@ Sin Coinbase API. Usa SQLite temporal en tmp_path.
 """
 
 import uuid
-from datetime import datetime
 from decimal import Decimal
 
 from src.accounting.ledger import Fill, TradeLedger
-from src.execution.idempotency import IdempotencyStore, OrderIntent, OrderState
+from src.execution.idempotency import IdempotencyStore, OrderState
+from src.execution.order_planner import OrderIntent
 
 # ──────────────────────────────────────────────
 # Helpers
 # ──────────────────────────────────────────────
 
 
-def make_intent(intent_id: str, client_id: str) -> OrderIntent:
+def make_intent(client_order_id: str) -> OrderIntent:
     return OrderIntent(
-        intent_id=intent_id,
-        client_order_id=client_id,
-        product_id="BTC-USD",
+        client_order_id=client_order_id,
+        signal_id="test-signal",
+        strategy_id="test-strategy",
+        symbol="BTC-USD",
         side="BUY",
+        final_qty=Decimal("0.1"),
         order_type="LIMIT",
-        qty=Decimal("0.1"),
         price=Decimal("50000"),
-        stop_price=None,
+        reduce_only=False,
         post_only=False,
-        created_ts_ms=int(datetime.now().timestamp() * 1000),
+        viable=True,
+        planner_version="test",
     )
 
 
@@ -73,12 +75,12 @@ class TestOMSLedgerDivergence:
         oms_db = str(tmp_path / "oms.db")
         ledger_db = str(tmp_path / "ledger.db")
 
-        intent_id = str(uuid.uuid4())
+        client_order_id = str(uuid.uuid4())
         store = IdempotencyStore(db_path=oms_db)
-        intent = make_intent(intent_id, str(uuid.uuid4()))
+        intent = make_intent(client_order_id)
         store.save_intent(intent, OrderState.NEW)
         store.update_state(
-            intent_id=intent_id,
+            client_order_id=client_order_id,
             state=OrderState.FILLED,
             exchange_order_id="ex-div-001",
         )
@@ -87,7 +89,7 @@ class TestOMSLedgerDivergence:
         # Ledger vacío — no se aplicó ningún fill
 
         # Divergencia: OMS dice filled pero position=0
-        record = store.get_by_intent_id(intent_id)
+        record = store.get_by_intent_id(client_order_id)
         assert record.state == OrderState.FILLED
         assert ledger.position_qty == Decimal("0")
         # La aplicación debería detectar esto como divergencia;
@@ -100,16 +102,16 @@ class TestOMSLedgerDivergence:
         oms_db = str(tmp_path / "oms.db")
         ledger_db = str(tmp_path / "ledger.db")
 
-        intent_id = str(uuid.uuid4())
+        client_order_id = str(uuid.uuid4())
         store = IdempotencyStore(db_path=oms_db)
-        intent = make_intent(intent_id, str(uuid.uuid4()))
+        intent = make_intent(client_order_id)
         store.save_intent(intent, OrderState.OPEN_RESTING)
 
         ledger = TradeLedger(symbol="BTC-USD", db_path=ledger_db)
         fill = make_fill("orphan-fill-001")
         ledger.add_fill(fill)
 
-        record = store.get_by_intent_id(intent_id)
+        record = store.get_by_intent_id(client_order_id)
         assert record.state == OrderState.OPEN_RESTING
         assert ledger.position_qty == Decimal("0.1")
         # Divergencia: ledger tiene fill pero la orden sigue abierta
@@ -121,12 +123,12 @@ class TestOMSLedgerDivergence:
         oms_db = str(tmp_path / "oms.db")
         ledger_db = str(tmp_path / "ledger.db")
 
-        intent_id = str(uuid.uuid4())
+        client_order_id = str(uuid.uuid4())
         store = IdempotencyStore(db_path=oms_db)
-        intent = make_intent(intent_id, str(uuid.uuid4()))
+        intent = make_intent(client_order_id)
         store.save_intent(intent, OrderState.NEW)
         store.update_state(
-            intent_id=intent_id,
+            client_order_id=client_order_id,
             state=OrderState.FILLED,
             exchange_order_id="ex-sync-001",
         )
@@ -135,7 +137,7 @@ class TestOMSLedgerDivergence:
         fill = make_fill("sync-fill-001")
         ledger.add_fill(fill)
 
-        record = store.get_by_intent_id(intent_id)
+        record = store.get_by_intent_id(client_order_id)
         assert record.state == OrderState.FILLED
         assert ledger.position_qty == Decimal("0.1")
 
@@ -173,18 +175,18 @@ class TestRestartAtomicity:
         """
         oms_db = str(tmp_path / "oms.db")
 
-        intent_id = str(uuid.uuid4())
+        client_order_id = str(uuid.uuid4())
         store1 = IdempotencyStore(db_path=oms_db)
-        intent = make_intent(intent_id, str(uuid.uuid4()))
+        intent = make_intent(client_order_id)
         store1.save_intent(intent, OrderState.OPEN_RESTING)
         store1.update_state(
-            intent_id=intent_id,
+            client_order_id=client_order_id,
             state=OrderState.CANCEL_QUEUED,
         )
 
         # Restart
         store2 = IdempotencyStore(db_path=oms_db)
-        record = store2.get_by_intent_id(intent_id)
+        record = store2.get_by_intent_id(client_order_id)
 
         assert record is not None
         assert record.state == OrderState.CANCEL_QUEUED
@@ -222,12 +224,12 @@ class TestRestartAtomicity:
         """
         oms_db = str(tmp_path / "oms.db")
 
-        intent_id = str(uuid.uuid4())
+        client_order_id = str(uuid.uuid4())
         store1 = IdempotencyStore(db_path=oms_db)
-        intent = make_intent(intent_id, str(uuid.uuid4()))
+        intent = make_intent(client_order_id)
         store1.save_intent(intent, OrderState.NEW)
         store1.update_state(
-            intent_id=intent_id,
+            client_order_id=client_order_id,
             state=OrderState.OPEN_RESTING,
             exchange_order_id="ex-partial-001",
         )
@@ -235,7 +237,7 @@ class TestRestartAtomicity:
         # Restart
         store2 = IdempotencyStore(db_path=oms_db)
         active_ids = [r.intent_id for r in store2.get_pending_or_open()]
-        assert intent_id in active_ids
+        assert client_order_id in active_ids
 
     def test_only_filled_before_crash_no_replay_on_restart(self, tmp_path):
         """
@@ -243,12 +245,12 @@ class TestRestartAtomicity:
         """
         oms_db = str(tmp_path / "oms.db")
 
-        intent_id = str(uuid.uuid4())
+        client_order_id = str(uuid.uuid4())
         store1 = IdempotencyStore(db_path=oms_db)
-        intent = make_intent(intent_id, str(uuid.uuid4()))
+        intent = make_intent(client_order_id)
         store1.save_intent(intent, OrderState.FILLED)
 
         # Restart
         store2 = IdempotencyStore(db_path=oms_db)
         active_ids = [r.intent_id for r in store2.get_pending_or_open()]
-        assert intent_id not in active_ids
+        assert client_order_id not in active_ids

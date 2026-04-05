@@ -21,7 +21,7 @@ from src.core.coinbase_websocket import CoinbaseWSFeed, WSMessage
 from src.core.jwt_auth import JWTAuth, load_credentials_from_env
 from src.core.quantization import create_quantizer_from_api_response
 from src.execution.idempotency import IdempotencyStore
-from src.execution.order_planner import OrderNotAllowedError, OrderPlanner, RiskDecisionInput
+from src.execution.order_planner import OrderIntent, OrderNotAllowedError, OrderPlanner, RiskDecisionInput
 from src.execution.orders import OrderExecutor
 from src.marketdata.orderbook import OrderBook
 from src.marketdata.service import MarketDataService
@@ -386,14 +386,6 @@ class TradingBot:
             )
             return
 
-        snapshot = RiskSnapshot(
-            equity=equity,
-            position_qty=position_qty,
-            day_pnl_pct=day_pnl_pct,
-            drawdown_pct=drawdown_pct,
-            orders_last_minute=orders_last_minute,
-        )
-
         entry_ref = candle.close
 
         # PositionSizer — computa target_qty con constraints del símbolo
@@ -423,15 +415,20 @@ class TradingBot:
             logger.error(f"[{symbol}] PositionSizer fail-closed: {exc}")
             return
 
-        # RiskGate — evalúa con v3 signature
-        risk_decision = self.risk_gate.evaluate(
+        # RiskGate — snapshot-based deterministic evaluation
+        snapshot = RiskSnapshot(
+            equity=equity,
+            position_qty=position_qty,
+            day_pnl_pct=day_pnl_pct,
+            drawdown_pct=drawdown_pct,
+            orders_last_minute=orders_last_minute,
             symbol=symbol,
             side=side,
-            snapshot=snapshot,
             target_qty=sizing.target_qty,
             entry_ref=entry_ref,
             breaker_state=breaker_state,
         )
+        risk_decision = self.risk_gate.evaluate(snapshot)
 
         if not risk_decision.allowed:
             logger.warning(
@@ -473,24 +470,11 @@ class TradingBot:
             return
 
         # Ejecutar orden según modo configurado
-        self._execute_order(
-            symbol,
-            order_intent.side,
-            order_intent.final_qty,
-            entry_ref,
-            signal.metadata.get("reason", signal.strategy_id),
-        )
+        self._execute_order(order_intent)
 
-    def _execute_order(
-        self,
-        symbol: str,
-        side: str,
-        qty: Decimal,
-        price: Decimal,
-        reason: str,
-    ) -> None:
+    def _execute_order(self, intent: OrderIntent) -> None:
         """
-        Ejecutar orden según modo configurado.
+        Ejecutar OrderIntent según modo configurado.
 
         Modos mutuamente excluyentes:
         - observe_only=True: solo observa, nunca ejecuta
@@ -498,13 +482,21 @@ class TradingBot:
         - ambos=False: trading real (envía orden al exchange)
 
         Invariante: observe_only tiene prioridad sobre dry_run.
+        El OrderIntent llega intacto desde el planner — sin desempaquetado.
         """
+        symbol = intent.symbol
+        side = intent.side
+        qty = intent.final_qty
         observe = self.config.trading.observe_only
         dry_run = self.config.trading.dry_run
+        current_price = self.current_prices.get(symbol, intent.price or Decimal("0"))
 
         # Modo observación: solo loggear, nunca ejecutar
         if observe:
-            logger.info(f"[{symbol}] OBSERVE ONLY: {side} {qty} @ {price} " f"(reason: {reason})")
+            logger.info(
+                f"[{symbol}] OBSERVE ONLY: {side} {qty} @ {current_price} "
+                f"(signal={intent.signal_id})"
+            )
             return
 
         # Verificar que tenemos executor para el símbolo
@@ -516,18 +508,18 @@ class TradingBot:
         # Modo dry run: simular con PaperEngine, no enviar al exchange
         if dry_run:
             if self.paper_engine:
-                intent = {
-                    "client_id": f"paper_{symbol}_{side}_{int(time.time() * 1000)}",
+                paper_intent = {
+                    "client_id": intent.client_order_id,
                     "symbol": symbol,
                     "side": side.lower(),
-                    "type": "market",
+                    "type": intent.order_type.lower(),
                     "amount": qty,
                     "position_side": "LONG" if side == "BUY" else "SHORT",
-                    "reduce_only": False,
+                    "reduce_only": intent.reduce_only,
                 }
-                bid = self.current_prices.get(symbol, price) * Decimal("0.999")
-                ask = self.current_prices.get(symbol, price) * Decimal("1.001")
-                result = self.paper_engine.submit_order(intent, bid, ask)
+                bid = current_price * Decimal("0.999")
+                ask = current_price * Decimal("1.001")
+                result = self.paper_engine.submit_order(paper_intent, bid, ask)
                 if result.get("status") == "filled":
                     fill = result.get("fill")
                     ledger = self.ledgers.get(symbol)
@@ -547,29 +539,27 @@ class TradingBot:
                         )
                         ledger.add_fill(ledger_fill)
                         logger.info(
-                            f"[{symbol}] PAPER FILL: {side} {qty} @ {price} "
-                            f"fee={fill.fee_cost} (reason: {reason})"
+                            f"[{symbol}] PAPER FILL: {side} {qty} @ {fill.price} "
+                            f"fee={fill.fee_cost} (signal={intent.signal_id})"
                         )
                 else:
                     logger.info(
-                        f"[{symbol}] DRY RUN ORDER: {side} {qty} @ {price} "
-                        f"(reason: {reason}, status: {result.get('status')})"
+                        f"[{symbol}] DRY RUN ORDER: {side} {qty} "
+                        f"(signal={intent.signal_id}, status: {result.get('status')})"
                     )
             else:
-                logger.info(f"[{symbol}] DRY RUN: {side} {qty} @ {price} " f"(reason: {reason})")
+                logger.info(
+                    f"[{symbol}] DRY RUN: {side} {qty} (signal={intent.signal_id})"
+                )
             return
 
-        # Trading real: enviar orden al exchange
-        # Solo llegamos aquí si observe_only=False y dry_run=False
+        # Trading real: enviar OrderIntent al exchange via executor
         try:
-            result = executor.create_market_order(
-                product_id=symbol,
-                side=side,
-                qty=qty,
-            )
+            result = executor.submit_order(intent)
             logger.info(
-                f"[{symbol}] ORDER SUBMITTED: {side} {qty} @ {price} "
-                f"(reason: {reason}, result: {result})"
+                f"[{symbol}] ORDER SUBMITTED: {side} {qty} "
+                f"(signal={intent.signal_id}, client_order_id={intent.client_order_id}, "
+                f"result={result})"
             )
         except Exception as e:
             logger.error(f"[{symbol}] ORDER FAILED: {e}")

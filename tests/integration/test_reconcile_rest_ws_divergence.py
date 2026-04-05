@@ -18,12 +18,12 @@ Sin Coinbase API. fill_fetcher es un callable mockeado.
 """
 
 import uuid
-from datetime import datetime
 from decimal import Decimal
 from typing import Dict
 
 from src.accounting.ledger import TradeLedger
-from src.execution.idempotency import IdempotencyStore, OrderIntent, OrderState
+from src.execution.idempotency import IdempotencyStore, OrderState
+from src.execution.order_planner import OrderIntent
 from src.oms.reconcile import OMSReconcileService
 
 # ──────────────────────────────────────────────
@@ -31,18 +31,20 @@ from src.oms.reconcile import OMSReconcileService
 # ──────────────────────────────────────────────
 
 
-def make_intent(intent_id: str, client_id: str, product_id: str = "BTC-USD") -> OrderIntent:
+def make_intent(client_order_id: str, product_id: str = "BTC-USD") -> OrderIntent:
     return OrderIntent(
-        intent_id=intent_id,
-        client_order_id=client_id,
-        product_id=product_id,
+        client_order_id=client_order_id,
+        signal_id="test-signal",
+        strategy_id="test-strategy",
+        symbol=product_id,
         side="BUY",
+        final_qty=Decimal("0.1"),
         order_type="LIMIT",
-        qty=Decimal("0.1"),
         price=Decimal("50000"),
-        stop_price=None,
+        reduce_only=False,
         post_only=False,
-        created_ts_ms=int(datetime.now().timestamp() * 1000),
+        viable=True,
+        planner_version="test",
     )
 
 
@@ -102,11 +104,10 @@ class TestWSOpenRESTFilled:
         store = IdempotencyStore(db_path=str(tmp_path / "oms.db"))
         ledger = TradeLedger(symbol="BTC-USD", db_path=str(tmp_path / "ledger.db"))
 
-        intent_id = str(uuid.uuid4())
         client_id = str(uuid.uuid4())
         exchange_id = "ex-ws-rest-001"
 
-        intent = make_intent(intent_id, client_id)
+        intent = make_intent(client_id)
         store.save_intent(intent, OrderState.NEW)
 
         rest_fills = [make_rest_fill("fill-ws-rest-001")]
@@ -116,7 +117,7 @@ class TestWSOpenRESTFilled:
         service.handle_user_event(
             "update", [make_order_event(exchange_id, client_id, "OPEN", number_of_fills=0)]
         )
-        record = store.get_by_intent_id(intent_id)
+        record = store.get_by_intent_id(client_id)
         assert record.state == OrderState.OPEN_RESTING
 
         # WS: número de fills aumentó → disparar REST fetch
@@ -124,7 +125,7 @@ class TestWSOpenRESTFilled:
             "update", [make_order_event(exchange_id, client_id, "FILLED", number_of_fills=1)]
         )
 
-        record = store.get_by_intent_id(intent_id)
+        record = store.get_by_intent_id(client_id)
         assert record.state == OrderState.FILLED
         assert ledger.position_qty == Decimal("0.1")
 
@@ -135,11 +136,10 @@ class TestWSOpenRESTFilled:
         store = IdempotencyStore(db_path=str(tmp_path / "oms.db"))
         ledger = TradeLedger(symbol="BTC-USD", db_path=str(tmp_path / "ledger.db"))
 
-        intent_id = str(uuid.uuid4())
         client_id = str(uuid.uuid4())
         exchange_id = "ex-direct-fill-001"
 
-        intent = make_intent(intent_id, client_id)
+        intent = make_intent(client_id)
         store.save_intent(intent, OrderState.OPEN_RESTING)
 
         rest_fills = [make_rest_fill("fill-direct-001")]
@@ -149,7 +149,7 @@ class TestWSOpenRESTFilled:
             "update", [make_order_event(exchange_id, client_id, "FILLED", number_of_fills=1)]
         )
 
-        record = store.get_by_intent_id(intent_id)
+        record = store.get_by_intent_id(client_id)
         assert record.state == OrderState.FILLED
         assert ledger.position_qty == Decimal("0.1")
 
@@ -168,11 +168,10 @@ class TestFillIdempotency:
         store = IdempotencyStore(db_path=str(tmp_path / "oms.db"))
         ledger = TradeLedger(symbol="BTC-USD", db_path=str(tmp_path / "ledger.db"))
 
-        intent_id = str(uuid.uuid4())
         client_id = str(uuid.uuid4())
         exchange_id = "ex-dedup-001"
 
-        intent = make_intent(intent_id, client_id)
+        intent = make_intent(client_id)
         store.save_intent(intent, OrderState.OPEN_RESTING)
 
         rest_fills = [make_rest_fill("fill-dedup-001")]
@@ -198,11 +197,10 @@ class TestFillIdempotency:
         store = IdempotencyStore(db_path=str(tmp_path / "oms.db"))
         ledger = TradeLedger(symbol="BTC-USD", db_path=str(tmp_path / "ledger.db"))
 
-        intent_id = str(uuid.uuid4())
         client_id = str(uuid.uuid4())
         exchange_id = "ex-td-dedup-001"
 
-        intent = make_intent(intent_id, client_id)
+        intent = make_intent(client_id)
         store.save_intent(intent, OrderState.NEW)
 
         call_count = [0]
@@ -242,11 +240,10 @@ class TestCancellation:
         store = IdempotencyStore(db_path=str(tmp_path / "oms.db"))
         ledger = TradeLedger(symbol="BTC-USD", db_path=str(tmp_path / "ledger.db"))
 
-        intent_id = str(uuid.uuid4())
         client_id = str(uuid.uuid4())
         exchange_id = "ex-cancel-001"
 
-        intent = make_intent(intent_id, client_id)
+        intent = make_intent(client_id)
         store.save_intent(intent, OrderState.CANCEL_QUEUED)
 
         service = make_service(store, ledger)
@@ -254,11 +251,11 @@ class TestCancellation:
             "update", [make_order_event(exchange_id, client_id, "CANCELLED", number_of_fills=0)]
         )
 
-        record = store.get_by_intent_id(intent_id)
+        record = store.get_by_intent_id(client_id)
         assert record.state == OrderState.CANCELLED
 
         active_ids = [r.intent_id for r in store.get_pending_or_open()]
-        assert intent_id not in active_ids
+        assert client_id not in active_ids
 
 
 # ──────────────────────────────────────────────
@@ -292,11 +289,10 @@ class TestEdgeCases:
         store = IdempotencyStore(db_path=str(tmp_path / "oms.db"))
         ledger = TradeLedger(symbol="BTC-USD", db_path=str(tmp_path / "ledger.db"))
 
-        intent_id = str(uuid.uuid4())
         client_id = str(uuid.uuid4())
         exchange_id = "ex-exc-001"
 
-        intent = make_intent(intent_id, client_id)
+        intent = make_intent(client_id)
         store.save_intent(intent, OrderState.OPEN_RESTING)
 
         def exploding_fetcher(oid):
@@ -310,7 +306,7 @@ class TestEdgeCases:
         )
 
         # Estado OMS debe haberse actualizado a FILLED aunque fill_fetcher falló
-        record = store.get_by_intent_id(intent_id)
+        record = store.get_by_intent_id(client_id)
         assert record.state == OrderState.FILLED
         # Ledger sin fill (fill_fetcher falló)
         assert ledger.position_qty == Decimal("0")
@@ -336,11 +332,10 @@ class TestEdgeCases:
         store = IdempotencyStore(db_path=str(tmp_path / "oms.db"))
         ledger = TradeLedger(symbol="BTC-USD", db_path=str(tmp_path / "ledger.db"))
 
-        intent_id = str(uuid.uuid4())
         client_id = str(uuid.uuid4())
         exchange_id = "ex-no-fetcher-001"
 
-        intent = make_intent(intent_id, client_id)
+        intent = make_intent(client_id)
         store.save_intent(intent, OrderState.NEW)
 
         service = make_service(store, ledger, fill_fetcher=None)
@@ -350,7 +345,7 @@ class TestEdgeCases:
         )
 
         # Estado actualizado aunque no haya fills
-        record = store.get_by_intent_id(intent_id)
+        record = store.get_by_intent_id(client_id)
         assert record.state == OrderState.FILLED
         # Ledger vacío (sin fill_fetcher)
         assert ledger.position_qty == Decimal("0")

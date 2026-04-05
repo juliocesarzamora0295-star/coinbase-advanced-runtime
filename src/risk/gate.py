@@ -1,19 +1,19 @@
 """
-Risk Gate - Pre-trade risk checks.
+Risk Gate - Pre-trade risk checks (snapshot-based, deterministic).
 
-Evalúa si una orden puede ser ejecutada dado el estado actual del runtime.
+Evalúa si una orden puede ser ejecutada dado un RiskSnapshot inmutable.
 
 Invariantes:
-- RiskDecision.allowed=False bloquea la orden incondicionalmente.
+- RiskVerdict.allowed=False bloquea la orden incondicionalmente.
 - hard_max_qty es un cap, no una sugerencia. Riesgo impone límites, no propone negocio.
-- CircuitBreaker es un INPUT de RiskGate (no una puerta paralela).
-  Pipeline único: Signal → RiskGate(breaker_state) → allowed/blocked.
+- CircuitBreaker es un INPUT dentro del snapshot (no una puerta paralela).
+  Pipeline único: Signal → RiskGate(snapshot) → allowed/blocked.
 - Fail-closed: si falta equity, position, market_price → blocked siempre.
 - Ninguna orden puede bypass-ear este gate.
+- RiskGate no tiene estado interno mutable. Misma entrada → misma salida.
 """
 
 import logging
-import time
 from dataclasses import dataclass
 from decimal import Decimal
 
@@ -32,7 +32,7 @@ RULE_KILL_SWITCH = "KILL_SWITCH"
 
 
 @dataclass(frozen=True)
-class RiskDecision:
+class RiskVerdict:
     """
     Decisión del risk gate. Inmutable.
 
@@ -48,6 +48,11 @@ class RiskDecision:
     blocking_rule_ids: tuple[str, ...]
 
 
+# Alias de compatibilidad — consumers existentes que importen RiskDecision
+# seguirán funcionando sin romper imports.
+RiskDecision = RiskVerdict
+
+
 @dataclass
 class RiskLimits:
     """Límites de riesgo configurables."""
@@ -59,20 +64,38 @@ class RiskLimits:
     max_drawdown_pct: Decimal = Decimal("0.15")  # 15%
 
 
-@dataclass
+@dataclass(frozen=True)
 class RiskSnapshot:
-    """Snapshot de estado de riesgo actual."""
+    """
+    Snapshot completo e inmutable para evaluación de riesgo.
 
+    Contiene TODO lo necesario para una decisión determinista:
+    - Estado del portfolio (equity, position, pnl, drawdown)
+    - Intención de la orden (symbol, side, target_qty, entry_ref)
+    - Estado del sistema (breaker_state, kill_switch, orders_last_minute)
+    """
+
+    # Portfolio state
     equity: Decimal
     position_qty: Decimal
-    day_pnl_pct: Decimal  # PnL diario como fracción del equity
-    drawdown_pct: Decimal  # Drawdown actual como fracción
+    day_pnl_pct: Decimal
+    drawdown_pct: Decimal
     orders_last_minute: int = 0
 
+    # Order intent
+    symbol: str = ""
+    side: str = ""  # "BUY" or "SELL"
+    target_qty: Decimal = Decimal("0")
+    entry_ref: Decimal = Decimal("0")
 
-def _blocked(reason: str, *rule_ids: str) -> RiskDecision:
-    """Helper: retornar RiskDecision bloqueada."""
-    return RiskDecision(
+    # System state
+    breaker_state: str = "CLOSED"
+    kill_switch: bool = False
+
+
+def _blocked(reason: str, *rule_ids: str) -> RiskVerdict:
+    """Helper: retornar RiskVerdict bloqueada."""
+    return RiskVerdict(
         allowed=False,
         reason=reason,
         hard_max_qty=Decimal("0"),
@@ -84,62 +107,53 @@ def _blocked(reason: str, *rule_ids: str) -> RiskDecision:
 
 class RiskGate:
     """
-    Pre-trade risk gate.
+    Pre-trade risk gate — stateless, deterministic.
 
     Valida órdenes antes de enviarlas al exchange.
-    CircuitBreaker es un input, no una puerta paralela.
+    No tiene estado interno mutable. Misma entrada → misma salida.
 
-    Checks:
+    Checks (en orden de prioridad):
+    0. Kill switch
     1. Circuit breaker state
     2. Equity disponible
     3. Daily loss limit
     4. Max drawdown
     5. Max orders per minute
-    6. Spot-only: SELL sin posición bloqueado
-    7. Max notional por símbolo
+    6. Target qty > 0
+    7. Spot-only: SELL sin posición bloqueado
+    8. Max notional por símbolo
     """
 
     def __init__(self, limits: RiskLimits) -> None:
         self.limits = limits
-        self._orders_this_minute: int = 0
-        self._last_order_time: float = 0.0
 
-    def evaluate(
-        self,
-        symbol: str,
-        side: str,
-        snapshot: RiskSnapshot,
-        target_qty: Decimal,
-        entry_ref: Decimal,
-        breaker_state: str = "CLOSED",
-        kill_switch: bool = False,
-    ) -> RiskDecision:
+    def evaluate(self, snapshot: RiskSnapshot) -> RiskVerdict:
         """
         Evaluar si una orden puede ser ejecutada.
 
         Args:
-            symbol: Símbolo a operar.
-            side: "BUY" o "SELL".
-            snapshot: Snapshot de estado de riesgo actual.
-            target_qty: Cantidad objetivo calculada por PositionSizer.
-            entry_ref: Precio de referencia para cálculo de notional.
-            breaker_state: Estado del CircuitBreaker ("CLOSED", "OPEN", "HALF_OPEN").
+            snapshot: Snapshot inmutable con todo el contexto necesario.
 
         Returns:
-            RiskDecision. Si allowed=False, ninguna orden debe generarse.
+            RiskVerdict. Si allowed=False, ninguna orden debe generarse.
         """
+        symbol = snapshot.symbol
+        side_upper = snapshot.side.upper()
         equity = snapshot.equity
         position_qty = snapshot.position_qty
-        side_upper = side.upper()
+        target_qty = snapshot.target_qty
+        entry_ref = snapshot.entry_ref
 
         # Check 0: Kill switch — bloqueo total manual
-        if kill_switch:
-            logger.warning("RiskGate blocked: kill_switch=ON symbol=%s side=%s", symbol, side)
+        if snapshot.kill_switch:
+            logger.warning("RiskGate blocked: kill_switch=ON symbol=%s side=%s", symbol, side_upper)
             return _blocked("Kill switch is active", RULE_KILL_SWITCH)
 
-        # Check 1: Circuit Breaker (input externo, no puerta paralela)
-        if breaker_state == "OPEN":
-            logger.warning("RiskGate blocked: circuit breaker OPEN symbol=%s side=%s", symbol, side)
+        # Check 1: Circuit Breaker (input dentro del snapshot)
+        if snapshot.breaker_state == "OPEN":
+            logger.warning(
+                "RiskGate blocked: circuit breaker OPEN symbol=%s side=%s", symbol, side_upper
+            )
             return _blocked("Circuit breaker is OPEN", RULE_CIRCUIT_BREAKER_OPEN)
 
         # Check 2: Equity
@@ -159,20 +173,19 @@ class RiskGate:
 
         # Check 4: Max drawdown
         if snapshot.drawdown_pct >= self.limits.max_drawdown_pct:
-            logger.warning("RiskGate blocked: drawdown %s symbol=%s", snapshot.drawdown_pct, symbol)
+            logger.warning(
+                "RiskGate blocked: drawdown %s symbol=%s", snapshot.drawdown_pct, symbol
+            )
             return _blocked(
                 f"Max drawdown reached: {snapshot.drawdown_pct:.2%}",
                 RULE_MAX_DRAWDOWN,
             )
 
-        # Check 5: Max orders per minute (snapshot externo + contador interno)
-        now = time.time()
-        if now - self._last_order_time > 60:
-            self._orders_this_minute = 0
-
-        observed_orders = max(self._orders_this_minute, snapshot.orders_last_minute)
-        if observed_orders >= self.limits.max_orders_per_minute:
-            logger.warning("RiskGate blocked: orders/min=%s symbol=%s", observed_orders, symbol)
+        # Check 5: Max orders per minute (solo desde snapshot — sin estado interno)
+        if snapshot.orders_last_minute >= self.limits.max_orders_per_minute:
+            logger.warning(
+                "RiskGate blocked: orders/min=%s symbol=%s", snapshot.orders_last_minute, symbol
+            )
             return _blocked(
                 f"Max orders per minute exceeded: {self.limits.max_orders_per_minute}",
                 RULE_MAX_ORDERS_PER_MINUTE,
@@ -191,11 +204,9 @@ class RiskGate:
         max_qty_by_equity = (equity * self.limits.max_position_pct) / entry_ref
 
         if side_upper == "BUY":
-            # BUY: cap = espacio disponible hasta max_position
             available_qty = max(Decimal("0"), max_qty_by_equity - max(position_qty, Decimal("0")))
             reduce_only = False
         else:
-            # SELL: solo puede vender posición existente (spot-only)
             available_qty = max(Decimal("0"), position_qty)
             reduce_only = True
 
@@ -214,23 +225,19 @@ class RiskGate:
 
         if hard_max_qty <= Decimal("0"):
             return _blocked(
-                f"hard_max_qty=0 after applying all caps (side={side}, position={position_qty})",
+                f"hard_max_qty=0 after applying all caps (side={side_upper}, position={position_qty})",
                 RULE_TARGET_QTY_ZERO,
             )
-
-        # Aprobar y registrar
-        self._orders_this_minute += 1
-        self._last_order_time = now
 
         logger.debug(
             "RiskGate allowed: symbol=%s side=%s hard_max_qty=%s notional=%s",
             symbol,
-            side,
+            side_upper,
             hard_max_qty,
             notional,
         )
 
-        return RiskDecision(
+        return RiskVerdict(
             allowed=True,
             reason="Risk checks passed",
             hard_max_qty=hard_max_qty,

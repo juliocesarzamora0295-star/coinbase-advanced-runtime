@@ -1,26 +1,26 @@
 """
-Tests de integración: Kill switch.
+Tests de integración: Kill switch (snapshot-based).
 
-Verifica que kill_switch=True bloquea todas las señales incondicionalmente,
-que las órdenes abiertas permanecen (cancel policy es decisión del caller),
-y que el recovery requiere acción explícita (pasar kill_switch=False).
+Verifica que kill_switch=True en el snapshot bloquea todas las señales
+incondicionalmente, que las órdenes abiertas permanecen (cancel policy
+es decisión del caller), y que el recovery requiere acción explícita.
 
 Invariantes testeadas:
-- kill_switch=True → RiskDecision.allowed=False con RULE_KILL_SWITCH
+- kill_switch=True → RiskVerdict.allowed=False con RULE_KILL_SWITCH
 - kill_switch=True bloquea BUY y SELL
 - kill_switch=True tiene prioridad sobre equity, breaker_state, etc.
 - kill_switch=False → evaluación normal (puede aprobar si todo OK)
 - kill_switch=False recupera trading tras haber estado activo
 - Órdenes abiertas en OMS no son canceladas automáticamente por el gate
-  (cancel policy es responsabilidad del caller)
 - kill_switch=True con PaperEngine → engine nunca recibe órdenes
+- Determinista: misma snapshot con kill_switch → misma decisión
 """
 
 import uuid
-from datetime import datetime
 from decimal import Decimal
 
-from src.execution.idempotency import IdempotencyStore, OrderIntent, OrderState
+from src.execution.idempotency import IdempotencyStore, OrderState
+from src.execution.order_planner import OrderIntent
 from src.risk.gate import (
     RULE_CIRCUIT_BREAKER_OPEN,
     RULE_KILL_SWITCH,
@@ -50,27 +50,42 @@ def make_gate() -> RiskGate:
     return RiskGate(limits=limits)
 
 
-def make_snapshot(equity: str = "10000", position_qty: str = "0") -> RiskSnapshot:
+def make_snapshot(
+    equity: str = "10000",
+    position_qty: str = "0",
+    side: str = "BUY",
+    target_qty: str = "0.1",
+    breaker_state: str = "CLOSED",
+    kill_switch: bool = False,
+) -> RiskSnapshot:
     return RiskSnapshot(
         equity=Decimal(equity),
         position_qty=Decimal(position_qty),
         day_pnl_pct=Decimal("0"),
         drawdown_pct=Decimal("0"),
+        symbol="BTC-USD",
+        side=side,
+        target_qty=Decimal(target_qty),
+        entry_ref=ENTRY,
+        breaker_state=breaker_state,
+        kill_switch=kill_switch,
     )
 
 
-def make_intent(intent_id: str, client_id: str) -> OrderIntent:
+def make_intent(client_order_id: str) -> OrderIntent:
     return OrderIntent(
-        intent_id=intent_id,
-        client_order_id=client_id,
-        product_id="BTC-USD",
+        client_order_id=client_order_id,
+        signal_id="test-signal",
+        strategy_id="test-strategy",
+        symbol="BTC-USD",
         side="BUY",
+        final_qty=Decimal("0.1"),
         order_type="LIMIT",
-        qty=Decimal("0.1"),
         price=Decimal("50000"),
-        stop_price=None,
+        reduce_only=False,
         post_only=False,
-        created_ts_ms=int(datetime.now().timestamp() * 1000),
+        viable=True,
+        planner_version="test",
     )
 
 
@@ -84,16 +99,9 @@ class TestKillSwitchBlocks:
     def test_kill_switch_blocks_buy(self):
         """kill_switch=True → BUY bloqueado con RULE_KILL_SWITCH."""
         gate = make_gate()
-        snap = make_snapshot(equity="10000")
+        snap = make_snapshot(equity="10000", kill_switch=True)
 
-        decision = gate.evaluate(
-            symbol="BTC-USD",
-            side="BUY",
-            snapshot=snap,
-            target_qty=Decimal("0.1"),
-            entry_ref=ENTRY,
-            kill_switch=True,
-        )
+        decision = gate.evaluate(snap)
 
         assert decision.allowed is False
         assert RULE_KILL_SWITCH in decision.blocking_rule_ids
@@ -102,16 +110,11 @@ class TestKillSwitchBlocks:
     def test_kill_switch_blocks_sell(self):
         """kill_switch=True → SELL bloqueado con RULE_KILL_SWITCH."""
         gate = make_gate()
-        snap = make_snapshot(equity="10000", position_qty="0.5")
-
-        decision = gate.evaluate(
-            symbol="BTC-USD",
-            side="SELL",
-            snapshot=snap,
-            target_qty=Decimal("0.1"),
-            entry_ref=ENTRY,
-            kill_switch=True,
+        snap = make_snapshot(
+            equity="10000", position_qty="0.5", side="SELL", kill_switch=True
         )
+
+        decision = gate.evaluate(snap)
 
         assert decision.allowed is False
         assert RULE_KILL_SWITCH in decision.blocking_rule_ids
@@ -119,17 +122,9 @@ class TestKillSwitchBlocks:
     def test_kill_switch_has_priority_over_good_equity(self):
         """kill_switch=True bloquea incluso con equity OK y breaker CLOSED."""
         gate = make_gate()
-        snap = make_snapshot(equity="100000")
+        snap = make_snapshot(equity="100000", kill_switch=True)
 
-        decision = gate.evaluate(
-            symbol="BTC-USD",
-            side="BUY",
-            snapshot=snap,
-            target_qty=Decimal("0.1"),
-            entry_ref=ENTRY,
-            breaker_state="CLOSED",
-            kill_switch=True,
-        )
+        decision = gate.evaluate(snap)
 
         assert decision.allowed is False
         assert RULE_KILL_SWITCH in decision.blocking_rule_ids
@@ -139,18 +134,13 @@ class TestKillSwitchBlocks:
     def test_kill_switch_blocks_all_signals_in_loop(self):
         """kill_switch=True → todas las señales de un bucle bloqueadas."""
         gate = make_gate()
-        snap = make_snapshot(equity="50000")
 
         blocked_count = 0
         for _ in range(5):
-            d = gate.evaluate(
-                symbol="BTC-USD",
-                side="BUY",
-                snapshot=snap,
-                target_qty=Decimal("0.05"),
-                entry_ref=ENTRY,
-                kill_switch=True,
+            snap = make_snapshot(
+                equity="50000", target_qty="0.05", kill_switch=True
             )
+            d = gate.evaluate(snap)
             if not d.allowed:
                 blocked_count += 1
 
@@ -167,47 +157,25 @@ class TestKillSwitchRecovery:
     def test_kill_switch_false_allows_normal_evaluation(self):
         """kill_switch=False → evaluación normal, puede aprobar señal."""
         gate = make_gate()
-        snap = make_snapshot(equity="10000")
+        snap = make_snapshot(equity="10000", kill_switch=False)
 
-        decision = gate.evaluate(
-            symbol="BTC-USD",
-            side="BUY",
-            snapshot=snap,
-            target_qty=Decimal("0.1"),
-            entry_ref=ENTRY,
-            kill_switch=False,
-        )
+        decision = gate.evaluate(snap)
 
         assert decision.allowed is True
 
     def test_kill_switch_recovery_requires_explicit_false(self):
         """
         Tras kill_switch=True, el recovery requiere kill_switch=False explícito.
-        El gate no tiene estado interno de kill_switch — es parámetro por llamada.
+        El gate no tiene estado interno de kill_switch — es campo del snapshot.
         """
         gate = make_gate()
-        snap = make_snapshot(equity="10000")
 
         # Con kill_switch=True
-        d1 = gate.evaluate(
-            symbol="BTC-USD",
-            side="BUY",
-            snapshot=snap,
-            target_qty=Decimal("0.1"),
-            entry_ref=ENTRY,
-            kill_switch=True,
-        )
+        d1 = gate.evaluate(make_snapshot(equity="10000", kill_switch=True))
         assert d1.allowed is False
 
         # Recovery explícito: kill_switch=False
-        d2 = gate.evaluate(
-            symbol="BTC-USD",
-            side="BUY",
-            snapshot=snap,
-            target_qty=Decimal("0.1"),
-            entry_ref=ENTRY,
-            kill_switch=False,
-        )
+        d2 = gate.evaluate(make_snapshot(equity="10000", kill_switch=False))
         assert d2.allowed is True
         assert RULE_KILL_SWITCH not in d2.blocking_rule_ids
 
@@ -226,26 +194,19 @@ class TestOpenOrdersDuringKillSwitch:
         """
         store = IdempotencyStore(db_path=str(tmp_path / "oms.db"))
 
-        intent_id = str(uuid.uuid4())
-        intent = make_intent(intent_id, str(uuid.uuid4()))
+        client_order_id = str(uuid.uuid4())
+        intent = make_intent(client_order_id)
         store.save_intent(intent, OrderState.OPEN_RESTING)
 
         gate = make_gate()
-        snap = make_snapshot(equity="10000")
 
         # Activar kill_switch — solo bloquea nuevas órdenes
-        gate.evaluate(
-            symbol="BTC-USD",
-            side="BUY",
-            snapshot=snap,
-            target_qty=Decimal("0.1"),
-            entry_ref=ENTRY,
-            kill_switch=True,
-        )
+        snap = make_snapshot(equity="10000", kill_switch=True)
+        gate.evaluate(snap)
 
         # La orden abierta sigue en OMS — el gate no la toca
         active_ids = [r.intent_id for r in store.get_pending_or_open()]
-        assert intent_id in active_ids
+        assert client_order_id in active_ids
 
     def test_paper_engine_never_called_when_kill_switch_on(self):
         """
@@ -253,16 +214,9 @@ class TestOpenOrdersDuringKillSwitch:
         """
         gate = make_gate()
         engine = PaperEngine()
-        snap = make_snapshot(equity="10000")
+        snap = make_snapshot(equity="10000", kill_switch=True)
 
-        decision = gate.evaluate(
-            symbol="BTC-USD",
-            side="BUY",
-            snapshot=snap,
-            target_qty=Decimal("0.1"),
-            entry_ref=ENTRY,
-            kill_switch=True,
-        )
+        decision = gate.evaluate(snap)
 
         assert decision.allowed is False
         # Engine no fue llamado — sin órdenes abiertas

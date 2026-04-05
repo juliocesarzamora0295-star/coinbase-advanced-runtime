@@ -18,20 +18,19 @@ Invariantes testeadas:
 
 import json
 import uuid
-from datetime import datetime
 from decimal import Decimal
 from pathlib import Path
 
 import pytest
 
 from src.accounting.ledger import Fill, TradeLedger
-from src.execution.idempotency import IdempotencyStore, OrderIntent, OrderState
+from src.execution.idempotency import IdempotencyStore, OrderState
+from src.execution.order_planner import OrderIntent
 
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures" / "event_replays"
 
 
 def make_oms_intent(
-    intent_id: str,
     client_order_id: str,
     product_id: str = "BTC-USD",
     side: str = "BUY",
@@ -40,16 +39,18 @@ def make_oms_intent(
     price: str = "50000",
 ) -> OrderIntent:
     return OrderIntent(
-        intent_id=intent_id,
         client_order_id=client_order_id,
-        product_id=product_id,
+        signal_id="test-signal",
+        strategy_id="test-strategy",
+        symbol=product_id,
         side=side,
+        final_qty=Decimal(qty),
         order_type=order_type,
-        qty=Decimal(qty),
         price=Decimal(price),
-        stop_price=None,
+        reduce_only=False,
         post_only=False,
-        created_ts_ms=int(datetime.now().timestamp() * 1000),
+        viable=True,
+        planner_version="test",
     )
 
 
@@ -74,19 +75,19 @@ class TestOMSRestartRecovery:
         """Orden OPEN_RESTING pre-restart → recuperada y activa post-restart."""
         db_path = str(tmp_path / "oms_restart.db")
 
-        intent_id = str(uuid.uuid4())
+        client_order_id = str(uuid.uuid4())
         store1 = IdempotencyStore(db_path=db_path)
-        intent = make_oms_intent(intent_id, str(uuid.uuid4()))
+        intent = make_oms_intent(client_order_id)
         store1.save_intent(intent, OrderState.NEW)
         store1.update_state(
-            intent_id=intent_id,
+            client_order_id=client_order_id,
             state=OrderState.OPEN_RESTING,
             exchange_order_id="ex-restart-001",
         )
 
         # Restart
         store2 = IdempotencyStore(db_path=db_path)
-        record = store2.get_by_intent_id(intent_id)
+        record = store2.get_by_intent_id(client_order_id)
 
         assert record is not None
         assert record.state == OrderState.OPEN_RESTING
@@ -97,20 +98,20 @@ class TestOMSRestartRecovery:
         """Orden CANCEL_QUEUED pre-restart → recuperada y activa post-restart."""
         db_path = str(tmp_path / "oms_cq_restart.db")
 
-        intent_id = str(uuid.uuid4())
+        client_order_id = str(uuid.uuid4())
         store1 = IdempotencyStore(db_path=db_path)
-        intent = make_oms_intent(intent_id, str(uuid.uuid4()))
+        intent = make_oms_intent(client_order_id)
         store1.save_intent(intent, OrderState.OPEN_RESTING)
-        store1.update_state(intent_id=intent_id, state=OrderState.CANCEL_QUEUED)
+        store1.update_state(client_order_id=client_order_id, state=OrderState.CANCEL_QUEUED)
 
         store2 = IdempotencyStore(db_path=db_path)
-        record = store2.get_by_intent_id(intent_id)
+        record = store2.get_by_intent_id(client_order_id)
 
         assert record.state == OrderState.CANCEL_QUEUED
         assert record.is_active
         # Debe aparecer en get_pending_or_open
         active_ids = [r.intent_id for r in store2.get_pending_or_open()]
-        assert intent_id in active_ids
+        assert client_order_id in active_ids
 
     def test_terminal_orders_not_in_pending_after_restart(self, tmp_path):
         """Órdenes terminales (FILLED, CANCELLED) no aparecen post-restart."""
@@ -120,18 +121,18 @@ class TestOMSRestartRecovery:
         terminal_ids = []
 
         for state in [OrderState.FILLED, OrderState.CANCELLED, OrderState.EXPIRED]:
-            intent_id = str(uuid.uuid4())
-            intent = make_oms_intent(intent_id, str(uuid.uuid4()))
+            client_order_id = str(uuid.uuid4())
+            intent = make_oms_intent(client_order_id)
             store1.save_intent(intent, state)
-            terminal_ids.append(intent_id)
+            terminal_ids.append(client_order_id)
 
         store2 = IdempotencyStore(db_path=db_path)
         active_ids = [r.intent_id for r in store2.get_pending_or_open()]
 
-        for intent_id in terminal_ids:
+        for coid in terminal_ids:
             assert (
-                intent_id not in active_ids
-            ), f"Intent terminal {intent_id} no debe estar en get_pending_or_open() post-restart"
+                coid not in active_ids
+            ), f"Intent terminal {coid} no debe estar en get_pending_or_open() post-restart"
 
     def test_multiple_open_orders_all_recovered(self, tmp_path):
         """N órdenes abiertas pre-restart → todas recuperadas post-restart."""
@@ -141,16 +142,16 @@ class TestOMSRestartRecovery:
         open_ids = []
 
         for i in range(5):
-            intent_id = str(uuid.uuid4())
-            intent = make_oms_intent(intent_id, str(uuid.uuid4()), qty=f"0.0{i+1}")
+            client_order_id = str(uuid.uuid4())
+            intent = make_oms_intent(client_order_id, qty=f"0.0{i+1}")
             store1.save_intent(intent, OrderState.OPEN_RESTING)
-            open_ids.append(intent_id)
+            open_ids.append(client_order_id)
 
         store2 = IdempotencyStore(db_path=db_path)
         active_ids = [r.intent_id for r in store2.get_pending_or_open()]
 
-        for intent_id in open_ids:
-            assert intent_id in active_ids
+        for coid in open_ids:
+            assert coid in active_ids
 
 
 class TestLedgerRestartRecovery:
@@ -259,7 +260,6 @@ class TestRestartRecoveryFromFixture:
         store1 = IdempotencyStore(db_path=oms_db)
         for oms_entry in fixture["pre_restart_oms_state"]:
             intent = make_oms_intent(
-                intent_id=oms_entry["intent_id"],
                 client_order_id=oms_entry["client_order_id"],
                 product_id=oms_entry["product_id"],
                 side=oms_entry["side"],
@@ -271,7 +271,7 @@ class TestRestartRecoveryFromFixture:
             if state == OrderState.OPEN_RESTING:
                 store1.save_intent(intent, OrderState.NEW)
                 store1.update_state(
-                    intent_id=oms_entry["intent_id"],
+                    client_order_id=oms_entry["client_order_id"],
                     state=state,
                     exchange_order_id=oms_entry.get("exchange_order_id"),
                 )

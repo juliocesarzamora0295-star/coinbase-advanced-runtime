@@ -20,15 +20,15 @@ from datetime import datetime
 from decimal import Decimal
 
 from src.accounting.ledger import Fill, TradeLedger
-from src.execution.idempotency import IdempotencyStore, OrderIntent, OrderState
+from src.execution.idempotency import IdempotencyStore, OrderState, StoredIntent
 
 # ──────────────────────────────────────────────
 # Helpers
 # ──────────────────────────────────────────────
 
 
-def make_intent(intent_id: str, client_id: str) -> OrderIntent:
-    return OrderIntent(
+def make_intent(intent_id: str, client_id: str) -> StoredIntent:
+    return StoredIntent(
         intent_id=intent_id,
         client_order_id=client_id,
         product_id="BTC-USD",

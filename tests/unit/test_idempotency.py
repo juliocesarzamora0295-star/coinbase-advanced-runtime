@@ -9,8 +9,8 @@ import pytest
 
 from src.execution.idempotency import (
     IdempotencyStore,
-    OrderIntent,
     OrderState,
+    StoredIntent,
 )
 
 
@@ -33,7 +33,7 @@ class TestIdempotencyStore:
     def test_save_and_get_intent(self, temp_db):
         store = IdempotencyStore(db_path=temp_db)
 
-        intent = OrderIntent(
+        intent = StoredIntent(
             intent_id="test-intent-1",
             client_order_id="test-intent-1",
             product_id="BTC-USD",
@@ -56,7 +56,7 @@ class TestIdempotencyStore:
     def test_update_state(self, temp_db):
         store = IdempotencyStore(db_path=temp_db)
 
-        intent = OrderIntent(
+        intent = StoredIntent(
             intent_id="test-intent-2",
             client_order_id="test-intent-2",
             product_id="BTC-USD",
@@ -88,7 +88,7 @@ class TestIdempotencyStore:
                 OrderState.CANCELLED,
             ]
         ):
-            intent = OrderIntent(
+            intent = StoredIntent(
                 intent_id=f"intent-{i}",
                 client_order_id=f"intent-{i}",
                 product_id="BTC-USD",
@@ -109,7 +109,7 @@ class TestIdempotencyStore:
         store = IdempotencyStore(db_path=temp_db)
 
         # Crear intent completado
-        intent = OrderIntent(
+        intent = StoredIntent(
             intent_id="old-intent",
             client_order_id="old-intent",
             product_id="BTC-USD",

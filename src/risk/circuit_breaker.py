@@ -340,6 +340,14 @@ class CircuitBreaker:
             return True, f"WebSocket gaps: {self.execution.ws_gaps}"
         return False, ""
 
+    def force_open(self, reason: str) -> None:
+        """
+        Forzar apertura del circuit breaker desde fuera.
+
+        Usado por: OMS degraded, kill switch, external monitoring.
+        """
+        self._trip(reason)
+
     def _trip(self, reason: str) -> Tuple[bool, str]:
         """Disparar circuit breaker."""
         if self.state != BreakerState.OPEN:

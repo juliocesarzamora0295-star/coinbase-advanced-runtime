@@ -19,7 +19,7 @@ import pytest
 
 from src.core.coinbase_exchange import CoinbaseAPIError
 from src.core.quantization import ProductInfo, Quantizer
-from src.execution.idempotency import IdempotencyStore, OrderIntent, OrderState
+from src.execution.idempotency import IdempotencyStore, OrderState, StoredIntent
 from src.execution.orders import OrderExecutor
 
 # ──────────────────────────────────────────────
@@ -167,7 +167,7 @@ class TestCancelOrderNoExchangeId:
 
         # Guardar intent en NEW sin exchange_order_id
         intent_id = str(uuid.uuid4())
-        intent = OrderIntent(
+        intent = StoredIntent(
             intent_id=intent_id,
             client_order_id=str(uuid.uuid4()),
             product_id="BTC-USD",
@@ -195,7 +195,7 @@ class TestCancelOrderAPIError:
 
     def _make_intent_with_exchange_id(self, store: IdempotencyStore) -> str:
         intent_id = str(uuid.uuid4())
-        intent = OrderIntent(
+        intent = StoredIntent(
             intent_id=intent_id,
             client_order_id=str(uuid.uuid4()),
             product_id="BTC-USD",
@@ -248,7 +248,7 @@ class TestGetOrderStatus:
         )
 
         intent_id = str(uuid.uuid4())
-        intent = OrderIntent(
+        intent = StoredIntent(
             intent_id=intent_id,
             client_order_id=str(uuid.uuid4()),
             product_id="BTC-USD",

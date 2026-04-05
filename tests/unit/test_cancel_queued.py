@@ -12,7 +12,7 @@ from decimal import Decimal
 
 sys.path.insert(0, "/mnt/okcomputer/output/fortress_v4")
 
-from src.execution.idempotency import IdempotencyStore, OrderIntent, OrderState
+from src.execution.idempotency import IdempotencyStore, OrderState, StoredIntent
 
 
 class TestCancelQueuedConsistency:
@@ -37,7 +37,7 @@ class TestCancelQueuedConsistency:
         Bug corregido: CANCEL_QUEUED estaba en is_active pero no en get_pending_or_open().
         """
         # Crear intent en estado CANCEL_QUEUED
-        intent = OrderIntent(
+        intent = StoredIntent(
             intent_id="test-intent-1",
             client_order_id="test-client-1",
             product_id="BTC-USD",
@@ -72,7 +72,7 @@ class TestCancelQueuedConsistency:
         ]
 
         for i, state in enumerate(active_states):
-            intent = OrderIntent(
+            intent = StoredIntent(
                 intent_id=f"test-intent-{i}",
                 client_order_id=f"test-client-{i}",
                 product_id="BTC-USD",
@@ -106,7 +106,7 @@ class TestCancelQueuedConsistency:
         ]
 
         for i, state in enumerate(terminal_states):
-            intent = OrderIntent(
+            intent = StoredIntent(
                 intent_id=f"test-intent-term-{i}",
                 client_order_id=f"test-client-term-{i}",
                 product_id="BTC-USD",

@@ -16,7 +16,7 @@ from unittest.mock import MagicMock
 sys.path.insert(0, "/mnt/okcomputer/output/fortress_v4")
 
 from src.accounting.ledger import TradeLedger
-from src.execution.idempotency import IdempotencyStore, OrderIntent, OrderState
+from src.execution.idempotency import IdempotencyStore, OrderState, StoredIntent
 from src.oms.reconcile import OMSReconcileService
 
 
@@ -66,7 +66,7 @@ class TestOMSBootstrap:
 
         # Pre-populate idempotency store
         for i, order in enumerate(orders):
-            intent = OrderIntent(
+            intent = StoredIntent(
                 intent_id=f"intent-{i}",
                 client_order_id=order["client_order_id"],
                 product_id="BTC-USD",
@@ -103,7 +103,7 @@ class TestOMSBootstrap:
                 client_id = f"c-{batch_idx}-{i}"
                 order_id = f"o-{batch_idx}-{i}"
 
-                intent = OrderIntent(
+                intent = StoredIntent(
                     intent_id=f"intent-{idx}",
                     client_order_id=client_id,
                     product_id="BTC-USD",
@@ -163,7 +163,7 @@ class TestOMSStateTransitions:
         # Agregar orden OPEN_PENDING al idempotency store
         self.order_id = "o-123"
         self.client_order_id = "c-123"
-        intent = OrderIntent(
+        intent = StoredIntent(
             intent_id="intent-123",
             client_order_id=self.client_order_id,
             product_id="BTC-USD",
@@ -267,7 +267,7 @@ class TestOMSFillsDeduplication:
 
         self.order_id = "o-123"
         self.client_order_id = "c-123"
-        intent = OrderIntent(
+        intent = StoredIntent(
             intent_id="intent-123",
             client_order_id=self.client_order_id,
             product_id="BTC-USD",

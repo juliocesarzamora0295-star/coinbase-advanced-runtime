@@ -10,7 +10,7 @@ from typing import List, Optional
 
 from src.core.coinbase_exchange import CoinbaseAPIError, CoinbaseRESTClient
 from src.core.quantization import Quantizer
-from src.execution.idempotency import IdempotencyStore, OrderIntent, OrderState
+from src.execution.idempotency import IdempotencyStore, OrderState, StoredIntent
 
 logger = logging.getLogger("OrderExecutor")
 
@@ -77,7 +77,7 @@ class OrderExecutor:
         intent_id = str(uuid.uuid4())
         client_order_id = intent_id  # 1:1 mapping
 
-        intent = OrderIntent(
+        intent = StoredIntent(
             intent_id=intent_id,
             client_order_id=client_order_id,
             product_id=product_id,
@@ -180,7 +180,7 @@ class OrderExecutor:
         intent_id = str(uuid.uuid4())
         client_order_id = intent_id
 
-        intent = OrderIntent(
+        intent = StoredIntent(
             intent_id=intent_id,
             client_order_id=client_order_id,
             product_id=product_id,

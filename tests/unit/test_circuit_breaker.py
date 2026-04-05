@@ -317,6 +317,154 @@ class TestRecoveryFlow:
         assert breaker.state == BreakerState.OPEN
 
 
+class TestTripBySlippageDrift:
+
+    def test_trips_on_positive_slippage_drift(self):
+        """CLOSED → OPEN cuando slippage promedio excede expected + threshold."""
+        breaker = make_breaker(slippage_drift_threshold_bps=10.0)
+        breaker.reset_day(Decimal("10000"))
+
+        # expected_slippage_bps=5.0, threshold=10.0 → trip si avg > 15.0 bps
+        for _ in range(20):
+            breaker.record_slippage(30.0)  # avg=30, drift=+25 > 10
+
+        allowed, _ = breaker.check_before_trade()
+        assert not allowed
+        assert breaker.state == BreakerState.OPEN
+
+    def test_trips_on_negative_slippage_drift(self):
+        """CLOSED → OPEN cuando slippage promedio es mucho menor que expected."""
+        breaker = make_breaker(slippage_drift_threshold_bps=10.0)
+        breaker.reset_day(Decimal("10000"))
+
+        # expected=5.0, avg=-20 → drift=-25 → abs(-25) > 10 → trip
+        for _ in range(20):
+            breaker.record_slippage(-20.0)
+
+        allowed, _ = breaker.check_before_trade()
+        assert not allowed
+        assert breaker.state == BreakerState.OPEN
+
+    def test_no_trip_when_slippage_within_band(self):
+        """No se dispara cuando slippage está dentro del threshold."""
+        breaker = make_breaker(slippage_drift_threshold_bps=10.0)
+        breaker.reset_day(Decimal("10000"))
+
+        # expected=5.0, avg=10.0 → drift=+5.0 < 10.0 → no trip
+        for _ in range(20):
+            breaker.record_slippage(10.0)
+
+        allowed, _ = breaker.check_before_trade()
+        assert allowed is True
+
+    def test_no_trip_when_no_slippage_samples(self):
+        """Sin muestras de slippage no se dispara (drift=0)."""
+        breaker = make_breaker(slippage_drift_threshold_bps=10.0)
+        breaker.reset_day(Decimal("10000"))
+
+        allowed, _ = breaker.check_before_trade()
+        assert allowed is True
+
+
+class TestTripByRateLimitHits:
+
+    def test_trips_on_rate_limit_threshold(self):
+        """CLOSED → OPEN cuando rate_limit_hits >= rate_limit_threshold."""
+        breaker = make_breaker(rate_limit_threshold=5)
+        breaker.reset_day(Decimal("10000"))
+
+        for _ in range(5):
+            breaker.record_rate_limit_hit()
+
+        allowed, _ = breaker.check_before_trade()
+        assert not allowed
+        assert breaker.state == BreakerState.OPEN
+
+    def test_no_trip_below_rate_limit_threshold(self):
+        """No se dispara cuando hits < threshold."""
+        breaker = make_breaker(rate_limit_threshold=5)
+        breaker.reset_day(Decimal("10000"))
+
+        for _ in range(4):
+            breaker.record_rate_limit_hit()
+
+        allowed, _ = breaker.check_before_trade()
+        assert allowed is True
+
+    def test_no_trip_with_zero_rate_limit_hits(self):
+        """0 rate limit hits no dispara."""
+        breaker = make_breaker(rate_limit_threshold=3)
+        breaker.reset_day(Decimal("10000"))
+
+        allowed, _ = breaker.check_before_trade()
+        assert allowed is True
+
+
+class TestResetDay:
+
+    def test_reset_day_clears_execution_metrics(self):
+        """reset_day() limpia rate_limit_hits, ws_gaps y reject_rate."""
+        breaker = make_breaker(rate_limit_threshold=100, ws_gap_threshold=100)
+        breaker.reset_day(Decimal("10000"))
+
+        # Acumular métricas
+        for _ in range(10):
+            breaker.record_rate_limit_hit()
+        breaker.record_ws_gap()
+        breaker.record_execution_result(False)
+
+        # Reset
+        breaker.reset_day(Decimal("10000"))
+
+        assert breaker.execution.rate_limit_hits == 0
+        assert breaker.execution.ws_gaps == 0
+        assert breaker.execution.total_rejects == 0
+
+    def test_reset_day_clears_latency_samples(self):
+        """reset_day() limpia muestras de latencia."""
+        breaker = make_breaker(latency_p95_threshold_ms=1000.0)
+        breaker.reset_day(Decimal("10000"))
+
+        for _ in range(20):
+            breaker.record_latency(800.0)
+
+        assert len(breaker.latency.samples) == 20
+
+        breaker.reset_day(Decimal("10000"))
+        assert len(breaker.latency.samples) == 0
+
+    def test_reset_day_resets_equity_tracking(self):
+        """reset_day() actualiza equity_day_start y equity_peak con el valor dado."""
+        breaker = make_breaker()
+        breaker.reset_day(Decimal("10000"))
+        breaker.update_equity(Decimal("9000"))  # baja
+
+        breaker.reset_day(Decimal("9000"))  # nuevo día
+
+        assert breaker.equity_day_start == Decimal("9000")
+        assert breaker.equity_peak == Decimal("9000")
+        assert breaker.consecutive_losses == 0
+
+    def test_reset_day_allows_trade_after_prior_trip_conditions(self):
+        """Tras reset_day() las condiciones que habrían disparado el breaker no lo hacen."""
+        breaker = make_breaker(
+            rate_limit_threshold=3,
+            ws_gap_threshold=2,
+            max_daily_loss=1.0,  # alto para aislar
+        )
+        breaker.reset_day(Decimal("10000"))
+
+        # Acumular condiciones de trip
+        for _ in range(3):
+            breaker.record_rate_limit_hit()
+
+        # Reset limpia — no debe dispararse
+        breaker.reset_day(Decimal("10000"))
+
+        allowed, _ = breaker.check_before_trade()
+        assert allowed is True
+
+
 class TestGetStatus:
 
     def test_get_status_includes_state(self):
@@ -336,3 +484,25 @@ class TestGetStatus:
         status = breaker.get_status()
         assert status["state"] == BreakerState.OPEN.value
         assert status["trip_reason"] is not None
+
+    def test_get_status_health_section_reflects_metrics(self):
+        """get_status()['health'] refleja métricas actuales."""
+        breaker = make_breaker()
+        breaker.reset_day(Decimal("10000"))
+
+        for _ in range(3):
+            breaker.record_rate_limit_hit()
+        breaker.record_ws_gap()
+
+        status = breaker.get_status()
+        assert status["health"]["rate_limit_hits"] == 3
+        assert status["health"]["ws_gaps"] == 1
+
+    def test_get_status_equity_section_reflects_drawdown(self):
+        """get_status()['equity']['drawdown'] es correcto tras pérdidas."""
+        breaker = make_breaker()
+        breaker.reset_day(Decimal("10000"))
+        breaker.update_equity(Decimal("8000"))  # 20% drawdown
+
+        status = breaker.get_status()
+        assert abs(status["equity"]["drawdown"] - 0.20) < 0.001

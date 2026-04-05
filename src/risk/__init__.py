@@ -1,13 +1,14 @@
 """Risk module para Fortress v4."""
 
 from src.risk.circuit_breaker import BreakerConfig, BreakerState, CircuitBreaker
-from src.risk.gate import RiskDecision, RiskGate, RiskLimits, RiskSnapshot
+from src.risk.gate import RiskDecision, RiskGate, RiskLimits, RiskSnapshot, RiskVerdict
 
 __all__ = [
     "CircuitBreaker",
     "BreakerConfig",
     "BreakerState",
     "RiskGate",
+    "RiskVerdict",
     "RiskDecision",
     "RiskLimits",
     "RiskSnapshot",

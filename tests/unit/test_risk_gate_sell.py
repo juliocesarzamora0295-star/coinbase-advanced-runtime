@@ -1,5 +1,5 @@
 """
-Tests para SELL reductor en RiskGate (P1 FIX) — contrato v3.
+Tests para SELL reductor en RiskGate — snapshot-based deterministic contract.
 
 Valida:
 - SELL desde posición al máximo → allowed (reduce_only=True)
@@ -37,18 +37,16 @@ class TestRiskGateSellReduction:
         """
         snapshot = RiskSnapshot(
             equity=Decimal("1000"),
-            position_qty=Decimal("2"),  # al máximo (2 BTC × $100 = $200 = 20% de $1000)
+            position_qty=Decimal("2"),
             day_pnl_pct=Decimal("0"),
             drawdown_pct=Decimal("0"),
             orders_last_minute=0,
-        )
-        decision = self.gate.evaluate(
             symbol="BTC-USD",
             side="SELL",
-            snapshot=snapshot,
-            target_qty=Decimal("0.5"),  # vender 0.5 BTC para reducir
+            target_qty=Decimal("0.5"),
             entry_ref=Decimal("100"),
         )
+        decision = self.gate.evaluate(snapshot)
         assert decision.allowed, f"SELL reductor debe ser permitido: {decision.reason}"
         assert decision.hard_max_qty > Decimal(
             "0"
@@ -67,18 +65,16 @@ class TestRiskGateSellReduction:
             day_pnl_pct=Decimal("0"),
             drawdown_pct=Decimal("0"),
             orders_last_minute=0,
-        )
-        # target_qty = 5 BTC, pero solo tenemos 2 → hard_max_qty debe ser ≤ 2
-        decision = self.gate.evaluate(
             symbol="BTC-USD",
             side="SELL",
-            snapshot=snapshot,
             target_qty=Decimal("5"),
             entry_ref=Decimal("100"),
         )
+        decision = self.gate.evaluate(snapshot)
         if decision.allowed:
             assert decision.hard_max_qty <= Decimal("2"), (
-                f"SELL hard_max_qty ({decision.hard_max_qty}) " f"no debe exceder position_qty (2)"
+                f"SELL hard_max_qty ({decision.hard_max_qty}) "
+                f"no debe exceder position_qty (2)"
             )
 
     def test_buy_blocked_when_at_max_position(self):
@@ -90,18 +86,16 @@ class TestRiskGateSellReduction:
         """
         snapshot = RiskSnapshot(
             equity=Decimal("1000"),
-            position_qty=Decimal("2"),  # al máximo
+            position_qty=Decimal("2"),
             day_pnl_pct=Decimal("0"),
             drawdown_pct=Decimal("0"),
             orders_last_minute=0,
-        )
-        decision = self.gate.evaluate(
             symbol="BTC-USD",
             side="BUY",
-            snapshot=snapshot,
             target_qty=Decimal("0.1"),
             entry_ref=Decimal("100"),
         )
+        decision = self.gate.evaluate(snapshot)
         assert not decision.allowed, "BUY debe ser bloqueado cuando estás al máximo"
         assert decision.hard_max_qty == Decimal("0")
 

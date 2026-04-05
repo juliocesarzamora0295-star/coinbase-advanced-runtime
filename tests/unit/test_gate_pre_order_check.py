@@ -239,9 +239,6 @@ class TestHardMaxQtyZeroBlocked:
         """
         from src.risk.gate import RULE_TARGET_QTY_ZERO
 
-        # max_position_pct=10%, equity=10000, entry=50000
-        # max_qty_by_equity = 10000*0.10/50000 = 0.02
-        # position_qty ya en 0.02 → available_qty = max(0, 0.02 - 0.02) = 0
         limits = RiskLimits(
             max_position_pct=Decimal("0.10"),
             max_notional_per_symbol=Decimal("100000"),
@@ -255,13 +252,11 @@ class TestHardMaxQtyZeroBlocked:
             position_qty=Decimal("0.02"),  # ya en el máximo
             day_pnl_pct=Decimal("0"),
             drawdown_pct=Decimal("0"),
-        )
-        decision = gate.evaluate(
             symbol="BTC-USD",
             side="BUY",
-            snapshot=snap,
             target_qty=Decimal("0.01"),
             entry_ref=Decimal("50000"),
         )
+        decision = gate.evaluate(snap)
         assert decision.allowed is False
         assert RULE_TARGET_QTY_ZERO in decision.blocking_rule_ids

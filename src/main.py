@@ -386,14 +386,6 @@ class TradingBot:
             )
             return
 
-        snapshot = RiskSnapshot(
-            equity=equity,
-            position_qty=position_qty,
-            day_pnl_pct=day_pnl_pct,
-            drawdown_pct=drawdown_pct,
-            orders_last_minute=orders_last_minute,
-        )
-
         entry_ref = candle.close
 
         # PositionSizer — computa target_qty con constraints del símbolo
@@ -423,15 +415,20 @@ class TradingBot:
             logger.error(f"[{symbol}] PositionSizer fail-closed: {exc}")
             return
 
-        # RiskGate — evalúa con v3 signature
-        risk_decision = self.risk_gate.evaluate(
+        # RiskGate — snapshot-based deterministic evaluation
+        snapshot = RiskSnapshot(
+            equity=equity,
+            position_qty=position_qty,
+            day_pnl_pct=day_pnl_pct,
+            drawdown_pct=drawdown_pct,
+            orders_last_minute=orders_last_minute,
             symbol=symbol,
             side=side,
-            snapshot=snapshot,
             target_qty=sizing.target_qty,
             entry_ref=entry_ref,
             breaker_state=breaker_state,
         )
+        risk_decision = self.risk_gate.evaluate(snapshot)
 
         if not risk_decision.allowed:
             logger.warning(

@@ -13,6 +13,19 @@ from enum import Enum, auto
 from typing import Any, Dict, List, Optional
 
 
+class DuplicateIntentError(Exception):
+    """
+    Lanzado cuando se intenta insertar un intent cuyo intent_id o client_order_id
+    ya existe en el store.
+
+    Fail-closed: no hay sobrescritura silenciosa. El caller debe manejar
+    la colisión explícitamente (retry con nuevo intent_id no es correcto —
+    la colisión en client_order_id indica un bug en la capa de planificación).
+    """
+
+    pass
+
+
 class OrderState(Enum):
     """Estados de una orden."""
 
@@ -150,36 +163,51 @@ class IdempotencyStore:
             conn.commit()
 
     def save_intent(self, intent: StoredIntent, state: OrderState = OrderState.NEW) -> None:
-        """Guardar un nuevo intent."""
+        """
+        Insertar un nuevo intent en el store.
+
+        Inserción estricta: lanza DuplicateIntentError si intent_id o
+        client_order_id ya existen. No hay sobrescritura silenciosa.
+
+        Raises:
+            DuplicateIntentError: si el intent ya existe (colisión de
+                intent_id o client_order_id).
+        """
         now = int(datetime.now().timestamp() * 1000)
 
-        with sqlite3.connect(self.db_path) as conn:
-            conn.execute(
-                """
-                INSERT OR REPLACE INTO order_intents
-                (intent_id, client_order_id, exchange_order_id, product_id, side,
-                 order_type, qty, price, stop_price, post_only, state, error_message,
-                 created_ts_ms, updated_ts_ms)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                (
-                    intent.intent_id,
-                    intent.client_order_id,
-                    None,
-                    intent.product_id,
-                    intent.side,
-                    intent.order_type,
-                    str(intent.qty),
-                    str(intent.price) if intent.price else None,
-                    str(intent.stop_price) if intent.stop_price else None,
-                    1 if intent.post_only else 0,
-                    state.name,
-                    None,
-                    intent.created_ts_ms,
-                    now,
-                ),
-            )
-            conn.commit()
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                conn.execute(
+                    """
+                    INSERT INTO order_intents
+                    (intent_id, client_order_id, exchange_order_id, product_id, side,
+                     order_type, qty, price, stop_price, post_only, state, error_message,
+                     created_ts_ms, updated_ts_ms)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        intent.intent_id,
+                        intent.client_order_id,
+                        None,
+                        intent.product_id,
+                        intent.side,
+                        intent.order_type,
+                        str(intent.qty),
+                        str(intent.price) if intent.price else None,
+                        str(intent.stop_price) if intent.stop_price else None,
+                        1 if intent.post_only else 0,
+                        state.name,
+                        None,
+                        intent.created_ts_ms,
+                        now,
+                    ),
+                )
+                conn.commit()
+        except sqlite3.IntegrityError as exc:
+            raise DuplicateIntentError(
+                f"Intent ya existe — intent_id={intent.intent_id!r} "
+                f"client_order_id={intent.client_order_id!r}: {exc}"
+            ) from exc
 
     def get_by_intent_id(self, intent_id: str) -> Optional[OrderRecord]:
         """Buscar registro por intent_id."""

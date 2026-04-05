@@ -10,7 +10,11 @@ from typing import List, Optional
 
 from src.core.coinbase_exchange import CoinbaseAPIError, CoinbaseRESTClient
 from src.core.quantization import Quantizer
-from src.execution.idempotency import IdempotencyStore, OrderState, StoredIntent
+from src.execution.idempotency import (
+    IdempotencyStore,
+    OrderState,
+    StoredIntent,
+)
 from src.execution.order_planner import OrderIntent
 
 logger = logging.getLogger("OrderExecutor")
@@ -118,7 +122,9 @@ class OrderExecutor:
             created_ts_ms=int(__import__("time").time() * 1000),
         )
 
-        # Guardar intent
+        # Inserción estricta: DuplicateIntentError si client_order_id ya existe.
+        # Esto indica un bug en OrderPlanner (mismo signal enviado dos veces).
+        # No es recuperable — propagar al caller.
         self.idempotency.save_intent(intent, OrderState.NEW)
 
         try:
@@ -224,6 +230,7 @@ class OrderExecutor:
             created_ts_ms=int(__import__("time").time() * 1000),
         )
 
+        # Inserción estricta: DuplicateIntentError si client_order_id ya existe.
         self.idempotency.save_intent(intent, OrderState.NEW)
 
         try:

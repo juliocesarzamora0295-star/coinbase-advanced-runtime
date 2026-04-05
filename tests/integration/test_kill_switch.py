@@ -20,7 +20,7 @@ import uuid
 from datetime import datetime
 from decimal import Decimal
 
-from src.execution.idempotency import IdempotencyStore, OrderIntent, OrderState
+from src.execution.idempotency import IdempotencyStore, OrderState, StoredIntent
 from src.risk.gate import (
     RULE_CIRCUIT_BREAKER_OPEN,
     RULE_KILL_SWITCH,
@@ -59,8 +59,8 @@ def make_snapshot(equity: str = "10000", position_qty: str = "0") -> RiskSnapsho
     )
 
 
-def make_intent(intent_id: str, client_id: str) -> OrderIntent:
-    return OrderIntent(
+def make_intent(intent_id: str, client_id: str) -> StoredIntent:
+    return StoredIntent(
         intent_id=intent_id,
         client_order_id=client_id,
         product_id="BTC-USD",

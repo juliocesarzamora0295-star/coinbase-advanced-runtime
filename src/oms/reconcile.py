@@ -4,6 +4,10 @@ OMS Reconcile Service - Reconciliación de órdenes con Coinbase.
 Procesa eventos del canal user y REST fills para mantener estado interno sincronizado.
 
 NOTA: El canal user NO trae fills[] embebidos. Los fills se obtienen vía REST list_fills.
+
+Paths de reconciliación:
+1. handle_user_event() — canal user WebSocket (push)
+2. reconcile_open_orders() — REST activo (on startup / tras WS gap)
 """
 
 import logging
@@ -231,6 +235,131 @@ class OMSReconcileService:
         except Exception as e:
             logger.error("OMS: Error applying fill: %s", e)
 
+    def reconcile_open_orders(
+        self,
+        rest_order_fetcher: Callable[[str], Optional[Dict]],
+    ) -> Dict[str, int]:
+        """
+        Reconciliar órdenes OPEN/CANCEL_QUEUED vía REST activo.
+
+        Invocar on startup o tras WS gap. Para cada intent activo con
+        exchange_order_id, consulta el estado actual via REST y actualiza
+        IdempotencyStore si cambió. Si el nuevo estado es FILLED, dispara
+        fill_fetcher para registrar fills en el ledger.
+
+        Invariante: si rest_order_fetcher lanza, el error se loggea y se
+        continúa con el resto de órdenes (fail-open en reconciliación, no en
+        trading — el trading sigue bloqueado hasta que el estado sea coherente).
+
+        Args:
+            rest_order_fetcher: Callable(exchange_order_id) → Dict con claves
+                                'status' y 'number_of_fills'. Retorna None si
+                                la orden no existe en el exchange.
+
+        Returns:
+            Dict con conteos: {'checked': N, 'updated': N, 'filled': N,
+                               'cancelled': N, 'errors': N}
+        """
+        open_records = self.idempotency.get_pending_or_open()
+        stats: Dict[str, int] = {
+            "checked": 0,
+            "updated": 0,
+            "filled": 0,
+            "cancelled": 0,
+            "errors": 0,
+        }
+
+        for record in open_records:
+            if not record.exchange_order_id:
+                logger.debug(
+                    "OMS REST reconcile: skipping intent %s (no exchange_order_id)",
+                    record.intent_id,
+                )
+                continue
+
+            stats["checked"] += 1
+
+            try:
+                order_data = rest_order_fetcher(record.exchange_order_id)
+
+                if order_data is None:
+                    logger.warning(
+                        "OMS REST reconcile: order %s not found in exchange — skipping",
+                        record.exchange_order_id,
+                    )
+                    continue
+
+                status = order_data.get("status", "")
+                if not isinstance(status, str) or not status:
+                    continue
+
+                new_state = self._map_status_to_state(status)
+
+                if new_state != record.state:
+                    logger.info(
+                        "OMS REST reconcile: %s %s → %s",
+                        record.exchange_order_id,
+                        record.state.name,
+                        new_state.name,
+                    )
+                    self.idempotency.update_state(
+                        intent_id=record.intent_id,
+                        state=new_state,
+                    )
+                    stats["updated"] += 1
+
+                    if new_state == OrderState.FILLED:
+                        stats["filled"] += 1
+                    elif new_state in (OrderState.CANCELLED, OrderState.EXPIRED):
+                        stats["cancelled"] += 1
+
+                # Disparar fill_fetcher si hay fills nuevos (incluso si el estado no cambió)
+                fill_count = int(order_data.get("number_of_fills", "0") or 0)
+                prev_count = self._last_fill_counts.get(record.exchange_order_id, 0)
+                self._last_fill_counts[record.exchange_order_id] = fill_count
+
+                if self.fill_fetcher and fill_count > prev_count:
+                    logger.debug(
+                        "OMS REST reconcile: fetching fills for %s (%d new)",
+                        record.exchange_order_id,
+                        fill_count - prev_count,
+                    )
+                    try:
+                        fills = self.fill_fetcher(record.exchange_order_id)
+                        # Construir order dict mínimo para _apply_fill
+                        order_ctx = {
+                            "order_id": record.exchange_order_id,
+                            "product_id": record.intent.product_id,
+                            "order_side": record.intent.side.lower(),
+                        }
+                        for fill_data in fills:
+                            self._apply_fill(fill_data, order_ctx)
+                    except Exception as fill_exc:
+                        logger.error(
+                            "OMS REST reconcile: fill_fetcher error for %s: %s",
+                            record.exchange_order_id,
+                            fill_exc,
+                        )
+
+            except Exception as exc:
+                logger.error(
+                    "OMS REST reconcile: error for %s: %s",
+                    record.exchange_order_id,
+                    exc,
+                )
+                stats["errors"] += 1
+
+        logger.info(
+            "OMS REST reconcile complete: checked=%d updated=%d filled=%d "
+            "cancelled=%d errors=%d",
+            stats["checked"],
+            stats["updated"],
+            stats["filled"],
+            stats["cancelled"],
+            stats["errors"],
+        )
+        return stats
+
     def _map_status_to_state(self, status: str) -> OrderState:
         """
         Mapear status de Coinbase a OrderState interno.
@@ -239,7 +368,8 @@ class OMSReconcileService:
             status: Status desde Coinbase (OPEN, FILLED, CANCELLED, etc.)
 
         Returns:
-            OrderState correspondiente
+            OrderState correspondiente. Fallback a OPEN_PENDING para status
+            desconocidos (conservador: no asume terminal).
         """
         status_map = {
             "OPEN": OrderState.OPEN_RESTING,
@@ -251,7 +381,13 @@ class OMSReconcileService:
             "FAILED": OrderState.FAILED,
         }
 
-        return status_map.get(status.upper(), OrderState.OPEN_PENDING)
+        normalized = status.upper()
+        if normalized not in status_map:
+            logger.warning(
+                "OMS: unknown status '%s' — defaulting to OPEN_PENDING",
+                status,
+            )
+        return status_map.get(normalized, OrderState.OPEN_PENDING)
 
     def is_bootstrap_complete(self) -> bool:
         """Verificar si el bootstrap está completo."""

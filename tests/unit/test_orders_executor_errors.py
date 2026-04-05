@@ -74,6 +74,7 @@ class TestCreateMarketOrderValueError:
                 side="BUY",
                 qty=None,
                 quote_size=None,
+                client_order_id=str(uuid.uuid4()),
             )
 
 
@@ -94,6 +95,7 @@ class TestCreateMarketOrderQuoteSize:
             side="BUY",
             qty=None,
             quote_size=Decimal("100"),
+            client_order_id=str(uuid.uuid4()),
         )
 
         assert result.success is True
@@ -120,6 +122,7 @@ class TestCreateMarketOrderAPIError:
             product_id="BTC-USD",
             side="BUY",
             qty=Decimal("0.01"),
+            client_order_id=str(uuid.uuid4()),
         )
 
         assert result.success is False
@@ -141,6 +144,7 @@ class TestCreateMarketOrderAPIError:
             product_id="BTC-USD",
             side="BUY",
             qty=Decimal("0.01"),
+            client_order_id=str(uuid.uuid4()),
         )
 
         record = store.get_by_intent_id(result.intent_id)

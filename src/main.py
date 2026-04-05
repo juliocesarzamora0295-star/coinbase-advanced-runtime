@@ -21,7 +21,12 @@ from src.core.coinbase_websocket import CoinbaseWSFeed, WSMessage
 from src.core.jwt_auth import JWTAuth, load_credentials_from_env
 from src.core.quantization import create_quantizer_from_api_response
 from src.execution.idempotency import IdempotencyStore
-from src.execution.order_planner import OrderNotAllowedError, OrderPlanner, RiskDecisionInput
+from src.execution.order_planner import (
+    OrderIntent,
+    OrderNotAllowedError,
+    OrderPlanner,
+    RiskDecisionInput,
+)
 from src.execution.orders import OrderExecutor
 from src.marketdata.orderbook import OrderBook
 from src.marketdata.service import MarketDataService
@@ -486,56 +491,57 @@ class TradingBot:
             return
 
         # Ejecutar orden según modo configurado
-        self._execute_order(
-            symbol,
-            order_intent.side,
-            order_intent.final_qty,
-            entry_ref,
-            signal.metadata.get("reason", signal.strategy_id),
-        )
+        # order_intent lleva client_order_id determinista del planner — no se regenera
+        self._execute_order(order_intent, entry_ref)
 
     def _execute_order(
         self,
-        symbol: str,
-        side: str,
-        qty: Decimal,
-        price: Decimal,
-        reason: str,
+        order_intent: OrderIntent,
+        ref_price: Decimal,
     ) -> None:
         """
         Ejecutar orden según RuntimeMode configurado.
 
-        Dispatch exclusivo por modo — sin ambigüedad de booleans:
+        Recibe el OrderIntent canónico del planner — no regenera identidad.
+        ref_price: precio de referencia para bid/ask spread en paper engine.
+
+        Dispatch exclusivo por modo:
 
         OBSERVE_ONLY — solo loggea, nunca ejecuta.
         PAPER        — simula con PaperEngine local.
-        SHADOW       — simula con PaperEngine + loggea diferencias vs live (sin enviar).
+        SHADOW       — simula con PaperEngine + loggea diferencias vs live.
         LIVE_CERT    — envía al exchange con log prominente de certificación.
         LIVE_PROD    — envía al exchange. Requiere FORTRESS_LIVE_PROD_UNLOCK=1
                        verificado en validate_config() al arrancar.
         """
         mode = self.config.trading.runtime_mode
+        symbol = order_intent.symbol
+        side = order_intent.side
+        qty = order_intent.final_qty
 
         # --- OBSERVE ONLY: pipeline corre, nunca ejecuta ---
         if mode == RuntimeMode.OBSERVE_ONLY:
-            logger.info(f"[{symbol}] OBSERVE_ONLY: {side} {qty} @ {price} (reason: {reason})")
+            logger.info(
+                f"[{symbol}] OBSERVE_ONLY: {side} {qty} @ {ref_price} "
+                f"(coid={order_intent.client_order_id[:8]})"
+            )
             return
 
         # --- PAPER / SHADOW: PaperEngine, sin exchange real ---
         if mode in (RuntimeMode.PAPER, RuntimeMode.SHADOW):
             if self.paper_engine:
-                intent = {
-                    "client_id": f"paper_{symbol}_{side}_{int(time.time() * 1000)}",
+                paper_intent = {
+                    "client_id": order_intent.client_order_id,
                     "symbol": symbol,
                     "side": side.lower(),
                     "type": "market",
                     "amount": qty,
                     "position_side": "LONG" if side == "BUY" else "SHORT",
-                    "reduce_only": False,
+                    "reduce_only": order_intent.reduce_only,
                 }
-                bid = self.current_prices.get(symbol, price) * Decimal("0.999")
-                ask = self.current_prices.get(symbol, price) * Decimal("1.001")
-                result = self.paper_engine.submit_order(intent, bid, ask)
+                bid = self.current_prices.get(symbol, ref_price) * Decimal("0.999")
+                ask = self.current_prices.get(symbol, ref_price) * Decimal("1.001")
+                result = self.paper_engine.submit_order(paper_intent, bid, ask)
                 if result.get("status") == "filled":
                     fill = result.get("fill")
                     ledger = self.ledgers.get(symbol)
@@ -555,24 +561,23 @@ class TradingBot:
                         )
                         ledger.add_fill(ledger_fill)
                         logger.info(
-                            f"[{symbol}] {mode.value.upper()} FILL: {side} {qty} @ {price} "
-                            f"fee={fill.fee_cost} (reason: {reason})"
+                            f"[{symbol}] {mode.value.upper()} FILL: {side} {qty} @ {ref_price} "
+                            f"fee={fill.fee_cost} (coid={order_intent.client_order_id[:8]})"
                         )
                 else:
                     logger.info(
-                        f"[{symbol}] {mode.value.upper()} ORDER: {side} {qty} @ {price} "
-                        f"(reason: {reason}, status: {result.get('status')})"
+                        f"[{symbol}] {mode.value.upper()} ORDER: {side} {qty} @ {ref_price} "
+                        f"(status={result.get('status')}, coid={order_intent.client_order_id[:8]})"
                     )
             else:
                 logger.info(
-                    f"[{symbol}] {mode.value.upper()}: {side} {qty} @ {price} "
-                    f"(reason: {reason}) — no paper_engine disponible"
+                    f"[{symbol}] {mode.value.upper()}: {side} {qty} @ {ref_price} "
+                    f"— no paper_engine disponible"
                 )
             return
 
         # --- LIVE_CERT / LIVE_PROD: exchange real ---
         # validate_config() ya verificó FORTRESS_LIVE_PROD_UNLOCK=1 para LIVE_PROD.
-        # Si llegamos aquí es porque el runtime fue validado al arrancar.
         executor = self.executors.get(symbol)
         if executor is None:
             logger.error(f"[{symbol}] No executor found para modo {mode.value}")
@@ -580,24 +585,21 @@ class TradingBot:
 
         if mode == RuntimeMode.LIVE_CERT:
             logger.warning(
-                f"[{symbol}] LIVE_CERT ORDER: {side} {qty} @ {price} (reason: {reason}) "
-                f"— modo certificación, exchange real"
+                f"[{symbol}] LIVE_CERT ORDER: {side} {qty} @ {ref_price} "
+                f"(coid={order_intent.client_order_id[:8]}) — modo certificación, exchange real"
             )
         elif mode == RuntimeMode.LIVE_PROD:
             logger.warning(
-                f"[{symbol}] LIVE_PROD ORDER: {side} {qty} @ {price} (reason: {reason}) "
-                f"— producción, exchange real"
+                f"[{symbol}] LIVE_PROD ORDER: {side} {qty} @ {ref_price} "
+                f"(coid={order_intent.client_order_id[:8]}) — producción, exchange real"
             )
 
         try:
-            result = executor.create_market_order(
-                product_id=symbol,
-                side=side,
-                qty=qty,
-            )
+            # executor.execute() usa order_intent.client_order_id del planner
+            result = executor.execute(order_intent)
             logger.info(
-                f"[{symbol}] ORDER SUBMITTED [{mode.value}]: {side} {qty} @ {price} "
-                f"(reason: {reason}, result: {result})"
+                f"[{symbol}] ORDER SUBMITTED [{mode.value}]: {side} {qty} @ {ref_price} "
+                f"(coid={order_intent.client_order_id[:8]}, result={result})"
             )
         except Exception as e:
             logger.error(f"[{symbol}] ORDER FAILED [{mode.value}]: {e}")

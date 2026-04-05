@@ -13,6 +13,7 @@ Invariantes testeadas:
 - orders_last_minute tracking funciona
 """
 
+import uuid
 from decimal import Decimal
 from unittest.mock import MagicMock
 
@@ -62,6 +63,7 @@ class TestLimitOrderCreation:
             side="BUY",
             qty=Decimal("0.001"),
             price=Decimal("50000"),
+            client_order_id=str(uuid.uuid4()),
         )
 
         assert result.success is True
@@ -75,7 +77,13 @@ class TestLimitOrderCreation:
         client.create_limit_order_gtc.return_value = {"order_id": "ex-linked-001"}
 
         executor = make_executor(store, client)
-        result = executor.create_limit_order("BTC-USD", "BUY", Decimal("0.001"), Decimal("50000"))
+        result = executor.create_limit_order(
+            "BTC-USD",
+            "BUY",
+            Decimal("0.001"),
+            Decimal("50000"),
+            client_order_id=str(uuid.uuid4()),
+        )
 
         record = store.get_by_client_order_id(result.client_order_id)
         assert record is not None
@@ -89,7 +97,13 @@ class TestLimitOrderCreation:
         client.create_limit_order_gtc.return_value = {"order_id": "ex-persist-001"}
 
         executor = make_executor(store, client)
-        result = executor.create_limit_order("BTC-USD", "BUY", Decimal("0.001"), Decimal("50000"))
+        result = executor.create_limit_order(
+            "BTC-USD",
+            "BUY",
+            Decimal("0.001"),
+            Decimal("50000"),
+            client_order_id=str(uuid.uuid4()),
+        )
 
         record = store.get_by_intent_id(result.intent_id)
         assert record is not None
@@ -102,7 +116,13 @@ class TestLimitOrderCreation:
         client.create_limit_order_gtc.side_effect = CoinbaseAPIError("rejected by exchange")
 
         executor = make_executor(store, client)
-        result = executor.create_limit_order("BTC-USD", "BUY", Decimal("0.001"), Decimal("50000"))
+        result = executor.create_limit_order(
+            "BTC-USD",
+            "BUY",
+            Decimal("0.001"),
+            Decimal("50000"),
+            client_order_id=str(uuid.uuid4()),
+        )
 
         assert result.success is False
         assert result.state == OrderState.FAILED
@@ -118,7 +138,13 @@ class TestLimitOrderCreation:
         client.create_limit_order_gtc.side_effect = CoinbaseAPIError("error")
 
         executor = make_executor(store, client)
-        result = executor.create_limit_order("BTC-USD", "BUY", Decimal("0.001"), Decimal("50000"))
+        result = executor.create_limit_order(
+            "BTC-USD",
+            "BUY",
+            Decimal("0.001"),
+            Decimal("50000"),
+            client_order_id=str(uuid.uuid4()),
+        )
 
         active_ids = [r.intent_id for r in store.get_pending_or_open()]
         assert result.intent_id not in active_ids
@@ -138,7 +164,12 @@ class TestMarketOrderCreation:
         client.create_market_order.return_value = {"order_id": "ex-market-001"}
 
         executor = make_executor(store, client)
-        result = executor.create_market_order("BTC-USD", "BUY", qty=Decimal("0.001"))
+        result = executor.create_market_order(
+            "BTC-USD",
+            "BUY",
+            qty=Decimal("0.001"),
+            client_order_id=str(uuid.uuid4()),
+        )
 
         assert result.success is True
         assert result.state == OrderState.OPEN_PENDING
@@ -151,7 +182,12 @@ class TestMarketOrderCreation:
         client.create_market_order.return_value = {"order_id": "ex-market-002"}
 
         executor = make_executor(store, client)
-        result = executor.create_market_order("BTC-USD", "SELL", qty=Decimal("0.001"))
+        result = executor.create_market_order(
+            "BTC-USD",
+            "SELL",
+            qty=Decimal("0.001"),
+            client_order_id=str(uuid.uuid4()),
+        )
 
         record = store.get_by_intent_id(result.intent_id)
         assert record.state == OrderState.OPEN_PENDING
@@ -164,7 +200,12 @@ class TestMarketOrderCreation:
         client.create_market_order.return_value = {"order_id": "ex-market-link"}
 
         executor = make_executor(store, client)
-        result = executor.create_market_order("BTC-USD", "BUY", qty=Decimal("0.001"))
+        result = executor.create_market_order(
+            "BTC-USD",
+            "BUY",
+            qty=Decimal("0.001"),
+            client_order_id=str(uuid.uuid4()),
+        )
 
         record = store.get_by_client_order_id(result.client_order_id)
         assert record is not None
@@ -181,7 +222,13 @@ class TestCancelOrder:
         client.cancel_orders.return_value = [{"success": True}]
 
         executor = make_executor(store, client)
-        result = executor.create_limit_order("BTC-USD", "BUY", Decimal("0.001"), Decimal("50000"))
+        result = executor.create_limit_order(
+            "BTC-USD",
+            "BUY",
+            Decimal("0.001"),
+            Decimal("50000"),
+            client_order_id=str(uuid.uuid4()),
+        )
 
         cancelled = executor.cancel_order(result.intent_id)
         assert cancelled is True
@@ -199,7 +246,13 @@ class TestCancelOrder:
         client.cancel_orders.return_value = [{"success": True}]
 
         executor = make_executor(store, client)
-        result = executor.create_limit_order("BTC-USD", "BUY", Decimal("0.001"), Decimal("50000"))
+        result = executor.create_limit_order(
+            "BTC-USD",
+            "BUY",
+            Decimal("0.001"),
+            Decimal("50000"),
+            client_order_id=str(uuid.uuid4()),
+        )
 
         executor.cancel_order(result.intent_id)
 
@@ -225,7 +278,13 @@ class TestCancelOrder:
         client.create_limit_order_gtc.return_value = {"order_id": "ex-filled-001"}
 
         executor = make_executor(store, client)
-        result = executor.create_limit_order("BTC-USD", "BUY", Decimal("0.001"), Decimal("50000"))
+        result = executor.create_limit_order(
+            "BTC-USD",
+            "BUY",
+            Decimal("0.001"),
+            Decimal("50000"),
+            client_order_id=str(uuid.uuid4()),
+        )
 
         # Simular user channel marcando como FILLED
         store.update_state(intent_id=result.intent_id, state=OrderState.FILLED)
@@ -244,7 +303,13 @@ class TestCancelOrder:
         client.create_limit_order_gtc.return_value = {"order_id": "ex-already-cancelled"}
 
         executor = make_executor(store, client)
-        result = executor.create_limit_order("BTC-USD", "BUY", Decimal("0.001"), Decimal("50000"))
+        result = executor.create_limit_order(
+            "BTC-USD",
+            "BUY",
+            Decimal("0.001"),
+            Decimal("50000"),
+            client_order_id=str(uuid.uuid4()),
+        )
         store.update_state(intent_id=result.intent_id, state=OrderState.CANCELLED)
 
         cancelled = executor.cancel_order(result.intent_id)
@@ -268,7 +333,13 @@ class TestOrdersLastMinute:
         client.create_limit_order_gtc.return_value = {"order_id": "ex-rate-001"}
 
         executor = make_executor(store, client)
-        executor.create_limit_order("BTC-USD", "BUY", Decimal("0.001"), Decimal("50000"))
+        executor.create_limit_order(
+            "BTC-USD",
+            "BUY",
+            Decimal("0.001"),
+            Decimal("50000"),
+            client_order_id=str(uuid.uuid4()),
+        )
 
         assert executor.get_orders_last_minute() == 1
 
@@ -279,7 +350,13 @@ class TestOrdersLastMinute:
         client.create_limit_order_gtc.side_effect = CoinbaseAPIError("error")
 
         executor = make_executor(store, client)
-        executor.create_limit_order("BTC-USD", "BUY", Decimal("0.001"), Decimal("50000"))
+        executor.create_limit_order(
+            "BTC-USD",
+            "BUY",
+            Decimal("0.001"),
+            Decimal("50000"),
+            client_order_id=str(uuid.uuid4()),
+        )
 
         # Orden fallida no incrementa el rate (no llegó al exchange)
         assert executor.get_orders_last_minute() == 0

@@ -15,7 +15,7 @@ from typing import Dict, List, Optional
 import pandas as pd
 
 from src.accounting.ledger import TradeLedger
-from src.config import PathsConfig, get_config
+from src.config import PathsConfig, RuntimeMode, get_config, validate_config
 from src.core.coinbase_exchange import CoinbaseRESTClient
 from src.core.coinbase_websocket import CoinbaseWSFeed, WSMessage
 from src.core.jwt_auth import JWTAuth, load_credentials_from_env
@@ -113,7 +113,20 @@ class TradingBot:
         logger.info("- Strategy Layer: StrategyManager v3 pipeline")
         logger.info("- OMS Reconciliation: PARCIAL")
         logger.info("")
-        logger.info("El bot opera en modo OBSERVACIÓN (no ejecuta órdenes)")
+
+        # --- Guard rail de producción: validate_config() bloquea live_prod sin unlock ---
+        try:
+            validate_config(self.config)
+        except ValueError as e:
+            logger.error(f"CONFIG INVÁLIDA — runtime bloqueado: {e}")
+            return False
+
+        mode = self.config.trading.runtime_mode
+        logger.info(f"Runtime mode: {mode.value}")
+        if mode in (RuntimeMode.LIVE_CERT, RuntimeMode.LIVE_PROD):
+            logger.warning(
+                f"ATENCIÓN: modo {mode.value} activo — se enviarán órdenes al exchange real."
+            )
         logger.info("")
 
         # Verificar credenciales
@@ -490,31 +503,26 @@ class TradingBot:
         reason: str,
     ) -> None:
         """
-        Ejecutar orden según modo configurado.
+        Ejecutar orden según RuntimeMode configurado.
 
-        Modos mutuamente excluyentes:
-        - observe_only=True: solo observa, nunca ejecuta
-        - dry_run=True: simula ejecución sin enviar al exchange
-        - ambos=False: trading real (envía orden al exchange)
+        Dispatch exclusivo por modo — sin ambigüedad de booleans:
 
-        Invariante: observe_only tiene prioridad sobre dry_run.
+        OBSERVE_ONLY — solo loggea, nunca ejecuta.
+        PAPER        — simula con PaperEngine local.
+        SHADOW       — simula con PaperEngine + loggea diferencias vs live (sin enviar).
+        LIVE_CERT    — envía al exchange con log prominente de certificación.
+        LIVE_PROD    — envía al exchange. Requiere FORTRESS_LIVE_PROD_UNLOCK=1
+                       verificado en validate_config() al arrancar.
         """
-        observe = self.config.trading.observe_only
-        dry_run = self.config.trading.dry_run
+        mode = self.config.trading.runtime_mode
 
-        # Modo observación: solo loggear, nunca ejecutar
-        if observe:
-            logger.info(f"[{symbol}] OBSERVE ONLY: {side} {qty} @ {price} " f"(reason: {reason})")
+        # --- OBSERVE ONLY: pipeline corre, nunca ejecuta ---
+        if mode == RuntimeMode.OBSERVE_ONLY:
+            logger.info(f"[{symbol}] OBSERVE_ONLY: {side} {qty} @ {price} (reason: {reason})")
             return
 
-        # Verificar que tenemos executor para el símbolo
-        executor = self.executors.get(symbol)
-        if executor is None:
-            logger.error(f"[{symbol}] No executor found")
-            return
-
-        # Modo dry run: simular con PaperEngine, no enviar al exchange
-        if dry_run:
+        # --- PAPER / SHADOW: PaperEngine, sin exchange real ---
+        if mode in (RuntimeMode.PAPER, RuntimeMode.SHADOW):
             if self.paper_engine:
                 intent = {
                     "client_id": f"paper_{symbol}_{side}_{int(time.time() * 1000)}",
@@ -547,20 +555,40 @@ class TradingBot:
                         )
                         ledger.add_fill(ledger_fill)
                         logger.info(
-                            f"[{symbol}] PAPER FILL: {side} {qty} @ {price} "
+                            f"[{symbol}] {mode.value.upper()} FILL: {side} {qty} @ {price} "
                             f"fee={fill.fee_cost} (reason: {reason})"
                         )
                 else:
                     logger.info(
-                        f"[{symbol}] DRY RUN ORDER: {side} {qty} @ {price} "
+                        f"[{symbol}] {mode.value.upper()} ORDER: {side} {qty} @ {price} "
                         f"(reason: {reason}, status: {result.get('status')})"
                     )
             else:
-                logger.info(f"[{symbol}] DRY RUN: {side} {qty} @ {price} " f"(reason: {reason})")
+                logger.info(
+                    f"[{symbol}] {mode.value.upper()}: {side} {qty} @ {price} "
+                    f"(reason: {reason}) — no paper_engine disponible"
+                )
             return
 
-        # Trading real: enviar orden al exchange
-        # Solo llegamos aquí si observe_only=False y dry_run=False
+        # --- LIVE_CERT / LIVE_PROD: exchange real ---
+        # validate_config() ya verificó FORTRESS_LIVE_PROD_UNLOCK=1 para LIVE_PROD.
+        # Si llegamos aquí es porque el runtime fue validado al arrancar.
+        executor = self.executors.get(symbol)
+        if executor is None:
+            logger.error(f"[{symbol}] No executor found para modo {mode.value}")
+            return
+
+        if mode == RuntimeMode.LIVE_CERT:
+            logger.warning(
+                f"[{symbol}] LIVE_CERT ORDER: {side} {qty} @ {price} (reason: {reason}) "
+                f"— modo certificación, exchange real"
+            )
+        elif mode == RuntimeMode.LIVE_PROD:
+            logger.warning(
+                f"[{symbol}] LIVE_PROD ORDER: {side} {qty} @ {price} (reason: {reason}) "
+                f"— producción, exchange real"
+            )
+
         try:
             result = executor.create_market_order(
                 product_id=symbol,
@@ -568,11 +596,11 @@ class TradingBot:
                 qty=qty,
             )
             logger.info(
-                f"[{symbol}] ORDER SUBMITTED: {side} {qty} @ {price} "
+                f"[{symbol}] ORDER SUBMITTED [{mode.value}]: {side} {qty} @ {price} "
                 f"(reason: {reason}, result: {result})"
             )
         except Exception as e:
-            logger.error(f"[{symbol}] ORDER FAILED: {e}")
+            logger.error(f"[{symbol}] ORDER FAILED [{mode.value}]: {e}")
 
     def _init_websocket(self) -> None:
         """Inicializar WebSocket."""

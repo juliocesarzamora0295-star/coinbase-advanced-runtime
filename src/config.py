@@ -230,7 +230,7 @@ class Config:
                 max_daily_loss=risk_cfg.get("max_daily_loss", 0.05),
                 max_drawdown=risk_cfg.get("max_drawdown", 0.15),
                 max_consecutive_losses=risk_cfg.get("max_consecutive_losses", 3),
-                max_position_pct=trading_cfg.get("max_position_pct", 0.20),
+                max_position_pct=risk_cfg.get("max_position_pct", 0.20),
             )
 
             # P0 FIX: Cargar monitoring config
@@ -278,3 +278,29 @@ def reset_config() -> None:
     """Resetear configuración (útil para tests)."""
     global _config
     _config = None
+
+
+def validate_config(cfg: Optional[Config] = None) -> None:
+    """
+    Validar invariantes cross-sección de la configuración.
+
+    Raises:
+        ValueError: si algún invariante es violado.
+    """
+    c = cfg if cfg is not None else get_config()
+
+    if not (0 < c.risk.max_position_pct <= 1.0):
+        raise ValueError(f"risk.max_position_pct={c.risk.max_position_pct} fuera de rango (0, 1]")
+    if not (0 < c.trading.max_position_pct <= 1.0):
+        raise ValueError(
+            f"trading.max_position_pct={c.trading.max_position_pct} fuera de rango (0, 1]"
+        )
+    if c.risk.max_daily_loss > c.risk.max_drawdown:
+        raise ValueError(
+            f"risk.max_daily_loss={c.risk.max_daily_loss} no puede exceder "
+            f"risk.max_drawdown={c.risk.max_drawdown}"
+        )
+    if not (0 < c.trading.risk_per_trade_pct <= 1.0):
+        raise ValueError(
+            f"trading.risk_per_trade_pct={c.trading.risk_per_trade_pct} fuera de rango (0, 1]"
+        )

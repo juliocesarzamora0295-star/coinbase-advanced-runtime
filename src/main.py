@@ -8,20 +8,26 @@ import logging
 import sys
 import threading
 import time
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from decimal import Decimal
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Set
 
 import pandas as pd
 
 from src.accounting.ledger import TradeLedger
-from src.config import PathsConfig, get_config
+from src.config import PathsConfig, RuntimeMode, get_config, validate_config
 from src.core.coinbase_exchange import CoinbaseRESTClient
 from src.core.coinbase_websocket import CoinbaseWSFeed, WSMessage
 from src.core.jwt_auth import JWTAuth, load_credentials_from_env
 from src.core.quantization import create_quantizer_from_api_response
 from src.execution.idempotency import IdempotencyStore
-from src.execution.order_planner import OrderNotAllowedError, OrderPlanner, RiskDecisionInput
+from src.execution.order_planner import (
+    OrderIntent,
+    OrderNotAllowedError,
+    OrderPlanner,
+    RiskDecisionInput,
+)
 from src.execution.orders import OrderExecutor
 from src.marketdata.orderbook import OrderBook
 from src.marketdata.service import MarketDataService
@@ -60,6 +66,41 @@ def setup_file_logging(logs_path: PathsConfig) -> None:
     root_logger.addHandler(file_handler)
 
 
+@dataclass
+class RuntimeReadinessGate:
+    """
+    Compuerta de readiness antes de habilitar el pipeline de órdenes.
+
+    Tres condiciones deben cumplirse:
+    - oms_bootstrap_complete: snapshot user-channel recibido y procesado
+    - ws_connected: primer dato de precio recibido (feed activo)
+    - initial_reconcile_clean: reconcile REST confirmó que no hay
+      órdenes abiertas desconocidas en el exchange
+
+    El pipeline de señales (StrategyManager → Signal) corre siempre.
+    El pipeline de órdenes (_execute_order) está bloqueado hasta ready=True.
+    """
+
+    oms_bootstrap_complete: bool = False
+    ws_connected: bool = False
+    initial_reconcile_clean: bool = False
+
+    # Tracking interno: símbolos pendientes de bootstrap / reconcile
+    _pending_bootstrap: Set[str] = field(default_factory=set)
+    _pending_reconcile: Set[str] = field(default_factory=set)
+
+    @property
+    def ready(self) -> bool:
+        return self.oms_bootstrap_complete and self.ws_connected and self.initial_reconcile_clean
+
+    def status_str(self) -> str:
+        return (
+            f"oms_bootstrap={'OK' if self.oms_bootstrap_complete else 'PENDING'} "
+            f"ws={'OK' if self.ws_connected else 'PENDING'} "
+            f"reconcile={'OK' if self.initial_reconcile_clean else 'PENDING'}"
+        )
+
+
 class TradingBot:
     """Bot de trading principal."""
 
@@ -95,6 +136,9 @@ class TradingBot:
         self.smoke_test_mode: bool = self.config.trading.smoke_test_mode
         self.cycle_count: int = 0
 
+        # Readiness gate — bloquea pipeline de órdenes hasta que todo esté listo
+        self._readiness = RuntimeReadinessGate()
+
         # Control
         self._running = False
         self._lock = threading.Lock()
@@ -113,7 +157,20 @@ class TradingBot:
         logger.info("- Strategy Layer: StrategyManager v3 pipeline")
         logger.info("- OMS Reconciliation: PARCIAL")
         logger.info("")
-        logger.info("El bot opera en modo OBSERVACIÓN (no ejecuta órdenes)")
+
+        # --- Guard rail de producción: validate_config() bloquea live_prod sin unlock ---
+        try:
+            validate_config(self.config)
+        except ValueError as e:
+            logger.error(f"CONFIG INVÁLIDA — runtime bloqueado: {e}")
+            return False
+
+        mode = self.config.trading.runtime_mode
+        logger.info(f"Runtime mode: {mode.value}")
+        if mode in (RuntimeMode.LIVE_CERT, RuntimeMode.LIVE_PROD):
+            logger.warning(
+                f"ATENCIÓN: modo {mode.value} activo — se enviarán órdenes al exchange real."
+            )
         logger.info("")
 
         # Verificar credenciales
@@ -247,11 +304,21 @@ class TradingBot:
                 )
                 self.executors[symbol] = executor
 
-                # Crear OMS reconcile service con REST fill fetcher
+                # Crear OMS reconcile service con REST fill fetcher y callback de bootstrap
+                self._readiness._pending_bootstrap.add(symbol)
+                self._readiness._pending_reconcile.add(symbol)
+
+                def _make_bootstrap_callback(sym: str) -> None:
+                    def _on_bootstrap() -> None:
+                        self._on_oms_bootstrap(sym)
+
+                    return _on_bootstrap
+
                 oms = OMSReconcileService(
                     idempotency=idempotency,
                     ledger=ledger,
                     fill_fetcher=lambda order_id: self.client.list_fills(order_id=order_id),
+                    on_bootstrap_complete=_make_bootstrap_callback(symbol),
                 )
                 self.oms_services[symbol] = oms
 
@@ -275,6 +342,60 @@ class TradingBot:
         self._init_pipeline()
 
         return True
+
+    def _on_oms_bootstrap(self, symbol: str) -> None:
+        """
+        Callback invocado cuando OMSReconcileService completa el bootstrap
+        del canal user para un símbolo.
+
+        Ejecuta el reconcile inicial REST para verificar que no hay
+        órdenes abiertas desconocidas. En modos no-live pasa lista vacía
+        (no hay órdenes reales que reconciliar).
+        """
+        self._readiness._pending_bootstrap.discard(symbol)
+
+        mode = self.config.trading.runtime_mode
+        oms = self.oms_services.get(symbol)
+        if oms is None:
+            logger.error(f"[{symbol}] OMS bootstrap callback: no OMS service found")
+            return
+
+        if mode in (RuntimeMode.OBSERVE_ONLY, RuntimeMode.PAPER, RuntimeMode.SHADOW):
+            # Sin exchange real: reconcile auto-pasa con lista vacía
+            oms.run_initial_reconcile([])
+        else:
+            # Modos live: obtener órdenes abiertas vía REST
+            try:
+                open_orders = self.client.list_orders(
+                    product_id=symbol, order_status=["OPEN", "PENDING"]
+                )
+                oms.run_initial_reconcile(open_orders)
+            except Exception as exc:
+                logger.error(
+                    f"[{symbol}] Initial reconcile REST call failed: {exc} — "
+                    f"order pipeline BLOCKED for {symbol}"
+                )
+                # No llamar run_initial_reconcile → _initial_reconcile_clean=None → blocked
+
+        # Actualizar flags globales de readiness
+        reconcile_ok = oms.is_initial_reconcile_clean()
+        if reconcile_ok is False:
+            # Reconcile falló para este símbolo — bloquear pipeline global
+            logger.error(f"[{symbol}] Initial reconcile FAILED — order pipeline BLOCKED globally")
+            # No marcar como listo
+        elif reconcile_ok is True:
+            self._readiness._pending_reconcile.discard(symbol)
+
+        # Actualizar flags globales si todos los símbolos están listos
+        if not self._readiness._pending_bootstrap:
+            self._readiness.oms_bootstrap_complete = True
+            logger.info("OMS bootstrap complete for all symbols")
+
+        if not self._readiness._pending_reconcile:
+            self._readiness.initial_reconcile_clean = True
+            logger.info("Initial reconcile clean for all symbols")
+
+        logger.info(f"Readiness: {self._readiness.status_str()}")
 
     def _init_pipeline(self) -> None:
         """
@@ -473,61 +594,67 @@ class TradingBot:
             return
 
         # Ejecutar orden según modo configurado
-        self._execute_order(
-            symbol,
-            order_intent.side,
-            order_intent.final_qty,
-            entry_ref,
-            signal.metadata.get("reason", signal.strategy_id),
-        )
+        # order_intent lleva client_order_id determinista del planner — no se regenera
+        self._execute_order(order_intent, entry_ref)
 
     def _execute_order(
         self,
-        symbol: str,
-        side: str,
-        qty: Decimal,
-        price: Decimal,
-        reason: str,
+        order_intent: OrderIntent,
+        ref_price: Decimal,
     ) -> None:
         """
-        Ejecutar orden según modo configurado.
+        Ejecutar orden según RuntimeMode configurado.
 
-        Modos mutuamente excluyentes:
-        - observe_only=True: solo observa, nunca ejecuta
-        - dry_run=True: simula ejecución sin enviar al exchange
-        - ambos=False: trading real (envía orden al exchange)
+        Recibe el OrderIntent canónico del planner — no regenera identidad.
+        ref_price: precio de referencia para bid/ask spread en paper engine.
 
-        Invariante: observe_only tiene prioridad sobre dry_run.
+        Dispatch exclusivo por modo:
+
+        OBSERVE_ONLY — solo loggea, nunca ejecuta.
+        PAPER        — simula con PaperEngine local.
+        SHADOW       — simula con PaperEngine + loggea diferencias vs live.
+        LIVE_CERT    — envía al exchange con log prominente de certificación.
+        LIVE_PROD    — envía al exchange. Requiere FORTRESS_LIVE_PROD_UNLOCK=1
+                       verificado en validate_config() al arrancar.
         """
-        observe = self.config.trading.observe_only
-        dry_run = self.config.trading.dry_run
+        mode = self.config.trading.runtime_mode
+        symbol = order_intent.symbol
+        side = order_intent.side
+        qty = order_intent.final_qty
 
-        # Modo observación: solo loggear, nunca ejecutar
-        if observe:
-            logger.info(f"[{symbol}] OBSERVE ONLY: {side} {qty} @ {price} " f"(reason: {reason})")
+        # --- READINESS GATE: pipeline de órdenes bloqueado hasta readiness completo ---
+        # El pipeline de señales (StrategyManager → Signal → OrderPlanner) ya corrió.
+        # Este es el único punto de bloqueo antes de cualquier ejecución.
+        if not self._readiness.ready:
+            logger.warning(
+                f"[{symbol}] ORDER BLOCKED — runtime not ready: {self._readiness.status_str()} "
+                f"| intent={order_intent.client_order_id[:8]} side={side} qty={qty}"
+            )
             return
 
-        # Verificar que tenemos executor para el símbolo
-        executor = self.executors.get(symbol)
-        if executor is None:
-            logger.error(f"[{symbol}] No executor found")
+        # --- OBSERVE ONLY: pipeline corre, nunca ejecuta ---
+        if mode == RuntimeMode.OBSERVE_ONLY:
+            logger.info(
+                f"[{symbol}] OBSERVE_ONLY: {side} {qty} @ {ref_price} "
+                f"(coid={order_intent.client_order_id[:8]})"
+            )
             return
 
-        # Modo dry run: simular con PaperEngine, no enviar al exchange
-        if dry_run:
+        # --- PAPER / SHADOW: PaperEngine, sin exchange real ---
+        if mode in (RuntimeMode.PAPER, RuntimeMode.SHADOW):
             if self.paper_engine:
-                intent = {
-                    "client_id": f"paper_{symbol}_{side}_{int(time.time() * 1000)}",
+                paper_intent = {
+                    "client_id": order_intent.client_order_id,
                     "symbol": symbol,
                     "side": side.lower(),
                     "type": "market",
                     "amount": qty,
                     "position_side": "LONG" if side == "BUY" else "SHORT",
-                    "reduce_only": False,
+                    "reduce_only": order_intent.reduce_only,
                 }
-                bid = self.current_prices.get(symbol, price) * Decimal("0.999")
-                ask = self.current_prices.get(symbol, price) * Decimal("1.001")
-                result = self.paper_engine.submit_order(intent, bid, ask)
+                bid = self.current_prices.get(symbol, ref_price) * Decimal("0.999")
+                ask = self.current_prices.get(symbol, ref_price) * Decimal("1.001")
+                result = self.paper_engine.submit_order(paper_intent, bid, ask)
                 if result.get("status") == "filled":
                     fill = result.get("fill")
                     ledger = self.ledgers.get(symbol)
@@ -547,32 +674,48 @@ class TradingBot:
                         )
                         ledger.add_fill(ledger_fill)
                         logger.info(
-                            f"[{symbol}] PAPER FILL: {side} {qty} @ {price} "
-                            f"fee={fill.fee_cost} (reason: {reason})"
+                            f"[{symbol}] {mode.value.upper()} FILL: {side} {qty} @ {ref_price} "
+                            f"fee={fill.fee_cost} (coid={order_intent.client_order_id[:8]})"
                         )
                 else:
                     logger.info(
-                        f"[{symbol}] DRY RUN ORDER: {side} {qty} @ {price} "
-                        f"(reason: {reason}, status: {result.get('status')})"
+                        f"[{symbol}] {mode.value.upper()} ORDER: {side} {qty} @ {ref_price} "
+                        f"(status={result.get('status')}, coid={order_intent.client_order_id[:8]})"
                     )
             else:
-                logger.info(f"[{symbol}] DRY RUN: {side} {qty} @ {price} " f"(reason: {reason})")
+                logger.info(
+                    f"[{symbol}] {mode.value.upper()}: {side} {qty} @ {ref_price} "
+                    f"— no paper_engine disponible"
+                )
             return
 
-        # Trading real: enviar orden al exchange
-        # Solo llegamos aquí si observe_only=False y dry_run=False
-        try:
-            result = executor.create_market_order(
-                product_id=symbol,
-                side=side,
-                qty=qty,
+        # --- LIVE_CERT / LIVE_PROD: exchange real ---
+        # validate_config() ya verificó FORTRESS_LIVE_PROD_UNLOCK=1 para LIVE_PROD.
+        executor = self.executors.get(symbol)
+        if executor is None:
+            logger.error(f"[{symbol}] No executor found para modo {mode.value}")
+            return
+
+        if mode == RuntimeMode.LIVE_CERT:
+            logger.warning(
+                f"[{symbol}] LIVE_CERT ORDER: {side} {qty} @ {ref_price} "
+                f"(coid={order_intent.client_order_id[:8]}) — modo certificación, exchange real"
             )
+        elif mode == RuntimeMode.LIVE_PROD:
+            logger.warning(
+                f"[{symbol}] LIVE_PROD ORDER: {side} {qty} @ {ref_price} "
+                f"(coid={order_intent.client_order_id[:8]}) — producción, exchange real"
+            )
+
+        try:
+            # executor.execute() usa order_intent.client_order_id del planner
+            result = executor.execute(order_intent)
             logger.info(
-                f"[{symbol}] ORDER SUBMITTED: {side} {qty} @ {price} "
-                f"(reason: {reason}, result: {result})"
+                f"[{symbol}] ORDER SUBMITTED [{mode.value}]: {side} {qty} @ {ref_price} "
+                f"(coid={order_intent.client_order_id[:8]}, result={result})"
             )
         except Exception as e:
-            logger.error(f"[{symbol}] ORDER FAILED: {e}")
+            logger.error(f"[{symbol}] ORDER FAILED [{mode.value}]: {e}")
 
     def _init_websocket(self) -> None:
         """Inicializar WebSocket."""
@@ -685,6 +828,13 @@ class TradingBot:
                         if price > 0:
                             with self._lock:
                                 self.current_prices[sym] = price
+                                # Primer precio recibido = WS feed activo
+                                if not self._readiness.ws_connected:
+                                    self._readiness.ws_connected = True
+                                    logger.info(
+                                        f"[{sym}] WS feed active — ws_connected=True. "
+                                        f"Readiness: {self._readiness.status_str()}"
+                                    )
             except Exception as e:
                 logger.error(f"Error processing ticker for {sym}: {e}")
 

@@ -23,7 +23,7 @@ from decimal import Decimal
 from typing import Dict
 
 from src.accounting.ledger import TradeLedger
-from src.execution.idempotency import IdempotencyStore, OrderIntent, OrderState
+from src.execution.idempotency import IdempotencyStore, OrderState, StoredIntent
 from src.oms.reconcile import OMSReconcileService
 
 # ──────────────────────────────────────────────
@@ -31,8 +31,8 @@ from src.oms.reconcile import OMSReconcileService
 # ──────────────────────────────────────────────
 
 
-def make_intent(intent_id: str, client_id: str, product_id: str = "BTC-USD") -> OrderIntent:
-    return OrderIntent(
+def make_intent(intent_id: str, client_id: str, product_id: str = "BTC-USD") -> StoredIntent:
+    return StoredIntent(
         intent_id=intent_id,
         client_order_id=client_id,
         product_id=product_id,

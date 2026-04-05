@@ -25,7 +25,7 @@ from pathlib import Path
 import pytest
 
 from src.accounting.ledger import Fill, TradeLedger
-from src.execution.idempotency import IdempotencyStore, OrderIntent, OrderState
+from src.execution.idempotency import IdempotencyStore, OrderState, StoredIntent
 
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures" / "event_replays"
 
@@ -38,8 +38,8 @@ def make_oms_intent(
     order_type: str = "LIMIT",
     qty: str = "0.1",
     price: str = "50000",
-) -> OrderIntent:
-    return OrderIntent(
+) -> StoredIntent:
+    return StoredIntent(
         intent_id=intent_id,
         client_order_id=client_order_id,
         product_id=product_id,

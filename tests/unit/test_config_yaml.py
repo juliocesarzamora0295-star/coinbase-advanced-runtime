@@ -114,6 +114,133 @@ class TestConfigYAMLEffective:
         ), f"Expected slippage_drift_threshold_bps=20.0, got {cfg.slippage_drift_threshold_bps}"
 
 
+def _make_config_from_yaml(tmp_path, yaml_data: dict):
+    """Helper: escribe un YAML en tmp_path/configs/symbols.yaml y carga Config."""
+    import os
+
+    import yaml
+
+    from src.config import Config, reset_config
+
+    configs_dir = tmp_path / "configs"
+    configs_dir.mkdir(parents=True, exist_ok=True)
+    (configs_dir / "symbols.yaml").write_text(yaml.dump(yaml_data))
+
+    reset_config()
+    old_repo = os.environ.get("FORTRESS_REPO")
+    os.environ["FORTRESS_REPO"] = str(tmp_path)
+    try:
+        cfg = Config()
+    finally:
+        if old_repo is None:
+            os.environ.pop("FORTRESS_REPO", None)
+        else:
+            os.environ["FORTRESS_REPO"] = old_repo
+        reset_config()
+    return cfg
+
+
+class TestRiskCfgMaxPositionPct:
+    """
+    Verifica que RiskConfig.max_position_pct lee de risk_cfg, no de trading_cfg.
+
+    Bug corregido: config.py usaba trading_cfg.get() para un campo de RiskConfig,
+    ignorando el valor definido en la sección 'risk:' del YAML.
+    """
+
+    def test_risk_max_position_pct_reads_from_risk_section(self, tmp_path):
+        """risk.max_position_pct se toma de sección 'risk:', no de 'trading:'."""
+        cfg = _make_config_from_yaml(
+            tmp_path,
+            {
+                "trading": {"max_position_pct": 0.30, "dry_run": True, "observe_only": True},
+                "risk": {"max_position_pct": 0.10, "max_daily_loss": 0.05, "max_drawdown": 0.15},
+            },
+        )
+        # Debe leer 0.10 de risk, no 0.30 de trading
+        assert cfg.risk.max_position_pct == 0.10
+        assert cfg.trading.max_position_pct == 0.30
+
+    def test_risk_max_position_pct_default_when_absent(self, tmp_path):
+        """risk.max_position_pct usa default 0.20 cuando no está en YAML."""
+        cfg = _make_config_from_yaml(
+            tmp_path,
+            {
+                "trading": {"max_position_pct": 0.25, "dry_run": True, "observe_only": True},
+                "risk": {"max_daily_loss": 0.05, "max_drawdown": 0.15},
+            },
+        )
+        # No definido en risk: → default 0.20, no 0.25 de trading
+        assert cfg.risk.max_position_pct == 0.20
+
+
+class TestValidateConfig:
+    """Tests para validate_config() — invariantes cross-sección."""
+
+    def _cfg(self, tmp_path, overrides: dict = None):
+        base = {
+            "trading": {
+                "dry_run": True,
+                "observe_only": True,
+                "max_position_pct": 0.20,
+                "risk_per_trade_pct": 0.01,
+            },
+            "risk": {
+                "max_position_pct": 0.20,
+                "max_daily_loss": 0.05,
+                "max_drawdown": 0.15,
+            },
+        }
+        if overrides:
+            for section, vals in overrides.items():
+                base.setdefault(section, {}).update(vals)
+        return _make_config_from_yaml(tmp_path, base)
+
+    def test_valid_config_passes(self, tmp_path):
+        """Config válida no lanza excepción."""
+        from src.config import validate_config
+
+        validate_config(self._cfg(tmp_path))
+
+    def test_risk_max_position_pct_zero_raises(self, tmp_path):
+        """risk.max_position_pct=0 → ValueError."""
+        import pytest
+
+        from src.config import validate_config
+
+        with pytest.raises(ValueError, match="risk.max_position_pct"):
+            validate_config(self._cfg(tmp_path, {"risk": {"max_position_pct": 0.0}}))
+
+    def test_trading_max_position_pct_above_one_raises(self, tmp_path):
+        """trading.max_position_pct > 1 → ValueError."""
+        import pytest
+
+        from src.config import validate_config
+
+        with pytest.raises(ValueError, match="trading.max_position_pct"):
+            validate_config(self._cfg(tmp_path, {"trading": {"max_position_pct": 1.5}}))
+
+    def test_daily_loss_exceeds_drawdown_raises(self, tmp_path):
+        """risk.max_daily_loss > risk.max_drawdown → ValueError."""
+        import pytest
+
+        from src.config import validate_config
+
+        with pytest.raises(ValueError, match="max_daily_loss"):
+            validate_config(
+                self._cfg(tmp_path, {"risk": {"max_daily_loss": 0.20, "max_drawdown": 0.10}})
+            )
+
+    def test_risk_per_trade_pct_zero_raises(self, tmp_path):
+        """trading.risk_per_trade_pct=0 → ValueError."""
+        import pytest
+
+        from src.config import validate_config
+
+        with pytest.raises(ValueError, match="risk_per_trade_pct"):
+            validate_config(self._cfg(tmp_path, {"trading": {"risk_per_trade_pct": 0.0}}))
+
+
 if __name__ == "__main__":
     import pytest
 

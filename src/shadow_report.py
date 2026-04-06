@@ -41,6 +41,7 @@ class ShadowReport:
     signals_blocked: int
 
     def to_dict(self) -> Dict[str, Any]:
+        """Serialize report to dictionary with rounded values."""
         return {
             "passed": self.passed,
             "failures": self.failures,
@@ -56,9 +57,11 @@ class ShadowReport:
         }
 
     def to_json(self) -> str:
+        """Serialize report to formatted JSON string."""
         return json.dumps(self.to_dict(), indent=2)
 
     def summary(self) -> str:
+        """Human-readable multi-line summary with pass/fail status."""
         status = "PASS" if self.passed else "FAIL"
         lines = [
             f"Shadow Report: {status}",

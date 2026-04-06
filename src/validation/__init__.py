@@ -1,8 +1,6 @@
 """
 Validación de estrategias para Fortress v4.
-Basado en GemProtocol de GuardianBot.
+
+NOTE: gem_protocol.py is legacy code from GuardianBot.
+Not imported by default — load explicitly if needed.
 """
-
-from src.validation.gem_protocol import GemConfig, GemProtocol
-
-__all__ = ["GemProtocol", "GemConfig"]

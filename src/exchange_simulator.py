@@ -89,7 +89,7 @@ class ExchangeSimulator:
         """Simulate API latency (jittered)."""
         jitter = self._rng.uniform(0.5, 1.5)
         delay = (self._latency_ms * jitter) / 1000.0
-        time.sleep(min(delay, 0.01))  # cap at 10ms for testing
+        time.sleep(delay)
 
     def _advance_price(self) -> None:
         """Random walk price evolution."""
@@ -138,6 +138,15 @@ class ExchangeSimulator:
         Place an order. Market orders fill immediately with slippage.
         Limit orders rest until explicitly filled.
         """
+        if qty <= 0:
+            return {"order_id": "", "client_order_id": client_order_id,
+                    "status": "REJECTED", "fill_price": "0", "fill_qty": "0",
+                    "error": "invalid_qty"}
+        if side.upper() not in ("BUY", "SELL"):
+            return {"order_id": "", "client_order_id": client_order_id,
+                    "status": "REJECTED", "fill_price": "0", "fill_qty": "0",
+                    "error": "invalid_side"}
+
         self._simulate_latency()
         self._order_counter += 1
         order_id = f"sim-{self._order_counter:06d}"
@@ -166,17 +175,35 @@ class ExchangeSimulator:
             order.fill_qty = order.qty
             order.status = "FILLED"
 
-            # Update balances
+            # Check sufficient balance before fill
             notional = float(order.fill_qty) * float(order.fill_price)
             base = symbol.split("-")[0] if "-" in symbol else symbol
             quote = symbol.split("-")[1] if "-" in symbol else "USD"
 
             if side.upper() == "BUY":
-                self._balances[quote] = self._balances.get(quote, 0) - notional
+                available = self._balances.get(quote, 0)
+                if available < notional:
+                    order.status = "REJECTED"
+                    self._orders[order_id] = order
+                    result = {"order_id": order_id, "client_order_id": client_order_id,
+                              "status": "REJECTED", "fill_price": "0", "fill_qty": "0",
+                              "error": "insufficient_funds"}
+                    self._log_op("reject", result)
+                    return result
+                self._balances[quote] = available - notional
                 self._balances[base] = self._balances.get(base, 0) + float(order.fill_qty)
             else:
+                available = self._balances.get(base, 0)
+                if available < float(order.fill_qty):
+                    order.status = "REJECTED"
+                    self._orders[order_id] = order
+                    result = {"order_id": order_id, "client_order_id": client_order_id,
+                              "status": "REJECTED", "fill_price": "0", "fill_qty": "0",
+                              "error": "insufficient_funds"}
+                    self._log_op("reject", result)
+                    return result
                 self._balances[quote] = self._balances.get(quote, 0) + notional
-                self._balances[base] = self._balances.get(base, 0) - float(order.fill_qty)
+                self._balances[base] = available - float(order.fill_qty)
 
         self._orders[order_id] = order
 

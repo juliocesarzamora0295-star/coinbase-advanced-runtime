@@ -71,6 +71,9 @@ class ShadowRunner:
         self._gate = RiskGate(self._risk_limits)
         self._breaker = CircuitBreaker(breaker_config or BreakerConfig())
         self._initial_cash = initial_cash
+        # NOTE: Shadow runner uses float for position tracking (approximate).
+        # Production code uses Decimal. This is acceptable for shadow validation
+        # where sub-cent precision is not critical.
         self._cash = initial_cash
         self._position_qty = 0.0
         self._avg_entry = 0.0
@@ -110,13 +113,19 @@ class ShadowRunner:
             return "SELL"
         return None
 
-    def run(self, duration_s: float = 60.0, tick_interval_s: float = 0.01) -> ShadowRunResult:
+    def run(
+        self,
+        duration_s: float = 60.0,
+        tick_interval_s: float = 0.01,
+        max_ticks: int = 0,
+    ) -> ShadowRunResult:
         """
-        Execute shadow run for given duration.
+        Execute shadow run.
 
         Args:
-            duration_s: how long to run (seconds)
-            tick_interval_s: time between price ticks
+            duration_s: max wall-clock duration (seconds)
+            tick_interval_s: pause between ticks
+            max_ticks: if > 0, stop after this many ticks (deterministic mode)
         """
         start = time.time()
         prices: List[float] = []
@@ -126,6 +135,8 @@ class ShadowRunner:
         sample_interval = max(1, int(duration_s / 60))  # ~60 samples
 
         while time.time() - start < duration_s:
+            if max_ticks > 0 and ticks >= max_ticks:
+                break
             ticks += 1
 
             try:

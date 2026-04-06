@@ -39,12 +39,24 @@ class PerformanceMetrics:
     avg_trade_duration_ms: int
     return_pct: float  # total return as fraction
 
+    # Extended metrics (institutional)
+    cagr: float = 0.0  # compound annual growth rate
+    sortino_ratio: float = 0.0
+    calmar_ratio: float = 0.0  # CAGR / max_drawdown_fraction (dimensionless)
+    max_consecutive_losses: int = 0
+    recovery_factor: float = 0.0  # total_pnl / max_drawdown_currency
+    time_in_market_pct: float = 0.0  # approx: trades*2/bars (exact needs per-bar state)
+    turnover_rate: float = 0.0  # trades / bars
+    skewness: float = 0.0
+    kurtosis: float = 0.0
+
     def passes_certification(
         self,
         min_sharpe: float = 0.0,
         max_drawdown: float = 0.50,
         min_trades: int = 5,
         min_profit_factor: float = 0.5,
+        max_consecutive_losses: int = 20,
     ) -> Tuple[bool, List[str]]:
         """
         Check if metrics pass certification thresholds.
@@ -61,6 +73,10 @@ class PerformanceMetrics:
             failures.append(f"max_dd={self.max_drawdown:.2%} > {max_drawdown:.2%}")
         if self.profit_factor < min_profit_factor:
             failures.append(f"profit_factor={self.profit_factor:.2f} < {min_profit_factor}")
+        if self.max_consecutive_losses > max_consecutive_losses:
+            failures.append(
+                f"max_consec_losses={self.max_consecutive_losses} > {max_consecutive_losses}"
+            )
         return len(failures) == 0, failures
 
 
@@ -109,6 +125,58 @@ def compute_metrics(
     max_dd = _max_drawdown(equity_curve)
     sharpe = _sharpe_ratio(equity_curve, periods_per_year=periods_per_year)
 
+    # Extended metrics (compute from returns series)
+    returns = []
+    for i in range(1, len(equity_curve)):
+        prev = float(equity_curve[i - 1][1])
+        curr = float(equity_curve[i][1])
+        if prev > 0:
+            returns.append((curr - prev) / prev)
+
+    trade_pnls = [float(t.pnl) for t in trades]
+    n_bars = len(equity_curve)
+
+    # CAGR
+    cagr = 0.0
+    if return_pct > -1.0 and n_bars > 1:
+        years = n_bars / periods_per_year if periods_per_year > 0 else 1.0
+        if years > 0:
+            cagr = (1 + return_pct) ** (1 / years) - 1
+
+    # Sortino (downside deviation)
+    sortino = 0.0
+    if returns:
+        mean_r = sum(returns) / len(returns)
+        downside = [min(0.0, r - mean_r) ** 2 for r in returns]
+        dd_dev = math.sqrt(sum(downside) / max(len(returns) - 1, 1))
+        sortino = (mean_r / dd_dev * math.sqrt(periods_per_year)) if dd_dev > 0 else 0.0
+
+    # Calmar = CAGR / max_drawdown_fraction (both dimensionless)
+    calmar = cagr / max_dd if max_dd > 0 else 0.0
+
+    # Max consecutive losses
+    max_consec = 0
+    consec = 0
+    for pnl in trade_pnls:
+        if pnl < 0:
+            consec += 1
+            max_consec = max(max_consec, consec)
+        else:
+            consec = 0
+
+    # Recovery factor = total_pnl / max_drawdown_in_currency
+    max_dd_currency = max_dd * float(initial_equity) if initial_equity > ZERO else 0.0
+    recovery = float(total_pnl) / max_dd_currency if max_dd_currency > 0 else 0.0
+
+    # Skewness/kurtosis
+    from src.quantitative.advanced import _skewness, _kurtosis
+    skew = _skewness(returns) if len(returns) >= 3 else 0.0
+    kurt = _kurtosis(returns) if len(returns) >= 4 else 0.0
+
+    # Time in market / turnover (estimated from trades vs bars)
+    time_pct = min(1.0, total * 2 / n_bars) if n_bars > 0 else 0.0  # rough: each trade covers ~2 bars
+    turnover = total / n_bars if n_bars > 0 else 0.0
+
     return PerformanceMetrics(
         total_trades=total,
         winning_trades=len(winners),
@@ -123,6 +191,15 @@ def compute_metrics(
         avg_loss=avg_loss,
         avg_trade_duration_ms=avg_duration,
         return_pct=return_pct,
+        cagr=cagr,
+        sortino_ratio=sortino,
+        calmar_ratio=calmar,
+        max_consecutive_losses=max_consec,
+        recovery_factor=recovery,
+        time_in_market_pct=time_pct,
+        turnover_rate=turnover,
+        skewness=skew,
+        kurtosis=kurt,
     )
 
 

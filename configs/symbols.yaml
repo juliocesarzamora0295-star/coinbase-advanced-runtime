@@ -7,15 +7,13 @@ symbols:
     timeframe: "1h"
     strategies:
       - "ma_crossover"
-      - "breakout"
-    
+
   - symbol: "ETH-USD"
     enabled: true
     timeframe: "1h"
     strategies:
       - "ma_crossover"
-      - "mean_reversion"
-    
+
   # Descomentar para activar más símbolos
   # - symbol: "SOL-USD"
   #   enabled: false
@@ -33,7 +31,8 @@ trading:
   max_orders_per_minute: 10       # Máximo órdenes por minuto
   smoke_test_mode: false  # true = modo smoke test con validaciones
   max_cycles: 0           # 0 = sin límite, N = detener después de N ciclos
-  
+  sizing_mode: "NOTIONAL" # NOTIONAL o RISK_BASED
+
 # Configuración de riesgo
 risk:
   max_daily_loss: 0.05      # 5% pérdida diaria máxima

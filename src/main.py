@@ -252,6 +252,7 @@ class TradingBot:
             max_orders_per_minute=self.config.trading.max_orders_per_minute,
             max_daily_loss_pct=Decimal(str(self.config.risk.max_daily_loss)),
             max_drawdown_pct=Decimal(str(self.config.risk.max_drawdown)),
+            max_total_exposure_pct=Decimal(str(self.config.risk.max_total_exposure_pct)),
         )
         self.risk_gate = RiskGate(risk_limits)
         logger.info(f"Risk Gate initialized: max_position={risk_limits.max_position_pct}%")
@@ -714,6 +715,54 @@ class TradingBot:
             logger.warning(
                 f"[{symbol}] Signal REJECTED by RiskGate: {risk_decision.reason} "
                 f"rules={risk_decision.blocking_rule_ids}"
+            )
+            return
+
+        # Cross-symbol exposure check (fail-closed on missing prices)
+        exposures: Dict[str, Decimal] = {}
+        exposure_evaluable = True
+        for sym, ldg in self.ledgers.items():
+            if ldg.position_qty > Decimal("0"):
+                sym_price = self.current_prices.get(sym, Decimal("0"))
+                if sym_price <= Decimal("0"):
+                    # Fallback: use avg_entry if available
+                    sym_price = ldg.avg_entry if ldg.avg_entry > Decimal("0") else Decimal("0")
+                if sym_price <= Decimal("0"):
+                    # Position exists but no price at all — cannot evaluate exposure
+                    logger.warning(
+                        "[%s] Exposure check BLOCKED: position=%s but no valid price",
+                        sym, ldg.position_qty,
+                    )
+                    exposure_evaluable = False
+                    break
+                exposures[sym] = ldg.position_qty * sym_price
+
+        if not exposure_evaluable:
+            self.metrics.inc("signals.blocked.exposure_no_price")
+            return
+
+        new_notional = risk_decision.hard_max_qty * entry_ref
+        total_equity = Decimal("0")
+        for s, ldg in self.ledgers.items():
+            eq_price = self.current_prices.get(s, Decimal("0"))
+            if eq_price <= Decimal("0"):
+                eq_price = ldg.avg_entry if ldg.avg_entry > Decimal("0") else Decimal("0")
+            if eq_price <= Decimal("0") and ldg.position_qty > Decimal("0"):
+                # Same fail-closed: can't mark-to-market
+                self.metrics.inc("signals.blocked.equity_no_price")
+                return
+            total_equity += ldg.get_equity(eq_price)
+
+        exposure_verdict = self.risk_gate.check_total_exposure(
+            equity=total_equity,
+            exposures=exposures,
+            new_symbol=symbol,
+            new_notional=new_notional,
+        )
+        if not exposure_verdict.allowed:
+            self.metrics.inc("signals.blocked.total_exposure")
+            logger.warning(
+                f"[{symbol}] Signal REJECTED by total exposure: {exposure_verdict.reason}"
             )
             return
 

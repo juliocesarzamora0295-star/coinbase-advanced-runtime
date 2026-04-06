@@ -115,6 +115,10 @@ class TradingBot:
         self._running = False
         self._lock = threading.Lock()
 
+        # Order tracking for deferred ExecutionReport generation
+        # Maps client_order_id → (symbol, side, expected_price, requested_qty)
+        self._pending_reports: Dict[str, tuple] = {}
+
     def initialize(self) -> bool:
         """Inicializar el bot."""
         logger.info("=" * 60)
@@ -295,6 +299,7 @@ class TradingBot:
                         f"[{symbol}] OMS bootstrap complete — trading enabled"
                     ),
                     on_degraded=_make_degraded_handler(symbol),
+                    on_fill_applied=self._on_fill_reconciled,
                 )
                 self.oms_services[symbol] = oms
 
@@ -595,31 +600,37 @@ class TradingBot:
             result = executor.submit_order(intent)
             latency_ms = (time.time() - t_start) * 1000
 
-            # Telemetry → CircuitBreaker
-            self.circuit_breaker.record_execution_result(result.success)
+            # Telemetry → CircuitBreaker (latency only at submit time)
             self.circuit_breaker.record_latency(latency_ms)
 
             # Metrics
             if result.success:
                 self.metrics.inc("orders.submitted", labels={"symbol": symbol})
+                # Track for deferred real ExecutionReport on fill
+                self._pending_reports[intent.client_order_id] = (
+                    symbol, side, expected_price, qty, latency_ms,
+                )
             else:
                 self.metrics.inc("orders.rejected", labels={"symbol": symbol})
+                # Rejected: generate report with fill_ratio=0, slippage=0
+                report = build_execution_report(
+                    client_order_id=intent.client_order_id,
+                    symbol=symbol,
+                    side=side,
+                    expected_price=expected_price,
+                    fill_price=Decimal("0"),
+                    requested_qty=qty,
+                    filled_qty=Decimal("0"),
+                    latency_ms=latency_ms,
+                    outcome="REJECTED",
+                )
+                report.log_structured()
+                self.circuit_breaker.record_execution_result(False)
             self.metrics.observe("latency.execute_ms", latency_ms, labels={"symbol": symbol})
 
-            # ExecutionReport — generate and feed slippage to breaker
-            # Note: fill_price comes later via OMS reconcile; for now use expected_price
-            report = build_execution_report(
-                client_order_id=intent.client_order_id,
-                symbol=symbol,
-                side=side,
-                expected_price=expected_price,
-                fill_price=expected_price,  # actual fill price arrives via OMS
-                requested_qty=qty,
-                filled_qty=qty if result.success else Decimal("0"),
-                latency_ms=latency_ms,
-                outcome="FILLED" if result.success else "REJECTED",
-            )
-            report.log_structured()
+            # NOTE: Final ExecutionReport with real fill_price and filled_qty
+            # is generated in _on_fill_reconciled() when OMS processes the fill.
+            # Here we only record latency and submit result.
 
             logger.info(
                 f"[{symbol}] ORDER SUBMITTED: {side} {qty} "
@@ -754,6 +765,66 @@ class TradingBot:
                     )
                 except Exception as e:
                     logger.error("KILL_SWITCH FLATTEN FAILED: %s — %s", symbol, e)
+
+    def _on_fill_reconciled(
+        self,
+        client_order_id: str,
+        fill_price: Decimal,
+        filled_qty: Decimal,
+        symbol: str,
+        side: str,
+    ) -> None:
+        """
+        Generate real ExecutionReport from reconciled fill data.
+
+        Called from OMS reconcile when a fill is confirmed with real
+        price and quantity from the exchange.
+        """
+        pending = self._pending_reports.pop(client_order_id, None)
+        if pending:
+            _, _, expected_price, requested_qty, submit_latency_ms = pending
+        else:
+            # Fill for order we didn't track (e.g. recovered after restart)
+            expected_price = fill_price
+            requested_qty = filled_qty
+            submit_latency_ms = 0.0
+
+        # Determine outcome
+        if filled_qty >= requested_qty:
+            outcome = "FILLED"
+        elif filled_qty > Decimal("0"):
+            outcome = "PARTIAL"
+        else:
+            outcome = "REJECTED"
+
+        report = build_execution_report(
+            client_order_id=client_order_id,
+            symbol=symbol,
+            side=side,
+            expected_price=expected_price,
+            fill_price=fill_price,
+            requested_qty=requested_qty,
+            filled_qty=filled_qty,
+            latency_ms=submit_latency_ms,
+            outcome=outcome,
+        )
+        report.log_structured()
+
+        # Feed real slippage and execution result to CircuitBreaker
+        self.circuit_breaker.record_slippage(float(report.slippage_bps))
+        self.circuit_breaker.record_execution_result(outcome in ("FILLED", "PARTIAL"))
+
+        # Metrics
+        self.metrics.observe(
+            "slippage.bps", float(report.slippage_bps), labels={"symbol": symbol}
+        )
+        self.metrics.gauge(
+            "fill.quality", float(report.fill_quality_score), labels={"symbol": symbol}
+        )
+        if outcome == "PARTIAL":
+            self.metrics.inc("fills.partial", labels={"symbol": symbol})
+        else:
+            self.metrics.inc("fills.full", labels={"symbol": symbol})
 
     def _init_websocket(self) -> None:
         """Inicializar WebSocket."""

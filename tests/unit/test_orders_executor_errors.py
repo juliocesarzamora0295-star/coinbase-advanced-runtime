@@ -1,17 +1,15 @@
 """
-Tests dirigidos: cobertura de paths no cubiertos en orders.py.
+Tests dirigidos: cobertura de paths de error en OrderExecutor.
 
 Cubre mediante mocks de CoinbaseRESTClient:
-- ValueError cuando qty=None y quote_size=None
-- Ruta quote_size en create_market_order
-- CoinbaseAPIError en create_market_order → OrderResult(success=False, FAILED)
-- cancel_order cuando no hay exchange_order_id → False
-- CoinbaseAPIError en cancel_order → False
+- CoinbaseAPIError en submit_order (market) -> OrderResult(success=False, FAILED)
+- CoinbaseAPIError persiste estado FAILED en OMS
+- cancel_order cuando no hay exchange_order_id -> False
+- CoinbaseAPIError en cancel_order -> False
 - get_order_status() con intent existente y no existente
 """
 
 import uuid
-from datetime import datetime
 from decimal import Decimal
 from unittest.mock import MagicMock
 
@@ -19,7 +17,8 @@ import pytest
 
 from src.core.coinbase_exchange import CoinbaseAPIError
 from src.core.quantization import ProductInfo, Quantizer
-from src.execution.idempotency import IdempotencyStore, OrderIntent, OrderState
+from src.execution.idempotency import IdempotencyStore, OrderState
+from src.execution.order_planner import OrderIntent
 from src.execution.orders import OrderExecutor
 
 # ──────────────────────────────────────────────
@@ -53,81 +52,56 @@ def make_executor(tmp_path, client_mock) -> OrderExecutor:
 def make_client_mock(order_id: str = "ex-mock-001") -> MagicMock:
     mock = MagicMock()
     mock.create_market_order.return_value = {"order_id": order_id}
-    mock.create_limit_order.return_value = {"order_id": order_id}
+    mock.create_limit_order_gtc.return_value = {"order_id": order_id}
     mock.cancel_orders.return_value = [{"order_id": order_id}]
     return mock
 
 
-# ──────────────────────────────────────────────
-# create_market_order: ValueError path
-# ──────────────────────────────────────────────
-
-
-class TestCreateMarketOrderValueError:
-
-    def test_no_qty_no_quote_raises_value_error(self, tmp_path):
-        """qty=None y quote_size=None → ValueError."""
-        executor = make_executor(tmp_path, make_client_mock())
-        with pytest.raises(ValueError, match="qty o quote_size"):
-            executor.create_market_order(
-                product_id="BTC-USD",
-                side="BUY",
-                qty=None,
-                quote_size=None,
-            )
-
-
-# ──────────────────────────────────────────────
-# create_market_order: quote_size path
-# ──────────────────────────────────────────────
-
-
-class TestCreateMarketOrderQuoteSize:
-
-    def test_quote_size_path_creates_order(self, tmp_path):
-        """quote_size provisto → prepara por quote, llama API."""
-        client = make_client_mock("ex-quote-001")
-        executor = make_executor(tmp_path, client)
-
-        result = executor.create_market_order(
-            product_id="BTC-USD",
-            side="BUY",
-            qty=None,
-            quote_size=Decimal("100"),
-        )
-
-        assert result.success is True
-        assert result.state == OrderState.OPEN_PENDING
-        # Verificar que se llamó con quote_size
-        call_kwargs = client.create_market_order.call_args
-        assert call_kwargs is not None
+def make_test_intent(
+    symbol="BTC-USD",
+    side="BUY",
+    order_type="MARKET",
+    qty="0.001",
+    price=None,
+) -> OrderIntent:
+    return OrderIntent(
+        client_order_id=str(uuid.uuid4()),
+        signal_id="test-signal",
+        strategy_id="test-strategy",
+        symbol=symbol,
+        side=side,
+        final_qty=Decimal(qty),
+        order_type=order_type,
+        price=Decimal(price) if price else None,
+        reduce_only=False,
+        post_only=order_type == "LIMIT",
+        viable=True,
+        planner_version="test",
+    )
 
 
 # ──────────────────────────────────────────────
-# create_market_order: CoinbaseAPIError
+# submit_order (market): CoinbaseAPIError
 # ──────────────────────────────────────────────
 
 
-class TestCreateMarketOrderAPIError:
+class TestSubmitMarketOrderAPIError:
 
     def test_api_error_returns_failed_result(self, tmp_path):
-        """CoinbaseAPIError → OrderResult(success=False, FAILED)."""
+        """CoinbaseAPIError -> OrderResult(success=False, FAILED)."""
         client = MagicMock()
         client.create_market_order.side_effect = CoinbaseAPIError("timeout")
         executor = make_executor(tmp_path, client)
 
-        result = executor.create_market_order(
-            product_id="BTC-USD",
-            side="BUY",
-            qty=Decimal("0.01"),
-        )
+        intent = make_test_intent(qty="0.01")
+        result = executor.submit_order(intent)
 
         assert result.success is False
         assert result.state == OrderState.FAILED
         assert "timeout" in (result.error_message or "")
 
     def test_api_error_persists_failed_state_in_oms(self, tmp_path):
-        """CoinbaseAPIError → estado FAILED guardado en IdempotencyStore."""
+        """CoinbaseAPIError -> estado FAILED guardado en IdempotencyStore."""
         client = MagicMock()
         client.create_market_order.side_effect = CoinbaseAPIError("rate_limit")
         store = IdempotencyStore(db_path=str(tmp_path / "oms.db"))
@@ -137,13 +111,10 @@ class TestCreateMarketOrderAPIError:
             quantizer=make_quantizer(),
         )
 
-        result = executor.create_market_order(
-            product_id="BTC-USD",
-            side="BUY",
-            qty=Decimal("0.01"),
-        )
+        intent = make_test_intent(qty="0.01")
+        result = executor.submit_order(intent)
 
-        record = store.get_by_intent_id(result.intent_id)
+        record = store.get_by_client_order_id(result.client_order_id)
         assert record is not None
         assert record.state == OrderState.FAILED
 
@@ -156,7 +127,7 @@ class TestCreateMarketOrderAPIError:
 class TestCancelOrderNoExchangeId:
 
     def test_cancel_without_exchange_id_returns_false(self, tmp_path):
-        """Orden sin exchange_order_id → cancel_order retorna False."""
+        """Orden sin exchange_order_id -> cancel_order retorna False."""
         store = IdempotencyStore(db_path=str(tmp_path / "oms.db"))
         client = make_client_mock()
         executor = OrderExecutor(
@@ -165,24 +136,11 @@ class TestCancelOrderNoExchangeId:
             quantizer=make_quantizer(),
         )
 
-        # Guardar intent en NEW sin exchange_order_id
-        intent_id = str(uuid.uuid4())
-        intent = OrderIntent(
-            intent_id=intent_id,
-            client_order_id=str(uuid.uuid4()),
-            product_id="BTC-USD",
-            side="BUY",
-            order_type="LIMIT",
-            qty=Decimal("0.1"),
-            price=Decimal("50000"),
-            stop_price=None,
-            post_only=False,
-            created_ts_ms=int(datetime.now().timestamp() * 1000),
-        )
+        # Guardar intent en OPEN_RESTING sin exchange_order_id
+        intent = make_test_intent(order_type="LIMIT", qty="0.1", price="50000")
         store.save_intent(intent, OrderState.OPEN_RESTING)
-        # No se seteó exchange_order_id
 
-        result = executor.cancel_order(intent_id)
+        result = executor.cancel_order(intent.client_order_id)
         assert result is False
 
 
@@ -194,29 +152,17 @@ class TestCancelOrderNoExchangeId:
 class TestCancelOrderAPIError:
 
     def _make_intent_with_exchange_id(self, store: IdempotencyStore) -> str:
-        intent_id = str(uuid.uuid4())
-        intent = OrderIntent(
-            intent_id=intent_id,
-            client_order_id=str(uuid.uuid4()),
-            product_id="BTC-USD",
-            side="BUY",
-            order_type="LIMIT",
-            qty=Decimal("0.1"),
-            price=Decimal("50000"),
-            stop_price=None,
-            post_only=False,
-            created_ts_ms=int(datetime.now().timestamp() * 1000),
-        )
+        intent = make_test_intent(order_type="LIMIT", qty="0.1", price="50000")
         store.save_intent(intent, OrderState.OPEN_RESTING)
         store.update_state(
-            intent_id=intent_id,
+            client_order_id=intent.client_order_id,
             state=OrderState.OPEN_RESTING,
             exchange_order_id="ex-cancel-err-001",
         )
-        return intent_id
+        return intent.client_order_id
 
     def test_api_error_returns_false(self, tmp_path):
-        """CoinbaseAPIError en cancel_orders → cancel_order retorna False."""
+        """CoinbaseAPIError en cancel_orders -> cancel_order retorna False."""
         store = IdempotencyStore(db_path=str(tmp_path / "oms.db"))
         client = MagicMock()
         client.cancel_orders.side_effect = CoinbaseAPIError("network error")
@@ -226,8 +172,8 @@ class TestCancelOrderAPIError:
             quantizer=make_quantizer(),
         )
 
-        intent_id = self._make_intent_with_exchange_id(store)
-        result = executor.cancel_order(intent_id)
+        client_order_id = self._make_intent_with_exchange_id(store)
+        result = executor.cancel_order(client_order_id)
         assert result is False
 
 
@@ -239,7 +185,7 @@ class TestCancelOrderAPIError:
 class TestGetOrderStatus:
 
     def test_existing_order_returns_state(self, tmp_path):
-        """Intent existente → retorna su OrderState."""
+        """Intent existente -> retorna su OrderState."""
         store = IdempotencyStore(db_path=str(tmp_path / "oms.db"))
         executor = OrderExecutor(
             client=make_client_mock(),
@@ -247,26 +193,14 @@ class TestGetOrderStatus:
             quantizer=make_quantizer(),
         )
 
-        intent_id = str(uuid.uuid4())
-        intent = OrderIntent(
-            intent_id=intent_id,
-            client_order_id=str(uuid.uuid4()),
-            product_id="BTC-USD",
-            side="BUY",
-            order_type="LIMIT",
-            qty=Decimal("0.1"),
-            price=Decimal("50000"),
-            stop_price=None,
-            post_only=False,
-            created_ts_ms=int(datetime.now().timestamp() * 1000),
-        )
+        intent = make_test_intent(order_type="LIMIT", qty="0.1", price="50000")
         store.save_intent(intent, OrderState.OPEN_RESTING)
 
-        status = executor.get_order_status(intent_id)
+        status = executor.get_order_status(intent.client_order_id)
         assert status == OrderState.OPEN_RESTING
 
     def test_nonexistent_order_returns_none(self, tmp_path):
-        """Intent no existente → retorna None."""
+        """Intent no existente -> retorna None."""
         store = IdempotencyStore(db_path=str(tmp_path / "oms.db"))
         executor = OrderExecutor(
             client=make_client_mock(),

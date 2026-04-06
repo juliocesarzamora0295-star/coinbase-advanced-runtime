@@ -80,12 +80,14 @@ class OMSReconcileService:
         fill_fetcher: Optional[Callable[[str], List[Dict]]] = None,
         on_bootstrap_complete: Optional[Callable[[], None]] = None,
         on_degraded: Optional[Callable[[OMSIncident], None]] = None,
+        on_fill_applied: Optional[Callable[[str, Decimal, Decimal, str, str], None]] = None,
     ):
         self.idempotency = idempotency
         self.ledger = ledger
         self.fill_fetcher = fill_fetcher  # REST list_fills(order_id)
         self.on_bootstrap_complete = on_bootstrap_complete
         self.on_degraded = on_degraded
+        self.on_fill_applied = on_fill_applied  # (client_order_id, price, qty, symbol, side)
 
         # Estado de bootstrap
         self._bootstrap_complete = False
@@ -363,6 +365,18 @@ class OMSReconcileService:
             added = self.ledger.add_fill(fill)
             if added:
                 self._seen_trade_ids.add(trade_id)
+
+                # Notify for real ExecutionReport generation
+                if self.on_fill_applied:
+                    client_order_id = order.get("client_order_id", "")
+                    self.on_fill_applied(
+                        client_order_id,
+                        fill.price,
+                        fill.amount,
+                        order.get("product_id", ""),
+                        fill.side.upper(),
+                    )
+
                 logger.info(
                     "OMS: Fill applied: %s %s @ %s (fee: %s %s)",
                     fill.side,

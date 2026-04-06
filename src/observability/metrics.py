@@ -277,4 +277,11 @@ class MetricsCollector:
 
     def reset(self) -> None:
         """Reiniciar todos los contadores (para tests o reset diario)."""
-        self.__init__()
+        self._metrics = RuntimeMetrics()
+        self._order_total = 0
+        self._order_rejected = 0
+        self._riskgate_rejections = defaultdict(int)
+        self._signal_counts = defaultdict(int)
+        self._counters = {}
+        self._gauges = {}
+        self._histograms = {}

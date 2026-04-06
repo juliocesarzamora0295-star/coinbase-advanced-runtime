@@ -10,6 +10,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: true
       matrix:
         python-version: ["3.10", "3.11", "3.12"]
 
@@ -26,22 +27,20 @@ jobs:
         python -m pip install --upgrade pip
         pip install -e ".[dev]"
 
-    - name: Check syntax with compileall
-      run: |
-        python -m compileall -q src tests
+    - name: Smoke test (build + core imports)
+      run: bash scripts/ci_smoke.sh
 
     - name: Lint with ruff
-      run: |
-        ruff check src/ tests/
+      run: ruff check src/ tests/
 
     - name: Format check with black
-      run: |
-        black --check src/ tests/
+      run: black --check src/ tests/
 
-    - name: Type check with mypy
+    - name: Type check with mypy (all modules)
       run: |
-        mypy src/risk/ src/execution/ src/accounting/ src/oms/ src/strategy/ src/marketdata/orderbook.py \
-          --ignore-missing-imports --follow-imports=silent
+        mypy src/risk/ src/execution/ src/accounting/ src/oms/ \
+             src/observability/ src/backtest/ src/strategy/ \
+             src/marketdata/orderbook.py
 
     - name: Unit tests with coverage (global ≥ 70%)
       run: |
@@ -68,8 +67,16 @@ jobs:
     - name: Integration tests (no credentials required)
       run: |
         python -m pytest tests/integration/ -v --tb=short \
-          --ignore=tests/integration/test_coinbase_api.py \
+          --ignore=tests/integration/test_coinbase_integration.py \
           --ignore=tests/integration/test_websocket_integration.py
+
+    - name: Runtime smoke test
+      run: |
+        python -m pytest tests/integration/test_runtime_smoke.py -v --tb=short
+
+    - name: Replay integration test
+      run: |
+        python -m pytest tests/integration/test_replay_integration.py -v --tb=short
 
   live-integration-test:
     runs-on: ubuntu-latest

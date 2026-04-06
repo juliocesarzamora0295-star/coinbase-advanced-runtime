@@ -205,6 +205,7 @@ class OMSReconcileService:
         if drifts:
             for d in drifts:
                 logger.warning("RECONCILE DRIFT: %s", d)
+            self._last_external_reconcile_clean = False
             self.record_dirty_reconcile()
             self.report_divergence(f"External reconcile: {len(drifts)} drifts")
         else:
@@ -364,8 +365,9 @@ class OMSReconcileService:
         """
         Reportar divergencia detectada externamente (e.g. reconcile periódico).
 
-        Marca OMS como degradado.
+        Marca OMS como degradado. Invalidates external reconcile clean state.
         """
+        self._last_external_reconcile_clean = False
         incident = OMSIncident(
             incident_type="DIVERGENCE",
             detail=detail,

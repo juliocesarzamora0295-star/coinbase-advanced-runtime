@@ -155,13 +155,16 @@ class TradingBot:
         # Determinar modo operativo real
         if self.config.trading.observe_only:
             _mode = "OBSERVE_ONLY (no genera señales de trading)"
+            _estado = "SHADOW MODE"
         elif self.config.trading.dry_run:
             _mode = "DRY_RUN (simula con PaperEngine, no envía al exchange)"
+            _estado = "SIMULATION MODE"
         else:
             _mode = "LIVE TRADING (envía órdenes reales al exchange)"
+            _estado = "LIVE MODE"
 
-        logger.info("ESTADO: Runtime pre-producción")
-        logger.info(f"MODO: {_mode}")
+        logger.info("ESTADO: %s", _estado)
+        logger.info("MODO: %s", _mode)
         logger.info("- API Client: OK")
         logger.info("- WebSocket: OK")
         logger.info("- Ledger: institucional (cash + MTM)")
@@ -1025,17 +1028,38 @@ class TradingBot:
                     result = executor.submit_order(flatten_intent)
                     self.metrics.inc("kill_switch.flatten", labels={"symbol": symbol})
 
-                    # Wait for ledger convergence (fill arrives async via OMS)
+                    # Convergence: local ledger + exchange verification
                     flatten_converged = False
                     for wait_attempt in range(5):
                         if ledger.position_qty <= Decimal("0.00001"):
                             flatten_converged = True
                             break
                         time.sleep(0.2)
-                    if flatten_converged:
+
+                    # Exchange-level verification of flatten order
+                    exchange_confirmed = False
+                    if flatten_converged and result.client_order_id:
+                        try:
+                            idem_record = executor.idempotency.get_by_client_order_id(
+                                result.client_order_id
+                            )
+                            if idem_record and idem_record.is_terminal:
+                                exchange_confirmed = True
+                        except Exception:
+                            pass  # best-effort exchange check
+
+                    if flatten_converged and exchange_confirmed:
                         logger.critical(
-                            "KILL_SWITCH FLATTEN CONVERGED: %s position=%s",
+                            "KILL_SWITCH FLATTEN CONVERGED: %s position=%s "
+                            "OMS_terminal=True",
                             symbol, ledger.position_qty,
+                        )
+                    elif flatten_converged:
+                        # Ledger shows 0 but OMS not terminal yet
+                        logger.warning(
+                            "KILL_SWITCH FLATTEN: ledger converged but OMS not "
+                            "terminal for %s. Treating as partial convergence.",
+                            symbol,
                         )
                     else:
                         converged = False

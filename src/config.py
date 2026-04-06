@@ -108,6 +108,7 @@ class RiskConfig:
     max_drawdown: float = 0.15
     max_consecutive_losses: int = 3
     max_position_pct: float = 0.20
+    max_total_exposure_pct: float = 0.80  # 80% max across all symbols
 
 
 _VALID_SIZING_MODES = {"NOTIONAL", "RISK_BASED"}
@@ -143,7 +144,7 @@ class SymbolConfig:
     symbol: str
     enabled: bool = True
     timeframe: str = "1h"
-    strategies: List[str] = field(default_factory=lambda: ["ma_crossover", "breakout"])
+    strategies: List[str] = field(default_factory=lambda: ["ma_crossover"])
 
 
 @dataclass
@@ -254,6 +255,7 @@ class Config:
                 max_drawdown=risk_cfg.get("max_drawdown", 0.15),
                 max_consecutive_losses=risk_cfg.get("max_consecutive_losses", 3),
                 max_position_pct=trading_cfg.get("max_position_pct", 0.20),
+                max_total_exposure_pct=risk_cfg.get("max_total_exposure_pct", 0.80),
             )
 
             # P0 FIX: Cargar monitoring config
@@ -275,7 +277,7 @@ class Config:
                         symbol=item["symbol"],
                         enabled=item.get("enabled", True),
                         timeframe=item.get("timeframe", "1h"),
-                        strategies=item.get("strategies", ["ma_crossover", "breakout"]),
+                        strategies=item.get("strategies", ["ma_crossover"]),
                     )
                 )
         except Exception as e:

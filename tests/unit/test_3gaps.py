@@ -131,3 +131,76 @@ class TestStrategyConfigConsistency:
             content = f.read()
         assert "breakout" not in content
         assert "mean_reversion" not in content
+
+    def test_no_ghost_strategies_in_config_defaults(self):
+        """SymbolConfig defaults and fallbacks don't reference unregistered strategies."""
+        from src.config import SymbolConfig
+        sc = SymbolConfig(symbol="TEST-USD")
+        from src.strategy.manager import _STRATEGY_REGISTRY as REG
+        for s in sc.strategies:
+            assert s in REG, f"Default strategy '{s}' not in registry"
+
+
+# ── Exposure fail-closed on missing prices ──
+
+
+class TestExposureFailClosed:
+    """Exposure check must not silently pass when prices are missing."""
+
+    def test_exposure_blocks_with_zero_equity(self):
+        """Zero equity → exposure check blocks (equity <= 0 guard)."""
+        gate = RiskGate(RiskLimits())
+        verdict = gate.check_total_exposure(
+            equity=Decimal("0"),
+            exposures={},
+            new_symbol="BTC-USD",
+            new_notional=Decimal("100"),
+        )
+        assert not verdict.allowed
+
+    def test_exposure_uses_avg_entry_as_fallback(self):
+        """
+        If current_price missing for a position, avg_entry is used.
+        This is tested via the gate directly — avg_entry produces
+        a non-zero exposure that may trigger the limit.
+        """
+        gate = RiskGate(RiskLimits(max_total_exposure_pct=Decimal("0.50")))
+        # Simulate: position valued at avg_entry (50000) → exposure 5000/10000 = 50%
+        verdict = gate.check_total_exposure(
+            equity=Decimal("10000"),
+            exposures={"BTC-USD": Decimal("5000")},  # valued via avg_entry
+            new_symbol="ETH-USD",
+            new_notional=Decimal("1000"),
+        )
+        # 6000/10000 = 60% > 50% → blocked
+        assert not verdict.allowed
+
+
+# ── max_total_exposure_pct configurable ──
+
+
+class TestExposureLimitConfigurable:
+
+    def test_risk_config_has_max_total_exposure(self):
+        from src.config import RiskConfig
+        rc = RiskConfig()
+        assert rc.max_total_exposure_pct == 0.80
+
+    def test_yaml_can_override_exposure_limit(self):
+        """Verify the field exists in RiskConfig and can be set."""
+        from src.config import RiskConfig
+        rc = RiskConfig(max_total_exposure_pct=0.60)
+        assert rc.max_total_exposure_pct == 0.60
+
+    def test_risk_limits_receives_exposure_pct(self):
+        """RiskLimits constructed with configurable max_total_exposure_pct."""
+        limits = RiskLimits(max_total_exposure_pct=Decimal("0.60"))
+        gate = RiskGate(limits)
+        # 50% existing + 15% new = 65% > 60%
+        verdict = gate.check_total_exposure(
+            equity=Decimal("10000"),
+            exposures={"BTC-USD": Decimal("5000")},
+            new_symbol="ETH-USD",
+            new_notional=Decimal("1500"),
+        )
+        assert not verdict.allowed

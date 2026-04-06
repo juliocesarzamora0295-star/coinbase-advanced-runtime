@@ -10,27 +10,27 @@ from src.exchange_simulator import ExchangeSimulator
 class TestTicker:
 
     def test_ticker_returns_price(self):
-        sim = ExchangeSimulator(initial_price=50000.0, seed=1)
+        sim = ExchangeSimulator(latency_ms=1.0, initial_price=50000.0, seed=1)
         t = sim.get_ticker("BTC-USD")
         assert "price" in t
         assert float(t["price"]) > 0
 
     def test_ticker_has_bid_ask_spread(self):
-        sim = ExchangeSimulator(initial_price=50000.0, spread_pct=0.02, seed=2)
+        sim = ExchangeSimulator(latency_ms=1.0, initial_price=50000.0, spread_pct=0.02, seed=2)
         t = sim.get_ticker()
         bid, ask = float(t["bid"]), float(t["ask"])
         assert bid < ask
         assert bid > 0
 
     def test_ticker_deterministic_with_seed(self):
-        s1 = ExchangeSimulator(seed=42)
-        s2 = ExchangeSimulator(seed=42)
+        s1 = ExchangeSimulator(latency_ms=1.0, seed=42)
+        s2 = ExchangeSimulator(latency_ms=1.0, seed=42)
         t1 = s1.get_ticker()
         t2 = s2.get_ticker()
         assert t1["price"] == t2["price"]
 
     def test_price_evolves_random_walk(self):
-        sim = ExchangeSimulator(seed=3)
+        sim = ExchangeSimulator(latency_ms=1.0, seed=3)
         prices = [float(sim.get_ticker()["price"]) for _ in range(10)]
         assert len(set(prices)) > 1  # prices should vary
 
@@ -38,7 +38,7 @@ class TestTicker:
 class TestOrderPlacement:
 
     def test_market_buy_fills_immediately(self):
-        sim = ExchangeSimulator(seed=10)
+        sim = ExchangeSimulator(latency_ms=1.0, seed=10)
         result = sim.place_order("c1", "BTC-USD", "BUY", 0.1)
         assert result["status"] == "FILLED"
         assert float(result["fill_qty"]) == 0.1
@@ -74,7 +74,7 @@ class TestOrderPlacement:
 class TestBalances:
 
     def test_initial_balances(self):
-        sim = ExchangeSimulator(initial_balances={"USD": 5000, "BTC": 0.5})
+        sim = ExchangeSimulator(latency_ms=1.0, initial_balances={"USD": 5000, "BTC": 0.5})
         bals = sim.get_balances()
         usd = next(b for b in bals if b["currency"] == "USD")
         assert float(usd["available_balance"]["value"]) == 5000
@@ -93,12 +93,12 @@ class TestBalances:
 class TestCancelOrder:
 
     def test_cancel_nonexistent(self):
-        sim = ExchangeSimulator()
+        sim = ExchangeSimulator(latency_ms=1.0)
         result = sim.cancel_order("nope")
         assert not result["success"]
 
     def test_cancel_filled_fails(self):
-        sim = ExchangeSimulator(seed=30)
+        sim = ExchangeSimulator(latency_ms=1.0, seed=30)
         sim.get_ticker()
         order = sim.place_order("c1", "BTC-USD", "BUY", 0.1)
         result = sim.cancel_order(order["order_id"])
@@ -110,10 +110,52 @@ class TestLogging:
     def test_log_file_created(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             path = os.path.join(tmpdir, "ops.jsonl")
-            sim = ExchangeSimulator(log_path=path, seed=40)
+            sim = ExchangeSimulator(latency_ms=1.0, log_path=path, seed=40)
             sim.get_ticker()
             sim.close()
             assert os.path.exists(path)
             with open(path) as f:
                 line = json.loads(f.readline())
                 assert line["op"] == "ticker"
+
+
+class TestBalanceValidation:
+    """F02: Simulator rejects orders when insufficient balance."""
+
+    def test_buy_rejected_insufficient_usd(self):
+        sim = ExchangeSimulator(
+            latency_ms=1.0, seed=50,
+            initial_balances={"USD": 100, "BTC": 0},
+        )
+        sim.get_ticker()
+        result = sim.place_order("c-no-funds", "BTC-USD", "BUY", 1.0)  # ~$50k notional
+        assert result["status"] == "REJECTED"
+        assert result.get("error") == "insufficient_funds"
+
+    def test_sell_rejected_insufficient_btc(self):
+        sim = ExchangeSimulator(
+            latency_ms=1.0, seed=51,
+            initial_balances={"USD": 10000, "BTC": 0},
+        )
+        sim.get_ticker()
+        result = sim.place_order("c-no-btc", "BTC-USD", "SELL", 0.1)
+        assert result["status"] == "REJECTED"
+
+    def test_negative_qty_rejected(self):
+        sim = ExchangeSimulator(latency_ms=1.0, seed=52)
+        result = sim.place_order("c-neg", "BTC-USD", "BUY", -0.1)
+        assert result["status"] == "REJECTED"
+
+    def test_invalid_side_rejected(self):
+        sim = ExchangeSimulator(latency_ms=1.0, seed=53)
+        result = sim.place_order("c-bad-side", "BTC-USD", "HOLD", 0.1)
+        assert result["status"] == "REJECTED"
+
+    def test_valid_buy_with_sufficient_balance(self):
+        sim = ExchangeSimulator(
+            latency_ms=1.0, seed=54,
+            initial_balances={"USD": 100000, "BTC": 0},
+        )
+        sim.get_ticker()
+        result = sim.place_order("c-ok", "BTC-USD", "BUY", 0.01)
+        assert result["status"] == "FILLED"

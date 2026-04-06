@@ -80,14 +80,13 @@ class TestShadowIntegrationEndToEnd:
         assert result.breaker_trips > 0
 
     def test_deterministic_with_same_seed(self):
-        """Same seed → same price evolution → same trades."""
+        """Same seed + same tick count → identical results."""
         results = []
         for _ in range(2):
             sim = ExchangeSimulator(seed=777, latency_ms=0.1)
             runner = ShadowRunner(simulator=sim, signal_threshold=0.0005)
-            result = runner.run(duration_s=0.3, tick_interval_s=0.005)
+            result = runner.run(duration_s=999, tick_interval_s=0.001, max_ticks=50)
             results.append(result)
 
         assert results[0].total_ticks == results[1].total_ticks
-        # Trades should be very similar (timing jitter may cause small differences)
-        assert abs(results[0].total_trades - results[1].total_trades) <= 1
+        assert results[0].total_trades == results[1].total_trades

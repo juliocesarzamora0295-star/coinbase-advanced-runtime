@@ -68,6 +68,7 @@ def compute_metrics(
     trades: List[TradeRecord],
     equity_curve: List[Tuple[int, Decimal]],
     initial_equity: Decimal,
+    periods_per_year: int = 252,
 ) -> PerformanceMetrics:
     """
     Compute full performance metrics from trades and equity curve.
@@ -106,7 +107,7 @@ def compute_metrics(
     )
 
     max_dd = _max_drawdown(equity_curve)
-    sharpe = _sharpe_ratio(equity_curve)
+    sharpe = _sharpe_ratio(equity_curve, periods_per_year=periods_per_year)
 
     return PerformanceMetrics(
         total_trades=total,

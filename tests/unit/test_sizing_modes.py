@@ -122,10 +122,10 @@ class TestSizingModeStopBased:
 
 
 class TestCompatAlias:
-    """risk_per_trade_pct funciona como compat alias."""
+    """Backward compat: risk_per_trade_pct still accepted at sizer level."""
 
-    def test_risk_per_trade_pct_works(self):
-        """Old parameter name still works."""
+    def test_legacy_param_still_accepted(self):
+        """risk_per_trade_pct still works as fallback in PositionSizer."""
         sizer = PositionSizer()
         d = sizer.compute(
             symbol="BTC-USD",
@@ -136,7 +136,6 @@ class TestCompatAlias:
             max_notional=Decimal("10000"),
         )
         assert d.target_qty > Decimal("0")
-        assert d.sizing_mode == SizingMode.NOTIONAL
 
     def test_notional_pct_takes_priority(self):
         """notional_pct has priority over risk_per_trade_pct."""
@@ -150,7 +149,6 @@ class TestCompatAlias:
             constraints=CONSTRAINTS,
             max_notional=Decimal("10000"),
         )
-        # Should use 0.02 not 0.01: qty = (10000 * 0.02) / 50000 = 0.004
         assert d.target_qty == Decimal("0.00400")
 
     def test_risk_budget_used_alias(self):

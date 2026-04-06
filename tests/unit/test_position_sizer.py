@@ -56,7 +56,7 @@ def compute(
         symbol="BTC-USD",
         equity=Decimal(equity) if equity is not None else None,
         entry_price=Decimal(entry_price),
-        risk_per_trade_pct=Decimal(risk_pct),
+        notional_pct=Decimal(risk_pct),
         constraints=constraints,
         max_notional=Decimal(max_notional),
         stop_price=Decimal(stop_price) if stop_price else None,
@@ -78,7 +78,7 @@ class TestFailClosed:
                 symbol="BTC-USD",
                 equity=None,
                 entry_price=Decimal("50000"),
-                risk_per_trade_pct=Decimal("0.01"),
+                notional_pct=Decimal("0.01"),
                 constraints=BTC_CONSTRAINTS,
                 max_notional=Decimal("100000"),
             )
@@ -91,7 +91,7 @@ class TestFailClosed:
                 symbol="BTC-USD",
                 equity=None,
                 entry_price=Decimal("50000"),
-                risk_per_trade_pct=Decimal("0.01"),
+                notional_pct=Decimal("0.01"),
                 constraints=BTC_CONSTRAINTS,
                 max_notional=Decimal("100000"),
             )
@@ -232,7 +232,7 @@ class TestStepSizeQuantization:
             symbol="BTC-USD",
             equity=Decimal("10000"),
             entry_price=Decimal("100"),
-            risk_per_trade_pct=Decimal("0.015"),
+            notional_pct=Decimal("0.015"),
             constraints=constraints,
             max_notional=Decimal("100000"),
         )
@@ -254,7 +254,7 @@ class TestStepSizeQuantization:
             symbol="BTC-USD",
             equity=Decimal("10000"),
             entry_price=Decimal("50000"),
-            risk_per_trade_pct=Decimal("0.001"),
+            notional_pct=Decimal("0.001"),
             constraints=constraints,
             max_notional=Decimal("100000"),
         )
@@ -302,7 +302,7 @@ class TestCaps:
             symbol="BTC-USD",
             equity=Decimal("1_000_000"),
             entry_price=Decimal("50000"),
-            risk_per_trade_pct=Decimal("0.10"),
+            notional_pct=Decimal("0.10"),
             constraints=tight_constraints,
             max_notional=Decimal("1_000_000"),
         )
@@ -323,7 +323,7 @@ class TestCaps:
             symbol="BTC-USD",
             equity=Decimal("10000"),
             entry_price=Decimal("50000"),
-            risk_per_trade_pct=Decimal("0.0001"),
+            notional_pct=Decimal("0.0001"),
             constraints=high_min,
             max_notional=Decimal("100000"),
         )

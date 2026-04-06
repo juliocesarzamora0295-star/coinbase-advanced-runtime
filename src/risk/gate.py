@@ -29,6 +29,7 @@ RULE_SELL_NO_POSITION = "SELL_NO_POSITION"
 RULE_TARGET_QTY_ZERO = "TARGET_QTY_ZERO"
 RULE_MAX_NOTIONAL_EXCEEDED = "MAX_NOTIONAL_EXCEEDED"
 RULE_KILL_SWITCH = "KILL_SWITCH"
+RULE_TOTAL_EXPOSURE = "TOTAL_EXPOSURE_EXCEEDED"
 
 
 @dataclass(frozen=True)
@@ -62,6 +63,7 @@ class RiskLimits:
     max_orders_per_minute: int = 10
     max_daily_loss_pct: Decimal = Decimal("0.05")  # 5%
     max_drawdown_pct: Decimal = Decimal("0.15")  # 15%
+    max_total_exposure_pct: Decimal = Decimal("0.80")  # 80% max across all symbols
 
 
 @dataclass(frozen=True)
@@ -243,6 +245,44 @@ class RiskGate:
             hard_max_qty=hard_max_qty,
             hard_max_notional=notional,
             reduce_only=reduce_only,
+            blocking_rule_ids=(),
+        )
+
+    def check_total_exposure(
+        self,
+        equity: Decimal,
+        exposures: dict[str, Decimal],
+        new_symbol: str,
+        new_notional: Decimal,
+    ) -> RiskVerdict:
+        """
+        Cross-symbol exposure check.
+
+        Args:
+            equity: total portfolio equity
+            exposures: {symbol: notional} for existing positions
+            new_symbol: symbol of the proposed new order
+            new_notional: notional of the proposed order
+        """
+        if equity <= Decimal("0"):
+            return _blocked("equity <= 0", RULE_EQUITY_ZERO_OR_MISSING)
+
+        total = sum(exposures.values(), Decimal("0")) + new_notional
+        exposure_pct = total / equity
+
+        if exposure_pct > self.limits.max_total_exposure_pct:
+            return _blocked(
+                f"Total exposure {exposure_pct:.2%} exceeds "
+                f"max {self.limits.max_total_exposure_pct:.2%}",
+                RULE_TOTAL_EXPOSURE,
+            )
+
+        return RiskVerdict(
+            allowed=True,
+            reason="Total exposure within limits",
+            hard_max_qty=Decimal("0"),
+            hard_max_notional=new_notional,
+            reduce_only=False,
             blocking_rule_ids=(),
         )
 

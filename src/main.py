@@ -550,6 +550,17 @@ class TradingBot:
         )
         max_notional = Decimal(str(self.config.trading.max_notional_per_symbol))
 
+        # R11: Extract stop_price from signal metadata if present
+        stop_price_raw = signal.metadata.get("stop_price") if hasattr(signal, "metadata") else None
+        stop_price = Decimal(str(stop_price_raw)) if stop_price_raw else None
+
+        # R9/R11: Determine preferred sizing mode from config
+        from src.risk.position_sizer import SizingMode as _SM
+        _mode_map = {"NOTIONAL": _SM.NOTIONAL, "RISK_BASED": _SM.RISK_BASED}
+        preferred_mode = _mode_map.get(
+            self.config.trading.sizing_mode, _SM.NOTIONAL
+        )
+
         try:
             sizing = self.position_sizer.compute(
                 symbol=symbol,
@@ -558,6 +569,8 @@ class TradingBot:
                 notional_pct=Decimal(str(self.config.trading.notional_pct)),
                 constraints=constraints,
                 max_notional=max_notional,
+                stop_price=stop_price,
+                preferred_mode=preferred_mode,
             )
         except FailClosedError as exc:
             logger.error(f"[{symbol}] PositionSizer fail-closed: {exc}")

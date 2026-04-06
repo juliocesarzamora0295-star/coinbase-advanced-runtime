@@ -435,7 +435,7 @@ class TradingBot:
                 symbol=symbol,
                 equity=equity,
                 entry_price=entry_ref,
-                risk_per_trade_pct=Decimal(str(self.config.trading.risk_per_trade_pct)),
+                notional_pct=Decimal(str(self.config.trading.notional_pct)),
                 constraints=constraints,
                 max_notional=max_notional,
             )

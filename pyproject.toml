@@ -67,6 +67,19 @@ ignore_missing_imports = true
 follow_imports = "silent"
 check_untyped_defs = true
 
+# Strict overrides for modules with complete type hints
+[[tool.mypy.overrides]]
+module = [
+    "src.risk.gate",
+    "src.risk.kill_switch",
+    "src.execution.execution_report",
+    "src.quantitative.metrics",
+    "src.backtest.ledger",
+    "src.backtest.report",
+]
+disallow_untyped_defs = true
+warn_return_any = true
+
 [tool.pytest.ini_options]
 addopts = "--tb=short --cov=src --cov-report=term-missing"
 

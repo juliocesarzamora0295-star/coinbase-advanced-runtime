@@ -40,6 +40,7 @@ class SizingMode(Enum):
 
     NOTIONAL = "NOTIONAL"  # % del equity como notional (sin stop)
     STOP_BASED = "STOP_BASED"  # % del equity como riesgo real (con stop)
+    RISK_BASED = "RISK_BASED"  # alias explícito de STOP_BASED para config
 
 
 @dataclass(frozen=True)
@@ -96,6 +97,7 @@ class PositionSizer:
         constraints: SymbolConstraints,
         max_notional: Decimal,
         stop_price: Optional[Decimal] = None,
+        preferred_mode: Optional[SizingMode] = None,
     ) -> SizingDecision:
         """
         Calcular SizingDecision.
@@ -157,15 +159,23 @@ class PositionSizer:
         budget = equity * pct
 
         # Determine sizing mode and calculate qty
+        risk_mode_requested = preferred_mode in (SizingMode.RISK_BASED, SizingMode.STOP_BASED)
+
         if stop_price is not None and stop_price > Decimal("0"):
             stop_distance = abs(entry_price - stop_price)
             if stop_distance > Decimal("0"):
                 qty = budget / stop_distance
-                mode = SizingMode.STOP_BASED
+                mode = SizingMode.RISK_BASED if risk_mode_requested else SizingMode.STOP_BASED
             else:
                 qty = budget / entry_price
                 mode = SizingMode.NOTIONAL
         else:
+            if risk_mode_requested:
+                import logging
+                logging.getLogger("PositionSizer").warning(
+                    "RISK_BASED mode requested but no stop_price provided for %s. "
+                    "Falling back to NOTIONAL sizing.", symbol,
+                )
             qty = budget / entry_price
             mode = SizingMode.NOTIONAL
 

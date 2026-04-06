@@ -98,6 +98,7 @@ class TradingConfig:
     risk_per_trade_pct: float = 0.01  # DEPRECATED: use notional_pct
     notional_pct: float = 0.01  # fracción del equity como notional por trade
     initial_cash: float = 10000.0  # capital inicial en quote currency
+    sizing_mode: str = "NOTIONAL"  # NOTIONAL or RISK_BASED
 
 
 @dataclass

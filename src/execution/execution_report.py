@@ -53,6 +53,9 @@ class ExecutionReport:
     # Outcome
     outcome: str  # "FILLED", "PARTIAL", "REJECTED", "TIMEOUT"
 
+    # Telemetry quality
+    estimated_slippage: bool = False  # True if expected_price was unavailable (fallback)
+
     def log_structured(self) -> None:
         """Log con campos parseables para observabilidad."""
         logger.info(
@@ -60,7 +63,7 @@ class ExecutionReport:
             "client_order_id=%s symbol=%s side=%s outcome=%s "
             "expected_price=%s fill_price=%s "
             "requested_qty=%s filled_qty=%s fill_ratio=%s "
-            "slippage_bps=%s latency_ms=%.1f quality=%s",
+            "slippage_bps=%s latency_ms=%.1f quality=%s estimated_slippage=%s",
             self.client_order_id,
             self.symbol,
             self.side,
@@ -73,6 +76,7 @@ class ExecutionReport:
             self.slippage_bps,
             self.latency_ms,
             self.fill_quality_score,
+            self.estimated_slippage,
         )
 
 
@@ -181,6 +185,7 @@ def build_execution_report(
     filled_qty: Decimal,
     latency_ms: float,
     outcome: str,
+    estimated_slippage: bool = False,
 ) -> ExecutionReport:
     """
     Factory para construir ExecutionReport con métricas calculadas.
@@ -216,4 +221,5 @@ def build_execution_report(
         fill_ratio=ratio,
         fill_quality_score=quality,
         outcome=outcome,
+        estimated_slippage=estimated_slippage,
     )

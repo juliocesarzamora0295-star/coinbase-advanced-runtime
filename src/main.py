@@ -21,6 +21,7 @@ from src.core.coinbase_websocket import CoinbaseWSFeed, WSMessage
 from src.core.jwt_auth import JWTAuth, load_credentials_from_env
 from src.core.quantization import create_quantizer_from_api_response
 from src.execution.execution_report import build_execution_report
+from src.execution.pending_store import PendingReport, PendingReportStore
 from src.execution.idempotency import IdempotencyStore
 from src.execution.order_planner import OrderIntent, OrderNotAllowedError, OrderPlanner, RiskDecisionInput
 from src.execution.orders import OrderExecutor
@@ -125,9 +126,9 @@ class TradingBot:
         self._external_reconcile_interval_s: float = 300.0  # every 5 minutes
         self._bootstrap_source: str = "unknown"
 
-        # Order tracking for deferred ExecutionReport generation
-        # Maps client_order_id → (symbol, side, expected_price, requested_qty, latency_ms)
-        self._pending_reports: Dict[str, tuple] = {}
+        # Durable pending report store (survives restarts)
+        pending_db = str(self.config.paths.state / "pending_reports.db")
+        self._pending_store = PendingReportStore(db_path=pending_db)
 
         # Day change detection for daily PnL reset (R4)
         self._last_date = datetime.now(timezone.utc).date()
@@ -746,10 +747,15 @@ class TradingBot:
             # Metrics
             if result.success:
                 self.metrics.inc("orders.submitted", labels={"symbol": symbol})
-                # Track for deferred real ExecutionReport on fill
-                self._pending_reports[intent.client_order_id] = (
-                    symbol, side, expected_price, qty, latency_ms,
-                )
+                # Persist pending report for fill reconciliation (survives restart)
+                self._pending_store.save(PendingReport(
+                    client_order_id=intent.client_order_id,
+                    symbol=symbol, side=side,
+                    expected_price=expected_price,
+                    requested_qty=qty,
+                    submit_latency_ms=latency_ms,
+                    submit_ts_ms=int(time.time() * 1000),
+                ))
             else:
                 self.metrics.inc("orders.rejected", labels={"symbol": symbol})
                 # Rejected: generate report with fill_ratio=0, slippage=0
@@ -939,25 +945,26 @@ class TradingBot:
         Called from OMS reconcile when a fill is confirmed with real
         price and quantity from the exchange.
         """
-        pending = self._pending_reports.pop(client_order_id, None)
+        # Load from durable store (survives restarts)
+        pending = self._pending_store.load(client_order_id)
+        estimated = False
         if pending:
-            _, _, expected_price, requested_qty, submit_latency_ms = pending
+            expected_price = pending.expected_price
+            requested_qty = pending.requested_qty
+            submit_latency_ms = pending.submit_latency_ms
+            self._pending_store.delete(client_order_id)
         else:
-            # R3 FALLBACK: Fill for order not in _pending_reports.
-            # This happens when the process restarts between submit and fill.
-            # _pending_reports is in-memory — not persisted across restarts.
-            # Fallback: use fill_price as expected_price (slippage=0).
-            # This is documented and accepted — real slippage data is lost
-            # but the fill is still correctly applied to the ledger.
+            # Fallback: no pending metadata (edge case — very old order or manual).
+            # Mark slippage as estimated.
             logger.warning(
-                "EXECUTION_REPORT FALLBACK: order %s not in pending_reports "
-                "(likely restart between submit and fill). "
-                "Using fill_price as expected_price — slippage will be 0.",
+                "EXECUTION_REPORT ESTIMATED: order %s not in pending store. "
+                "Using fill_price as expected_price — slippage marked estimated.",
                 client_order_id,
             )
             expected_price = fill_price
             requested_qty = filled_qty
             submit_latency_ms = 0.0
+            estimated = True
 
         # Determine outcome
         if filled_qty >= requested_qty:
@@ -977,11 +984,13 @@ class TradingBot:
             filled_qty=filled_qty,
             latency_ms=submit_latency_ms,
             outcome=outcome,
+            estimated_slippage=estimated,
         )
         report.log_structured()
 
-        # Feed real slippage and execution result to CircuitBreaker
-        self.circuit_breaker.record_slippage(float(report.slippage_bps))
+        # Feed slippage to breaker (only if real, not estimated)
+        if not estimated:
+            self.circuit_breaker.record_slippage(float(report.slippage_bps))
         self.circuit_breaker.record_execution_result(outcome in ("FILLED", "PARTIAL"))
 
         # Metrics
@@ -991,6 +1000,12 @@ class TradingBot:
         self.metrics.gauge(
             "fill.quality", float(report.fill_quality_score), labels={"symbol": symbol}
         )
+        # Telemetry quality metrics
+        if estimated:
+            self.metrics.inc("telemetry.slippage_estimated", labels={"symbol": symbol})
+        else:
+            self.metrics.inc("telemetry.slippage_real", labels={"symbol": symbol})
+
         if outcome == "PARTIAL":
             self.metrics.inc("fills.partial", labels={"symbol": symbol})
         else:

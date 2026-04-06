@@ -215,8 +215,17 @@ class Config:
         self._load_yaml_config()
 
     def _load_yaml_config(self) -> None:
-        """Cargar configuración completa desde YAML."""
-        symbols_file = self.paths.repo / "configs" / "symbols.yaml"
+        """Cargar configuración completa desde YAML.
+
+        Path resolution order:
+        1. FORTRESS_CONFIG env var (explicit path to YAML)
+        2. Default: {repo}/configs/symbols.yaml
+        """
+        env_config = os.getenv("FORTRESS_CONFIG")
+        if env_config:
+            symbols_file = Path(env_config)
+        else:
+            symbols_file = self.paths.repo / "configs" / "symbols.yaml"
 
         if not symbols_file.exists():
             import logging

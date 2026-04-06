@@ -3,15 +3,20 @@
 ## Start
 
 ```bash
-# 1. Verify config
-python -m src.config_validator configs/prod_symbols.yaml
-
-# 2. Source credentials
+# 1. Source credentials + config path
 source prod.env
+# prod.env sets FORTRESS_CONFIG=configs/prod_symbols.yaml
 
-# 3. Start runtime
+# 2. Verify config (must match what runtime will load)
+python -m src.config_validator "$FORTRESS_CONFIG"
+
+# 3. Start runtime (reads FORTRESS_CONFIG env var)
 python -m src.main
 ```
+
+**IMPORTANT**: `src.main` reads the YAML from `FORTRESS_CONFIG` env var.
+If not set, it defaults to `configs/symbols.yaml`.
+Always set `FORTRESS_CONFIG` in your env to point to the correct config.
 
 Expected startup log:
 ```

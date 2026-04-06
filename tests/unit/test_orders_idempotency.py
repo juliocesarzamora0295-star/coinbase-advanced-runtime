@@ -13,12 +13,14 @@ Invariantes testeadas:
 - orders_last_minute tracking funciona
 """
 
+import uuid
 from decimal import Decimal
 from unittest.mock import MagicMock
 
 from src.core.coinbase_exchange import CoinbaseAPIError
 from src.core.quantization import ProductInfo, Quantizer
 from src.execution.idempotency import IdempotencyStore, OrderState
+from src.execution.order_planner import OrderIntent
 from src.execution.orders import OrderExecutor
 
 
@@ -48,6 +50,30 @@ def make_executor(store: IdempotencyStore, mock_client: MagicMock) -> OrderExecu
     )
 
 
+def make_intent(
+    symbol: str = "BTC-USD",
+    side: str = "BUY",
+    order_type: str = "MARKET",
+    qty: str = "0.001",
+    price: str | None = None,
+) -> OrderIntent:
+    """Helper: crea OrderIntent canónico para tests."""
+    return OrderIntent(
+        client_order_id=str(uuid.uuid4()),
+        signal_id="test-signal",
+        strategy_id="test-strategy",
+        symbol=symbol,
+        side=side,
+        final_qty=Decimal(qty),
+        order_type=order_type,
+        price=Decimal(price) if price else None,
+        reduce_only=False,
+        post_only=order_type == "LIMIT",
+        viable=True,
+        planner_version="test",
+    )
+
+
 class TestLimitOrderCreation:
 
     def test_limit_order_created_with_open_resting(self, tmp_path):
@@ -57,12 +83,8 @@ class TestLimitOrderCreation:
         client.create_limit_order_gtc.return_value = {"order_id": "ex-limit-001"}
 
         executor = make_executor(store, client)
-        result = executor.create_limit_order(
-            product_id="BTC-USD",
-            side="BUY",
-            qty=Decimal("0.001"),
-            price=Decimal("50000"),
-        )
+        intent = make_intent(order_type="LIMIT", qty="0.001", price="50000")
+        result = executor.submit_order(intent)
 
         assert result.success is True
         assert result.state == OrderState.OPEN_RESTING
@@ -75,7 +97,8 @@ class TestLimitOrderCreation:
         client.create_limit_order_gtc.return_value = {"order_id": "ex-linked-001"}
 
         executor = make_executor(store, client)
-        result = executor.create_limit_order("BTC-USD", "BUY", Decimal("0.001"), Decimal("50000"))
+        intent = make_intent(order_type="LIMIT", qty="0.001", price="50000")
+        result = executor.submit_order(intent)
 
         record = store.get_by_client_order_id(result.client_order_id)
         assert record is not None
@@ -89,9 +112,10 @@ class TestLimitOrderCreation:
         client.create_limit_order_gtc.return_value = {"order_id": "ex-persist-001"}
 
         executor = make_executor(store, client)
-        result = executor.create_limit_order("BTC-USD", "BUY", Decimal("0.001"), Decimal("50000"))
+        intent = make_intent(order_type="LIMIT", qty="0.001", price="50000")
+        result = executor.submit_order(intent)
 
-        record = store.get_by_intent_id(result.intent_id)
+        record = store.get_by_client_order_id(result.client_order_id)
         assert record is not None
         assert record.state == OrderState.OPEN_RESTING
 
@@ -102,12 +126,13 @@ class TestLimitOrderCreation:
         client.create_limit_order_gtc.side_effect = CoinbaseAPIError("rejected by exchange")
 
         executor = make_executor(store, client)
-        result = executor.create_limit_order("BTC-USD", "BUY", Decimal("0.001"), Decimal("50000"))
+        intent = make_intent(order_type="LIMIT", qty="0.001", price="50000")
+        result = executor.submit_order(intent)
 
         assert result.success is False
         assert result.state == OrderState.FAILED
 
-        record = store.get_by_intent_id(result.intent_id)
+        record = store.get_by_client_order_id(result.client_order_id)
         assert record is not None
         assert record.state == OrderState.FAILED
 
@@ -118,10 +143,11 @@ class TestLimitOrderCreation:
         client.create_limit_order_gtc.side_effect = CoinbaseAPIError("error")
 
         executor = make_executor(store, client)
-        result = executor.create_limit_order("BTC-USD", "BUY", Decimal("0.001"), Decimal("50000"))
+        intent = make_intent(order_type="LIMIT", qty="0.001", price="50000")
+        result = executor.submit_order(intent)
 
-        active_ids = [r.intent_id for r in store.get_pending_or_open()]
-        assert result.intent_id not in active_ids
+        active_ids = [r.client_order_id for r in store.get_pending_or_open()]
+        assert result.client_order_id not in active_ids
 
 
 class TestMarketOrderCreation:
@@ -138,7 +164,8 @@ class TestMarketOrderCreation:
         client.create_market_order.return_value = {"order_id": "ex-market-001"}
 
         executor = make_executor(store, client)
-        result = executor.create_market_order("BTC-USD", "BUY", qty=Decimal("0.001"))
+        intent = make_intent(order_type="MARKET", qty="0.001")
+        result = executor.submit_order(intent)
 
         assert result.success is True
         assert result.state == OrderState.OPEN_PENDING
@@ -151,9 +178,10 @@ class TestMarketOrderCreation:
         client.create_market_order.return_value = {"order_id": "ex-market-002"}
 
         executor = make_executor(store, client)
-        result = executor.create_market_order("BTC-USD", "SELL", qty=Decimal("0.001"))
+        intent = make_intent(side="SELL", order_type="MARKET", qty="0.001")
+        result = executor.submit_order(intent)
 
-        record = store.get_by_intent_id(result.intent_id)
+        record = store.get_by_client_order_id(result.client_order_id)
         assert record.state == OrderState.OPEN_PENDING
         assert record.state != OrderState.FILLED
 
@@ -164,7 +192,8 @@ class TestMarketOrderCreation:
         client.create_market_order.return_value = {"order_id": "ex-market-link"}
 
         executor = make_executor(store, client)
-        result = executor.create_market_order("BTC-USD", "BUY", qty=Decimal("0.001"))
+        intent = make_intent(order_type="MARKET", qty="0.001")
+        result = executor.submit_order(intent)
 
         record = store.get_by_client_order_id(result.client_order_id)
         assert record is not None
@@ -181,9 +210,10 @@ class TestCancelOrder:
         client.cancel_orders.return_value = [{"success": True}]
 
         executor = make_executor(store, client)
-        result = executor.create_limit_order("BTC-USD", "BUY", Decimal("0.001"), Decimal("50000"))
+        intent = make_intent(order_type="LIMIT", qty="0.001", price="50000")
+        result = executor.submit_order(intent)
 
-        cancelled = executor.cancel_order(result.intent_id)
+        cancelled = executor.cancel_order(result.client_order_id)
         assert cancelled is True
 
     def test_cancel_transitions_to_cancel_queued(self, tmp_path):
@@ -199,11 +229,12 @@ class TestCancelOrder:
         client.cancel_orders.return_value = [{"success": True}]
 
         executor = make_executor(store, client)
-        result = executor.create_limit_order("BTC-USD", "BUY", Decimal("0.001"), Decimal("50000"))
+        intent = make_intent(order_type="LIMIT", qty="0.001", price="50000")
+        result = executor.submit_order(intent)
 
-        executor.cancel_order(result.intent_id)
+        executor.cancel_order(result.client_order_id)
 
-        record = store.get_by_intent_id(result.intent_id)
+        record = store.get_by_client_order_id(result.client_order_id)
         assert record.state == OrderState.CANCEL_QUEUED, (
             f"cancel_order debe transicionar a CANCEL_QUEUED, got {record.state.name}. "
             "El estado final CANCELLED llega via user channel/reconcile."
@@ -225,16 +256,17 @@ class TestCancelOrder:
         client.create_limit_order_gtc.return_value = {"order_id": "ex-filled-001"}
 
         executor = make_executor(store, client)
-        result = executor.create_limit_order("BTC-USD", "BUY", Decimal("0.001"), Decimal("50000"))
+        intent = make_intent(order_type="LIMIT", qty="0.001", price="50000")
+        result = executor.submit_order(intent)
 
         # Simular user channel marcando como FILLED
-        store.update_state(intent_id=result.intent_id, state=OrderState.FILLED)
+        store.update_state(client_order_id=result.client_order_id, state=OrderState.FILLED)
 
-        cancelled = executor.cancel_order(result.intent_id)
+        cancelled = executor.cancel_order(result.client_order_id)
         assert cancelled is False
 
         # Estado terminal no modificado
-        record = store.get_by_intent_id(result.intent_id)
+        record = store.get_by_client_order_id(result.client_order_id)
         assert record.state == OrderState.FILLED
 
     def test_cancel_already_cancelled_returns_false(self, tmp_path):
@@ -244,10 +276,11 @@ class TestCancelOrder:
         client.create_limit_order_gtc.return_value = {"order_id": "ex-already-cancelled"}
 
         executor = make_executor(store, client)
-        result = executor.create_limit_order("BTC-USD", "BUY", Decimal("0.001"), Decimal("50000"))
-        store.update_state(intent_id=result.intent_id, state=OrderState.CANCELLED)
+        intent = make_intent(order_type="LIMIT", qty="0.001", price="50000")
+        result = executor.submit_order(intent)
+        store.update_state(client_order_id=result.client_order_id, state=OrderState.CANCELLED)
 
-        cancelled = executor.cancel_order(result.intent_id)
+        cancelled = executor.cancel_order(result.client_order_id)
         assert cancelled is False
 
 
@@ -268,7 +301,8 @@ class TestOrdersLastMinute:
         client.create_limit_order_gtc.return_value = {"order_id": "ex-rate-001"}
 
         executor = make_executor(store, client)
-        executor.create_limit_order("BTC-USD", "BUY", Decimal("0.001"), Decimal("50000"))
+        intent = make_intent(order_type="LIMIT", qty="0.001", price="50000")
+        executor.submit_order(intent)
 
         assert executor.get_orders_last_minute() == 1
 
@@ -279,7 +313,8 @@ class TestOrdersLastMinute:
         client.create_limit_order_gtc.side_effect = CoinbaseAPIError("error")
 
         executor = make_executor(store, client)
-        executor.create_limit_order("BTC-USD", "BUY", Decimal("0.001"), Decimal("50000"))
+        intent = make_intent(order_type="LIMIT", qty="0.001", price="50000")
+        executor.submit_order(intent)
 
         # Orden fallida no incrementa el rate (no llegó al exchange)
         assert executor.get_orders_last_minute() == 0

@@ -29,7 +29,7 @@ from src.execution.order_planner import (
     RiskDecisionInput,
     _make_client_order_id,
 )
-from src.risk.position_sizer import SizingDecision, SymbolConstraints
+from src.risk.position_sizer import SizingDecision, SizingMode, SymbolConstraints
 
 # ──────────────────────────────────────────────
 # Helpers
@@ -52,7 +52,8 @@ def make_sizing(
     return SizingDecision(
         target_qty=qty,
         target_notional=qty * price,
-        risk_budget_used=Decimal("0.01"),
+        notional_budget_used=Decimal("0.01"),
+        sizing_mode=SizingMode.NOTIONAL,
         rationale="test sizing",
     )
 

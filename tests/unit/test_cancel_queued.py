@@ -12,7 +12,8 @@ from decimal import Decimal
 
 sys.path.insert(0, "/mnt/okcomputer/output/fortress_v4")
 
-from src.execution.idempotency import IdempotencyStore, OrderIntent, OrderState
+from src.execution.idempotency import IdempotencyStore, OrderState
+from src.execution.order_planner import OrderIntent
 
 
 class TestCancelQueuedConsistency:
@@ -38,16 +39,18 @@ class TestCancelQueuedConsistency:
         """
         # Crear intent en estado CANCEL_QUEUED
         intent = OrderIntent(
-            intent_id="test-intent-1",
             client_order_id="test-client-1",
-            product_id="BTC-USD",
+            signal_id="test-signal",
+            strategy_id="test-strategy",
+            symbol="BTC-USD",
             side="SELL",
+            final_qty=Decimal("0.1"),
             order_type="LIMIT",
-            qty=Decimal("0.1"),
             price=Decimal("50000"),
-            stop_price=None,
+            reduce_only=False,
             post_only=True,
-            created_ts_ms=1234567890,
+            viable=True,
+            planner_version="test",
         )
 
         self.store.save_intent(intent, state=OrderState.CANCEL_QUEUED)
@@ -73,16 +76,18 @@ class TestCancelQueuedConsistency:
 
         for i, state in enumerate(active_states):
             intent = OrderIntent(
-                intent_id=f"test-intent-{i}",
                 client_order_id=f"test-client-{i}",
-                product_id="BTC-USD",
+                signal_id="test-signal",
+                strategy_id="test-strategy",
+                symbol="BTC-USD",
                 side="SELL",
+                final_qty=Decimal("0.1"),
                 order_type="LIMIT",
-                qty=Decimal("0.1"),
                 price=Decimal("50000"),
-                stop_price=None,
+                reduce_only=False,
                 post_only=True,
-                created_ts_ms=1234567890 + i,
+                viable=True,
+                planner_version="test",
             )
             self.store.save_intent(intent, state=state)
 
@@ -107,16 +112,18 @@ class TestCancelQueuedConsistency:
 
         for i, state in enumerate(terminal_states):
             intent = OrderIntent(
-                intent_id=f"test-intent-term-{i}",
                 client_order_id=f"test-client-term-{i}",
-                product_id="BTC-USD",
+                signal_id="test-signal",
+                strategy_id="test-strategy",
+                symbol="BTC-USD",
                 side="SELL",
+                final_qty=Decimal("0.1"),
                 order_type="LIMIT",
-                qty=Decimal("0.1"),
                 price=Decimal("50000"),
-                stop_price=None,
+                reduce_only=False,
                 post_only=True,
-                created_ts_ms=1234567890 + i,
+                viable=True,
+                planner_version="test",
             )
             self.store.save_intent(intent, state=state)
 

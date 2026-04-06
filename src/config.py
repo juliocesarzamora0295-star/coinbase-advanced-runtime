@@ -95,7 +95,8 @@ class TradingConfig:
     max_orders_per_minute: int = 10
     smoke_test_mode: bool = False
     max_cycles: int = 0
-    risk_per_trade_pct: float = 0.01  # fracción del equity por trade
+    risk_per_trade_pct: float = 0.01  # DEPRECATED: use notional_pct
+    notional_pct: float = 0.01  # fracción del equity como notional por trade
 
 
 @dataclass
@@ -222,6 +223,10 @@ class Config:
                 smoke_test_mode=trading_cfg.get("smoke_test_mode", False),
                 max_cycles=trading_cfg.get("max_cycles", 0),
                 risk_per_trade_pct=trading_cfg.get("risk_per_trade_pct", 0.01),
+                notional_pct=trading_cfg.get(
+                    "notional_pct",
+                    trading_cfg.get("risk_per_trade_pct", 0.01),
+                ),
             )
 
             # P0 FIX: Cargar risk config

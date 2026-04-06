@@ -162,42 +162,60 @@ class TestSellEdgeCases:
 
 class TestGetDayPnlPct:
 
-    def test_returns_zero_when_no_fills(self, tmp_path):
-        """Sin fills → day_pnl_pct = 0."""
+    def test_returns_none_when_no_day_start(self, tmp_path):
+        """Sin equity_day_start → day_pnl_pct = None (fail-closed)."""
         ledger = TradeLedger(symbol="BTC-USD", db_path=str(tmp_path / "ledger.db"))
+        result = ledger.get_day_pnl_pct(Decimal("50000"))
+        assert result is None
+
+    def test_returns_zero_when_no_change(self, tmp_path):
+        """Con equity_day_start set y sin cambio → day_pnl = 0."""
+        ledger = TradeLedger(
+            symbol="BTC-USD", db_path=str(tmp_path / "ledger.db"),
+            initial_cash=Decimal("10000"),
+        )
+        ledger.reset_day(Decimal("50000"))
         result = ledger.get_day_pnl_pct(Decimal("50000"))
         assert result == Decimal("0")
 
     def test_returns_value_with_fills(self, tmp_path):
-        """Con fills → retorna Decimal (no lanza)."""
-        ledger = TradeLedger(symbol="BTC-USD", db_path=str(tmp_path / "ledger.db"))
+        """Con fills y equity_day_start → retorna Decimal exacto."""
+        ledger = TradeLedger(
+            symbol="BTC-USD", db_path=str(tmp_path / "ledger.db"),
+            initial_cash=Decimal("10000"),
+        )
+        ledger.reset_day(Decimal("50000"))  # equity_day_start = 10000
         ledger.add_fill(make_fill("dpnl-buy-001", side="buy", amount="0.1", price="50000"))
+        # Cash = 10000 - 5000 = 5000, inventory = 0.1 * 50000 = 5000, equity = 10000
         result = ledger.get_day_pnl_pct(Decimal("50000"))
         assert isinstance(result, Decimal)
+        assert result == Decimal("0")  # no change in equity
 
-    def test_sell_fill_today_contributes_to_day_pnl(self, tmp_path):
-        """Fill de venta de hoy contribuye al cálculo."""
-        import time
-
-        ledger = TradeLedger(symbol="BTC-USD", db_path=str(tmp_path / "ledger.db"))
+    def test_sell_at_profit_positive_day_pnl(self, tmp_path):
+        """Buy then sell at higher price → positive day PnL."""
+        ledger = TradeLedger(
+            symbol="BTC-USD", db_path=str(tmp_path / "ledger.db"),
+            initial_cash=Decimal("10000"),
+        )
+        ledger.reset_day(Decimal("50000"))  # equity_day_start = 10000
         ledger.add_fill(make_fill("dpnl-buy-002", side="buy", amount="0.1", price="50000"))
-
-        # Sell con ts_ms de hoy (ahora)
-        now_ms = int(time.time() * 1000)
         sell = Fill(
             side="sell",
-            amount=Decimal("0.05"),
+            amount=Decimal("0.1"),
             price=Decimal("52000"),
-            cost=Decimal("0.05") * Decimal("52000"),
+            cost=Decimal("0.1") * Decimal("52000"),
             fee_cost=Decimal("0"),
             fee_currency="USD",
-            ts_ms=now_ms,
+            ts_ms=1_700_000_001_000,
             trade_id="dpnl-sell-002",
             order_id="o-dpnl",
         )
         ledger.add_fill(sell)
+        # Cash = 10000 - 5000 + 5200 = 10200, position = 0, equity = 10200
+        # day_pnl = (10200 - 10000) / 10000 = 0.02
         result = ledger.get_day_pnl_pct(Decimal("52000"))
         assert isinstance(result, Decimal)
+        assert result == Decimal("0.02")
 
 
 # ──────────────────────────────────────────────

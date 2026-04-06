@@ -16,7 +16,8 @@ from unittest.mock import MagicMock
 sys.path.insert(0, "/mnt/okcomputer/output/fortress_v4")
 
 from src.accounting.ledger import TradeLedger
-from src.execution.idempotency import IdempotencyStore, OrderIntent, OrderState
+from src.execution.idempotency import IdempotencyStore, OrderState
+from src.execution.order_planner import OrderIntent
 from src.oms.reconcile import OMSReconcileService
 
 
@@ -67,16 +68,18 @@ class TestOMSBootstrap:
         # Pre-populate idempotency store
         for i, order in enumerate(orders):
             intent = OrderIntent(
-                intent_id=f"intent-{i}",
                 client_order_id=order["client_order_id"],
-                product_id="BTC-USD",
+                signal_id="test-signal",
+                strategy_id="test-strategy",
+                symbol="BTC-USD",
                 side="BUY",
+                final_qty=Decimal("0.01"),
                 order_type="LIMIT",
-                qty=Decimal("0.01"),
                 price=Decimal("50000"),
-                stop_price=None,
+                reduce_only=False,
                 post_only=True,
-                created_ts_ms=1234567890 + i,
+                viable=True,
+                planner_version="test",
             )
             self.idempotency.save_intent(intent, state=OrderState.OPEN_PENDING)
 
@@ -104,16 +107,18 @@ class TestOMSBootstrap:
                 order_id = f"o-{batch_idx}-{i}"
 
                 intent = OrderIntent(
-                    intent_id=f"intent-{idx}",
                     client_order_id=client_id,
-                    product_id="BTC-USD",
+                    signal_id="test-signal",
+                    strategy_id="test-strategy",
+                    symbol="BTC-USD",
                     side="BUY",
+                    final_qty=Decimal("0.01"),
                     order_type="LIMIT",
-                    qty=Decimal("0.01"),
                     price=Decimal("50000"),
-                    stop_price=None,
+                    reduce_only=False,
                     post_only=True,
-                    created_ts_ms=1234567890 + idx,
+                    viable=True,
+                    planner_version="test",
                 )
                 self.idempotency.save_intent(intent, state=OrderState.OPEN_PENDING)
 
@@ -164,16 +169,18 @@ class TestOMSStateTransitions:
         self.order_id = "o-123"
         self.client_order_id = "c-123"
         intent = OrderIntent(
-            intent_id="intent-123",
             client_order_id=self.client_order_id,
-            product_id="BTC-USD",
+            signal_id="test-signal",
+            strategy_id="test-strategy",
+            symbol="BTC-USD",
             side="BUY",
+            final_qty=Decimal("0.1"),
             order_type="LIMIT",
-            qty=Decimal("0.1"),
             price=Decimal("50000"),
-            stop_price=None,
+            reduce_only=False,
             post_only=True,
-            created_ts_ms=1234567890,
+            viable=True,
+            planner_version="test",
         )
         self.idempotency.save_intent(intent, state=OrderState.OPEN_PENDING)
 
@@ -229,7 +236,7 @@ class TestOMSStateTransitions:
     def test_state_transition_cancel_queued_to_cancelled(self):
         """Transición CANCEL_QUEUED -> CANCELLED."""
         # Cambiar estado a CANCEL_QUEUED
-        self.idempotency.update_state("intent-123", OrderState.CANCEL_QUEUED)
+        self.idempotency.update_state(self.client_order_id, OrderState.CANCEL_QUEUED)
 
         update = {
             "order_id": self.order_id,
@@ -268,16 +275,18 @@ class TestOMSFillsDeduplication:
         self.order_id = "o-123"
         self.client_order_id = "c-123"
         intent = OrderIntent(
-            intent_id="intent-123",
             client_order_id=self.client_order_id,
-            product_id="BTC-USD",
+            signal_id="test-signal",
+            strategy_id="test-strategy",
+            symbol="BTC-USD",
             side="BUY",
+            final_qty=Decimal("0.1"),
             order_type="LIMIT",
-            qty=Decimal("0.1"),
             price=Decimal("50000"),
-            stop_price=None,
+            reduce_only=False,
             post_only=True,
-            created_ts_ms=1234567890,
+            viable=True,
+            planner_version="test",
         )
         self.idempotency.save_intent(intent, state=OrderState.OPEN_PENDING)
 

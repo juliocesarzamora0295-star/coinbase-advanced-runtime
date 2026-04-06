@@ -68,13 +68,22 @@ class LedgerSnapshot:
     realized_pnl_quote: Decimal
     last_trade_ts_ms: int
     last_trade_id: str
+    cash: Decimal = Decimal("0")
+    fees_paid_quote: Decimal = Decimal("0")
+    equity_day_start: Decimal = Decimal("0")
+    equity_peak: Decimal = Decimal("0")
 
 
 class TradeLedger:
     """
     Ledger de trades con Decimal y persistencia SQLite.
 
-    CORREGIDO P1:
+    Modelo contable institucional:
+      - cash: capital disponible en quote currency
+      - inventory: position_qty (base currency)
+      - equity = cash + inventory * mark_price
+      - equity_day_start: equity al inicio del día (para daily PnL exacto)
+      - equity_peak: equity máximo histórico (para drawdown exacto)
       - Fees en base currency ajustan qty neta
       - Callback para circuit breaker
     """
@@ -84,12 +93,13 @@ class TradeLedger:
         symbol: str,
         db_path: str = "state/ledger.db",
         on_fill_callback: Optional[Callable[[Fill], None]] = None,
+        initial_cash: Decimal = Decimal("0"),
     ) -> None:
         self.symbol = symbol
         self.db_path = db_path
-        self.on_fill_callback = on_fill_callback  # CORREGIDO P1: callback para circuit breaker
+        self.on_fill_callback = on_fill_callback
 
-        # Estado en memoria
+        # Estado en memoria — posición
         self.fills: List[Fill] = []
         self.position_qty: Decimal = Decimal("0")
         self.avg_entry: Decimal = Decimal("0")
@@ -97,6 +107,13 @@ class TradeLedger:
         self.realized_pnl_quote: Decimal = Decimal("0")
         self.last_trade_ts_ms: int = 0
         self.last_trade_id: str = ""
+
+        # Contabilidad institucional
+        self.initial_cash: Decimal = initial_cash
+        self.cash: Decimal = initial_cash  # quote currency disponible
+        self.fees_paid_quote: Decimal = Decimal("0")  # fees acumulados en quote
+        self.equity_day_start: Decimal = Decimal("0")  # equity al inicio del día
+        self.equity_peak: Decimal = Decimal("0")  # equity máximo histórico
 
         # Inferir monedas del símbolo
         parts = symbol.split("-")
@@ -135,7 +152,12 @@ class TradeLedger:
                     cost_basis_quote TEXT NOT NULL,
                     realized_pnl_quote TEXT NOT NULL,
                     last_trade_ts_ms INTEGER NOT NULL,
-                    last_trade_id TEXT NOT NULL
+                    last_trade_id TEXT NOT NULL,
+                    initial_cash TEXT NOT NULL DEFAULT '0',
+                    cash TEXT NOT NULL DEFAULT '0',
+                    fees_paid_quote TEXT NOT NULL DEFAULT '0',
+                    equity_day_start TEXT NOT NULL DEFAULT '0',
+                    equity_peak TEXT NOT NULL DEFAULT '0'
                 )
             """)
 
@@ -177,6 +199,13 @@ class TradeLedger:
                 self.realized_pnl_quote = Decimal(row[4])
                 self.last_trade_ts_ms = row[5]
                 self.last_trade_id = row[6]
+                # New accounting columns (backward compat: may not exist in old DBs)
+                if len(row) > 7:
+                    self.initial_cash = Decimal(row[7]) if row[7] else self.initial_cash
+                    self.cash = Decimal(row[8]) if row[8] else self.cash
+                    self.fees_paid_quote = Decimal(row[9]) if row[9] else Decimal("0")
+                    self.equity_day_start = Decimal(row[10]) if row[10] else Decimal("0")
+                    self.equity_peak = Decimal(row[11]) if row[11] else Decimal("0")
             else:
                 self._save_state(conn)
 
@@ -191,8 +220,9 @@ class TradeLedger:
             """
             INSERT OR REPLACE INTO state
             (symbol, position_qty, avg_entry, cost_basis_quote,
-             realized_pnl_quote, last_trade_ts_ms, last_trade_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+             realized_pnl_quote, last_trade_ts_ms, last_trade_id,
+             initial_cash, cash, fees_paid_quote, equity_day_start, equity_peak)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 self.symbol,
@@ -202,6 +232,11 @@ class TradeLedger:
                 str(self.realized_pnl_quote),
                 self.last_trade_ts_ms,
                 self.last_trade_id,
+                str(self.initial_cash),
+                str(self.cash),
+                str(self.fees_paid_quote),
+                str(self.equity_day_start),
+                str(self.equity_peak),
             ),
         )
         conn.commit()
@@ -257,11 +292,18 @@ class TradeLedger:
         """
         Recomputar estado desde fills.
 
-        CORREGIDO P1: Fees en base currency ajustan qty neta.
+        Modelo contable:
+        - cash empieza en initial_cash
+        - BUY: cash -= cost + fee_quote, qty += amount - fee_base
+        - SELL: cash += proceeds - fee_quote, qty -= amount
+        - realized_pnl se calcula contra cost_basis promedio
+        - fees_paid_quote acumula todos los fees convertidos a quote
         """
         qty = Decimal("0")
         cost_basis = Decimal("0")
         realized = Decimal("0")
+        cash = self.initial_cash
+        fees_paid = Decimal("0")
 
         last_ts = 0
         last_id = ""
@@ -277,17 +319,21 @@ class TradeLedger:
                 else Decimal("0")
             )
 
-            # CORREGIDO P1: Fee en base ajusta qty neta
+            # Fee en base ajusta qty neta
             fee_base = (
-                f.fee_cost if f.fee_currency.upper() == self.base_currency.upper() else Decimal("0")
+                f.fee_cost
+                if f.fee_currency.upper() == self.base_currency.upper()
+                else Decimal("0")
             )
 
+            fees_paid += fee_quote + (fee_base * f.price if fee_base else Decimal("0"))
+
             if f.side == "buy":
-                # Cantidad neta = amount - fee_base (si fee en base)
                 qty_in = f.amount - fee_base
                 qty += qty_in
-                # Costo en quote + fee_quote
                 cost_basis += f.cost + fee_quote
+                # Cash sale: pagamos cost + fee_quote
+                cash -= f.cost + fee_quote
 
             else:  # sell
                 qty_out = f.amount
@@ -297,20 +343,16 @@ class TradeLedger:
                 if qty <= 0:
                     continue
 
-                # Costo promedio actual
                 avg = cost_basis / qty if qty > 0 else Decimal("0")
-
-                # Proceeds efectivos (menos fee si aplica)
                 proceeds = f.cost - fee_quote
 
-                # PnL realizado
                 realized += proceeds - (avg * qty_out)
 
-                # Reducir posición
                 qty -= qty_out
                 cost_basis -= avg * qty_out
+                # Cash entra: recibimos proceeds
+                cash += proceeds
 
-                # Clamp
                 if qty < Decimal("1e-12"):
                     qty = Decimal("0")
                     cost_basis = Decimal("0")
@@ -321,6 +363,8 @@ class TradeLedger:
         self.realized_pnl_quote = realized
         self.last_trade_ts_ms = last_ts
         self.last_trade_id = last_id
+        self.cash = cash
+        self.fees_paid_quote = fees_paid
 
     def snapshot(self) -> LedgerSnapshot:
         """Obtener snapshot del estado actual."""
@@ -332,6 +376,10 @@ class TradeLedger:
             realized_pnl_quote=self.realized_pnl_quote,
             last_trade_ts_ms=self.last_trade_ts_ms,
             last_trade_id=self.last_trade_id,
+            cash=self.cash,
+            fees_paid_quote=self.fees_paid_quote,
+            equity_day_start=self.equity_day_start,
+            equity_peak=self.equity_peak,
         )
 
     def get_unrealized_pnl(self, current_price: Decimal) -> Decimal:
@@ -343,77 +391,71 @@ class TradeLedger:
         return position_value - self.cost_basis_quote
 
     def get_equity(self, current_price: Decimal) -> Decimal:
-        """Calcular equity total (cash + posición)."""
-        # Equity = realized + posición actual valorizada
-        position_value = self.position_qty * current_price
-        return self.realized_pnl_quote + position_value
+        """
+        Equity = cash + mark_to_market(inventory).
+
+        cash = initial_cash + sum(sell_proceeds) - sum(buy_costs) - fees
+        inventory_value = position_qty * current_price
+        """
+        inventory_value = self.position_qty * current_price
+        return self.cash + inventory_value
+
+    def mark_equity(self, current_price: Decimal) -> Decimal:
+        """
+        Calcular equity y actualizar peak si es nuevo máximo.
+
+        Llama a get_equity() y actualiza equity_peak.
+        Retorna equity actual.
+        """
+        equity = self.get_equity(current_price)
+        if equity > self.equity_peak:
+            self.equity_peak = equity
+        return equity
+
+    def reset_day(self, current_price: Decimal) -> None:
+        """
+        Resetear métricas diarias.
+
+        Debe llamarse al inicio de cada día de trading.
+        Captura equity actual como equity_day_start.
+        """
+        equity = self.get_equity(current_price)
+        self.equity_day_start = equity
+        # No resetear equity_peak — es histórico
 
     def get_day_pnl_pct(self, current_price: Decimal) -> Optional[Decimal]:
         """
-        Calcular PnL diario como porcentaje del equity inicial del día.
+        PnL diario exacto: (equity_now - equity_day_start) / equity_day_start.
 
         Returns:
-            PnL % del día, o None si no hay datos suficientes.
+            Fracción del equity (e.g. -0.05 = -5%). None si no hay referencia.
         """
-        from datetime import datetime
+        equity_now = self.get_equity(current_price)
 
-        if not self.fills:
-            return Decimal("0")
+        if self.equity_day_start <= Decimal("0"):
+            # Sin referencia de inicio de día — fail-closed
+            return None
 
-        # Obtener timestamp de inicio del día (UTC)
-        now_ms = int(datetime.utcnow().timestamp() * 1000)
-        day_start_ms = now_ms - (now_ms % (24 * 60 * 60 * 1000))
-
-        # Calcular realized PnL del día
-        day_realized = Decimal("0")
-        for f in self.fills:
-            if f.ts_ms >= day_start_ms and f.side == "sell":
-                # Simplificación: usamos el cost del fill como proxy
-                day_realized += f.cost
-
-        # Equity de referencia (inicio del día o último valor)
-        equity = self.get_equity(current_price)
-        if equity <= 0:
-            return Decimal("0")
-
-        # PnL % = realized del día / equity
-        # Nota: esto es una aproximación, el cálculo exacto requiere tracking de equity histórico
-        return day_realized / equity
+        return (equity_now - self.equity_day_start) / self.equity_day_start
 
     def get_drawdown_pct(self, current_price: Decimal) -> Decimal:
         """
-        Calcular drawdown actual desde el pico de equity.
+        Drawdown exacto: (equity_peak - equity_now) / equity_peak.
+
+        Actualiza equity_peak si equity actual es nuevo máximo.
 
         Returns:
-            Drawdown % (positivo = en drawdown).
+            Fracción positiva (e.g. 0.10 = 10% drawdown). 0 si en peak.
         """
-        if not self.fills:
+        equity_now = self.mark_equity(current_price)
+
+        if self.equity_peak <= Decimal("0"):
             return Decimal("0")
 
-        current_equity = self.get_equity(current_price)
-        if current_equity <= 0:
+        if equity_now >= self.equity_peak:
             return Decimal("0")
 
-        # Encontrar equity máximo histórico (aproximado desde fills)
-        max_equity = Decimal("0")
-        running_realized = Decimal("0")
-
-        for f in sorted(self.fills, key=lambda x: x.ts_ms):
-            if f.side == "sell":
-                running_realized += f.cost
-                max_equity = max(max_equity, running_realized)
-
-        # Incluir equity actual en el máximo
-        max_equity = max(max_equity, current_equity)
-
-        if max_equity <= 0:
-            return Decimal("0")
-
-        # Drawdown = (pico - actual) / pico
-        if current_equity < max_equity:
-            return (max_equity - current_equity) / max_equity
-
-        return Decimal("0")
+        return (self.equity_peak - equity_now) / self.equity_peak
 
     def validate_equity_invariant(
         self, current_price: Decimal, tolerance: Decimal = Decimal("1e-6")
@@ -421,8 +463,8 @@ class TradeLedger:
         """
         Validar invariante de equity.
 
-        Adaptado de GuardianBot.
-        Verifica que: cash + unrealized_pnl == current_equity
+        Verifica que: cash + inventory_value == get_equity(current_price)
+        Y que cash = initial_cash + realized_pnl - fees_adjustment
 
         Args:
             current_price: Precio actual del activo
@@ -431,17 +473,19 @@ class TradeLedger:
         Returns:
             (ok, message) - message describe el resultado
         """
-        position_value = self.position_qty * current_price
-
-        # Equity esperado = cash + unrealized
-        # En nuestro modelo, realized_pnl_quote representa el cash acumulado
-        expected_equity = self.realized_pnl_quote + position_value
+        inventory_value = self.position_qty * current_price
+        expected_equity = self.cash + inventory_value
         actual_equity = self.get_equity(current_price)
 
         diff = abs(expected_equity - actual_equity)
 
         if diff > tolerance:
-            msg = f"EQUITY INVARIANT FAIL: expected={expected_equity:.6f} actual={actual_equity:.6f} diff={diff:.10f}"
+            msg = (
+                f"EQUITY INVARIANT FAIL: cash={self.cash:.6f} "
+                f"inventory={inventory_value:.6f} "
+                f"expected={expected_equity:.6f} actual={actual_equity:.6f} "
+                f"diff={diff:.10f}"
+            )
             return False, msg
 
         return True, f"Equity invariant OK: diff={diff:.10f}"

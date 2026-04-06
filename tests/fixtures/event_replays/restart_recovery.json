@@ -39,7 +39,7 @@
     }
   ],
   "post_restart_expectations": {
-    "open_oms_orders": ["intent-restart-001", "intent-restart-002"],
+    "open_oms_orders": ["client-restart-001", "client-restart-002"],
     "filled_oms_orders": [],
     "ledger_position_qty": "0.2",
     "ledger_avg_entry": "48000"

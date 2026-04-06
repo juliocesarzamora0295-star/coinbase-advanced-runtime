@@ -42,11 +42,11 @@ class PerformanceMetrics:
     # Extended metrics (institutional)
     cagr: float = 0.0  # compound annual growth rate
     sortino_ratio: float = 0.0
-    calmar_ratio: float = 0.0
+    calmar_ratio: float = 0.0  # CAGR / max_drawdown_fraction (dimensionless)
     max_consecutive_losses: int = 0
-    recovery_factor: float = 0.0  # total_pnl / max_drawdown_abs
-    time_in_market_pct: float = 0.0
-    turnover_rate: float = 0.0
+    recovery_factor: float = 0.0  # total_pnl / max_drawdown_currency
+    time_in_market_pct: float = 0.0  # approx: trades*2/bars (exact needs per-bar state)
+    turnover_rate: float = 0.0  # trades / bars
     skewness: float = 0.0
     kurtosis: float = 0.0
 
@@ -56,6 +56,7 @@ class PerformanceMetrics:
         max_drawdown: float = 0.50,
         min_trades: int = 5,
         min_profit_factor: float = 0.5,
+        max_consecutive_losses: int = 20,
     ) -> Tuple[bool, List[str]]:
         """
         Check if metrics pass certification thresholds.
@@ -72,6 +73,10 @@ class PerformanceMetrics:
             failures.append(f"max_dd={self.max_drawdown:.2%} > {max_drawdown:.2%}")
         if self.profit_factor < min_profit_factor:
             failures.append(f"profit_factor={self.profit_factor:.2f} < {min_profit_factor}")
+        if self.max_consecutive_losses > max_consecutive_losses:
+            failures.append(
+                f"max_consec_losses={self.max_consecutive_losses} > {max_consecutive_losses}"
+            )
         return len(failures) == 0, failures
 
 
@@ -146,12 +151,8 @@ def compute_metrics(
         dd_dev = math.sqrt(sum(downside) / max(len(returns) - 1, 1))
         sortino = (mean_r / dd_dev * math.sqrt(periods_per_year)) if dd_dev > 0 else 0.0
 
-    # Calmar
-    max_dd_abs = max_dd * float(initial_equity) if initial_equity > ZERO else 0.0
-    calmar = 0.0
-    if max_dd_abs > 0 and returns:
-        ann_ret = (sum(returns) / len(returns)) * periods_per_year
-        calmar = ann_ret / max_dd_abs if max_dd_abs > 0 else 0.0
+    # Calmar = CAGR / max_drawdown_fraction (both dimensionless)
+    calmar = cagr / max_dd if max_dd > 0 else 0.0
 
     # Max consecutive losses
     max_consec = 0
@@ -163,8 +164,9 @@ def compute_metrics(
         else:
             consec = 0
 
-    # Recovery factor
-    recovery = float(total_pnl) / max_dd_abs if max_dd_abs > 0 else 0.0
+    # Recovery factor = total_pnl / max_drawdown_in_currency
+    max_dd_currency = max_dd * float(initial_equity) if initial_equity > ZERO else 0.0
+    recovery = float(total_pnl) / max_dd_currency if max_dd_currency > 0 else 0.0
 
     # Skewness/kurtosis
     from src.quantitative.advanced import _skewness, _kurtosis

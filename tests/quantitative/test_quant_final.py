@@ -35,17 +35,24 @@ class TestIntegratedMetrics:
         m = compute_metrics(trades, curve, Decimal("10000"))
         assert m.sortino_ratio != 0.0
 
-    def test_calmar_computed(self):
+    def test_calmar_dimensionally_correct(self):
+        """Calmar = CAGR / max_drawdown_fraction. Both dimensionless."""
         trades = [TradeRecord(pnl=Decimal("10")) for _ in range(5)]
         curve = [
             (0, Decimal("10000")),
             (1, Decimal("10500")),
-            (2, Decimal("10200")),  # drawdown
+            (2, Decimal("10200")),  # drawdown from peak
             (3, Decimal("10800")),
         ]
         m = compute_metrics(trades, curve, Decimal("10000"))
-        # Has some value (not necessarily > 0 due to small sample)
         assert isinstance(m.calmar_ratio, float)
+        # Calmar should be CAGR/dd, not rate/dollars
+        # With positive CAGR and small drawdown, Calmar should be > 0
+        if m.cagr > 0 and m.max_drawdown > 0:
+            expected = m.cagr / m.max_drawdown
+            assert abs(m.calmar_ratio - expected) < 0.001, (
+                f"Calmar mismatch: got {m.calmar_ratio}, expected CAGR/dd={expected}"
+            )
 
     def test_max_consecutive_losses_computed(self):
         trades = [
@@ -131,5 +138,24 @@ class TestEndToEndBacktestMetrics:
             max_drawdown=0.99,
             min_trades=1,
             min_profit_factor=0.0,
+            max_consecutive_losses=50,
         )
         assert passed, f"Should pass lenient certification: {failures}"
+
+    def test_certification_fails_on_consecutive_losses(self):
+        """Too many consecutive losses → fails certification."""
+        from src.quantitative.metrics import PerformanceMetrics
+        m = PerformanceMetrics(
+            total_trades=20, winning_trades=5, losing_trades=15,
+            win_rate=0.25, total_pnl=Decimal("-500"),
+            profit_factor=0.3, max_drawdown=0.20,
+            sharpe_ratio=-0.5, avg_trade_pnl=Decimal("-25"),
+            avg_win=Decimal("50"), avg_loss=Decimal("-50"),
+            avg_trade_duration_ms=3600000, return_pct=-0.05,
+            max_consecutive_losses=12,
+        )
+        passed, failures = m.passes_certification(
+            max_consecutive_losses=10,
+        )
+        assert not passed
+        assert any("consec_losses" in f for f in failures)

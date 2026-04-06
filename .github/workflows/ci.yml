@@ -80,8 +80,8 @@ jobs:
     - name: Docker build smoke
       run: |
         if command -v docker &> /dev/null; then
-          docker build -t fortress-smoke --target=build . || \
           docker build -t fortress-smoke .
+          echo "Docker build OK"
         else
           echo "Docker not available — running build smoke script instead"
           bash scripts/ci_smoke.sh

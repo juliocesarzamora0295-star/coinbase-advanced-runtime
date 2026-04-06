@@ -219,11 +219,11 @@ class Config:
         symbols_file = self.paths.repo / "configs" / "symbols.yaml"
 
         if not symbols_file.exists():
-            # Configuración por defecto
-            self.symbols = [
-                SymbolConfig(symbol="BTC-USD", enabled=True, timeframe="1h"),
-                SymbolConfig(symbol="ETH-USD", enabled=True, timeframe="1h"),
-            ]
+            import logging
+            logging.getLogger("Config").error(
+                "Config file not found: %s — no symbols loaded (fail-closed)", symbols_file
+            )
+            self.symbols = []
             return
 
         try:
@@ -281,10 +281,12 @@ class Config:
                     )
                 )
         except Exception as e:
-            print(f"Warning: Could not load symbols config: {e}")
-            self.symbols = [
-                SymbolConfig(symbol="BTC-USD", enabled=True, timeframe="1h"),
-            ]
+            import logging
+            logging.getLogger("Config").error(
+                "Failed to load config %s: %s — no symbols loaded (fail-closed)",
+                symbols_file, e,
+            )
+            self.symbols = []
 
 
 # Instancia global

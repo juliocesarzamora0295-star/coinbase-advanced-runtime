@@ -103,7 +103,9 @@ class MetricsCollector:
         self._riskgate_rejections: Dict[str, int] = defaultdict(int)
         self._signal_counts: Dict[str, int] = defaultdict(int)
 
-        # Generic metric stores
+        # Generic metric stores (H8: protected by _lock for thread safety)
+        import threading
+        self._lock = threading.Lock()
         self._counters: Dict[str, int] = {}
         self._gauges: Dict[str, float] = {}
         self._histograms: Dict[str, list] = {}
@@ -213,7 +215,8 @@ class MetricsCollector:
             labels: labels opcionales
         """
         key = _make_key(name, labels)
-        self._counters[key] = self._counters.get(key, 0) + delta
+        with self._lock:
+            self._counters[key] = self._counters.get(key, 0) + delta
 
     def gauge(self, name: str, value: float, labels: Dict[str, str] | None = None) -> None:
         """
@@ -225,7 +228,8 @@ class MetricsCollector:
             labels: labels opcionales
         """
         key = _make_key(name, labels)
-        self._gauges[key] = value
+        with self._lock:
+            self._gauges[key] = value
 
     def observe(self, name: str, value: float, labels: Dict[str, str] | None = None) -> None:
         """
@@ -237,9 +241,10 @@ class MetricsCollector:
             labels: labels opcionales
         """
         key = _make_key(name, labels)
-        if key not in self._histograms:
-            self._histograms[key] = []
-        self._histograms[key].append(value)
+        with self._lock:
+            if key not in self._histograms:
+                self._histograms[key] = []
+            self._histograms[key].append(value)
 
     def get_counter(self, name: str, labels: Dict[str, str] | None = None) -> int:
         """Obtener valor actual de un contador."""

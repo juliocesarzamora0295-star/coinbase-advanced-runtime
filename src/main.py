@@ -18,7 +18,8 @@ from src.accounting.ledger import TradeLedger
 from src.config import PathsConfig, get_config
 from src.core.coinbase_exchange import CoinbaseRESTClient
 from src.core.coinbase_websocket import CoinbaseWSFeed, WSMessage
-from src.core.jwt_auth import JWTAuth, load_credentials_from_env
+from src.core.jwt_auth import JWTAuth
+from src.credentials import load_credentials
 from src.core.quantization import create_quantizer_from_api_response
 from src.execution.execution_report import build_execution_report
 from src.execution.pending_store import PendingReport, PendingReportStore
@@ -27,6 +28,8 @@ from src.execution.order_planner import OrderIntent, OrderNotAllowedError, Order
 from src.execution.orders import OrderExecutor
 from src.marketdata.orderbook import OrderBook
 from src.marketdata.service import MarketDataService
+from src.monitoring.alert_manager import AlertLevel, AlertManager, ConsoleBackend, FileBackend
+from src.monitoring.health_check import HealthChecker
 from src.observability import get_collector
 from src.observability.json_sink import JSONLineSink
 from src.oms.reconcile import OMSReconcileService
@@ -110,6 +113,16 @@ class TradingBot:
         self._last_flush_time: float = time.time()
         self._flush_interval_s: float = 60.0  # flush every 60 seconds (R6)
 
+        # Monitoring: AlertManager + HealthChecker (H2)
+        alert_log_path = str(self.config.paths.logs / "alerts.jsonl")
+        self.alert_manager = AlertManager(
+            backends=[ConsoleBackend(), FileBackend(path=alert_log_path)],
+            cooldown_seconds=300.0,
+        )
+        self.health_checker = HealthChecker(stale_threshold_s=120.0)
+        self._last_health_check: float = 0.0
+        self._health_check_interval_s: float = 60.0
+
         # Paper Engine (simulación)
         self.paper_engine: Optional[PaperEngine] = None
 
@@ -161,17 +174,26 @@ class TradingBot:
             logger.error("COINBASE_KEY_NAME y COINBASE_KEY_SECRET son requeridos")
             return False
 
-        logger.info(f"Key Name: {self.config.coinbase.key_name[:50]}...")
+        # H9: Mask credential logging
+        key_name = self.config.coinbase.key_name
+        masked = f"{key_name[:8]}...{key_name[-4:]}" if len(key_name) > 12 else "***"
+        logger.info(f"Key Name: {masked}")
         logger.info(f"JWT Issuer: {self.config.coinbase.issuer}")
 
-        # Crear JWT Auth
+        # H3: Use credential manager with multi-source loading
         try:
-            credentials = load_credentials_from_env()
-            self.jwt_auth = JWTAuth(
-                credentials,
-                issuer=self.config.coinbase.issuer,
-            )
-            logger.info("JWT Auth initialized")
+            creds = load_credentials()
+            if creds and creds.is_configured():
+                from src.core.jwt_auth import load_credentials_from_env
+                jwt_creds = load_credentials_from_env()
+                self.jwt_auth = JWTAuth(
+                    jwt_creds,
+                    issuer=self.config.coinbase.issuer,
+                )
+            else:
+                logger.error("No valid credentials found via credential manager")
+                return False
+            logger.info("JWT Auth initialized (credentials from: %s)", creds.source)
         except Exception as e:
             logger.error(f"Failed to initialize JWT Auth: {e}")
             return False
@@ -331,6 +353,10 @@ class TradingBot:
                             self.circuit_breaker.force_open(
                                 f"OMS degraded: {incident.incident_type}"
                             )
+                        self.alert_manager.alert(
+                            AlertLevel.CRITICAL, "oms",
+                            f"[{sym}] OMS degraded: {incident.incident_type}",
+                        )
                     return handler
 
                 oms = OMSReconcileService(
@@ -484,6 +510,38 @@ class TradingBot:
                 except Exception as e:
                     logger.error("[%s] External reconcile failed: %s", sym, e)
 
+        # H2: Periodic health check + alerts
+        if now - self._last_health_check >= self._health_check_interval_s:
+            self._last_health_check = now
+            oms_svc = self.oms_services.get(symbol)
+            health = self.health_checker.check(
+                oms_ready=oms_svc.is_ready() if oms_svc else None,
+                oms_degraded=oms_svc.is_degraded() if oms_svc else None,
+                breaker_state=self.circuit_breaker.state.value if self.circuit_breaker else None,
+                kill_switch_active=self.kill_switch.is_active,
+                kill_switch_mode=self.kill_switch.state.mode.value,
+                ledger_equity=float(ledger.get_equity(current_price)) if ledger else None,
+                pending_reports_count=self._pending_store.count(),
+            )
+            health.log_json()
+
+            if health.overall == "UNHEALTHY":
+                self.alert_manager.alert(
+                    AlertLevel.CRITICAL, "health_check",
+                    f"System UNHEALTHY: {[c.name for c in health.components if not c.healthy]}",
+                )
+            elif health.overall == "DEGRADED":
+                self.alert_manager.alert(
+                    AlertLevel.WARNING, "health_check",
+                    f"System DEGRADED: {[c.name for c in health.components if not c.healthy]}",
+                )
+
+            # Heartbeat
+            self.alert_manager.heartbeat("trading_bot")
+
+        # H6: Cleanup stale pending reports
+        self._pending_store.cleanup_stale()
+
     def _on_candle_closed(self, symbol: str, candle) -> None:
         """
         Callback para eventos CandleClosed.
@@ -529,10 +587,11 @@ class TradingBot:
         # Kill switch gate — persistent, survives restarts
         if self.kill_switch.state.blocks_new_orders:
             self.metrics.inc("signals.blocked.kill_switch")
-            self._enforce_kill_switch_policies(symbol)
-            logger.warning(
-                f"[{symbol}] Signal BLOCKED: kill switch {self.kill_switch.state.mode.value}"
+            self.alert_manager.alert(
+                AlertLevel.EMERGENCY, "kill_switch",
+                f"Kill switch active: {self.kill_switch.state.mode.value}",
             )
+            self._enforce_kill_switch_policies(symbol)
             return
 
         # OMS readiness gate — no trading con OMS incompleta o degradada

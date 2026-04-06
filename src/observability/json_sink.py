@@ -33,6 +33,9 @@ class JSONLineSink:
         self.backup_count = backup_count
         self._ensure_dir()
         self._file = open(self.path, "a")
+        # Register atexit to flush/close on shutdown (H5)
+        import atexit
+        atexit.register(self.close)
 
     def _ensure_dir(self) -> None:
         dir_path = os.path.dirname(self.path)

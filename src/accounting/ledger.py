@@ -395,20 +395,21 @@ class TradeLedger:
         """
         Establecer capital reservado por órdenes abiertas.
 
-        Debe llamarse periódicamente con el total notional de órdenes abiertas.
+        Clamped: reserved never exceeds total assets to prevent negative equity.
         """
-        self.reserved_quote = reserved_quote
+        max_reservable = self.cash + self.position_qty * (self.avg_entry if self.avg_entry > Decimal("0") else Decimal("0"))
+        self.reserved_quote = min(reserved_quote, max(Decimal("0"), max_reservable))
 
     def get_equity(self, current_price: Decimal) -> Decimal:
         """
-        Equity = cash + mark_to_market(inventory) - reserved.
+        Equity = max(0, cash + mark_to_market(inventory) - reserved).
 
         cash = initial_cash + sum(sell_proceeds) - sum(buy_costs) - fees
         inventory_value = position_qty * current_price
         reserved = capital comprometido en órdenes abiertas
         """
         inventory_value = self.position_qty * current_price
-        return self.cash + inventory_value - self.reserved_quote
+        return max(Decimal("0"), self.cash + inventory_value - self.reserved_quote)
 
     def get_available_cash(self) -> Decimal:
         """Cash disponible (descontando reservas)."""

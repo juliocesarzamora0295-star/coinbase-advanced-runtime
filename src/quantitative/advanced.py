@@ -233,22 +233,37 @@ def monte_carlo_permutation_test(
     returns: List[float],
     n_permutations: int = 1000,
     seed: int = 42,
+    positions: Optional[List[float]] = None,
 ) -> Tuple[float, float]:
     """
     Monte Carlo permutation test for strategy alpha.
 
-    Shuffle the return series N times, compute PnL each time.
-    p-value = fraction of shuffled PnLs >= strategy PnL.
+    Shuffles returns against fixed positions N times.  When positions
+    are provided, PnL = sum(positions[i] * shuffled_returns[i]);
+    shuffling breaks the correlation and produces a meaningful null.
+
+    Without positions the test is degenerate (sum is shuffle-invariant)
+    and should only be used for API-level validation.
 
     Returns:
         (p_value, percentile_rank)
     """
     rng = random.Random(seed)
+    n = len(returns)
+    if positions is not None and len(positions) != n:
+        raise ValueError(
+            f"positions length ({len(positions)}) != returns length ({n})"
+        )
+
     shuffled_pnls = []
     for _ in range(n_permutations):
         shuffled = returns[:]
         rng.shuffle(shuffled)
-        shuffled_pnls.append(sum(shuffled))
+        if positions is not None:
+            pnl = sum(p * r for p, r in zip(positions, shuffled))
+        else:
+            pnl = sum(shuffled)
+        shuffled_pnls.append(pnl)
 
     better_count = sum(1 for sp in shuffled_pnls if sp >= strategy_pnl)
     p_value = better_count / n_permutations

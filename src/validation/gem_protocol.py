@@ -12,7 +12,7 @@ from __future__ import annotations
 import json
 import math
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -109,11 +109,11 @@ def _hurst_exponent(x: np.ndarray, max_lag: int = 100) -> float:
         return float("nan")
 
     lags = np.arange(2, max_lag)
-    tau = []
+    tau_list = []
     for lag in lags:
         diff = x[lag:] - x[:-lag]
-        tau.append(np.sqrt(np.var(diff)))
-    tau = np.asarray(tau)
+        tau_list.append(np.sqrt(np.var(diff)))
+    tau = np.asarray(tau_list)
     if np.any(tau <= 0):
         return float("nan")
     poly = np.polyfit(np.log(lags), np.log(tau), 1)
@@ -381,11 +381,11 @@ class GemProtocol:
         n = len(r)
 
         def sample_path() -> pd.Series:
-            out = []
-            while len(out) < n:
+            parts: list[float] = []
+            while len(parts) < n:
                 start = np.random.randint(0, max(1, n - block))
-                out.extend(r[start : start + block].tolist())
-            out = np.array(out[:n], dtype=float)
+                parts.extend(r[start : start + block].tolist())
+            out = np.array(parts[:n], dtype=float)
             e = np.empty(n + 1, dtype=float)
             e[0] = float(self.cfg.init_cash)
             e[1:] = e[0] * np.cumprod(1.0 + out)
@@ -492,7 +492,7 @@ class GemProtocol:
 
         self.decision = {
             "passed": bool(passed),
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "regime": self.regime,
             "base": {
                 "total_return": float(self.base["total_return"]),

@@ -20,7 +20,7 @@ import logging
 import os
 import sqlite3
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Optional
 
@@ -128,7 +128,7 @@ class KillSwitch:
             )
 
     def _persist(self, state: KillSwitchState, action: str) -> None:
-        now = datetime.utcnow().isoformat() + "Z"
+        now = datetime.now(timezone.utc).isoformat()
         with sqlite3.connect(self.db_path) as conn:
             conn.execute(
                 """
@@ -179,7 +179,7 @@ class KillSwitch:
         if mode == KillSwitchMode.OFF:
             return self.clear(activated_by)
 
-        now = datetime.utcnow().isoformat() + "Z"
+        now = datetime.now(timezone.utc).isoformat()
         new_state = KillSwitchState(
             mode=mode,
             reason=reason,

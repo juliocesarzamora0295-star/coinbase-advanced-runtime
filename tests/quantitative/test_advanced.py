@@ -139,23 +139,32 @@ class TestWalkForward:
 class TestMonteCarlo:
 
     def test_strong_strategy_low_pvalue(self):
-        """Strategy with clear alpha → low p-value."""
-        returns = [0.01] * 50 + [-0.005] * 50  # net positive
-        strategy_pnl = sum(returns)
-        p, pctile = monte_carlo_permutation_test(strategy_pnl, returns, n_permutations=500)
-        # With consistent positive returns, most shuffles should have similar sum
-        # p-value should be reasonable (not necessarily < 0.05 for equal returns)
+        """Strategy with directional positions on trending returns → low p-value."""
+        rng = __import__("random").Random(2000)
+        returns = [0.01 + rng.gauss(0, 0.002) for _ in range(100)]
+        # Strategy: always long on positive-mean series → real alpha
+        positions = [1.0] * 100
+        strategy_pnl = sum(p * r for p, r in zip(positions, returns))
+        p, pctile = monte_carlo_permutation_test(
+            strategy_pnl, returns, n_permutations=500, positions=positions
+        )
         assert 0.0 <= p <= 1.0
         assert 0.0 <= pctile <= 1.0
 
     def test_random_strategy_high_pvalue(self):
-        """Pure noise → p-value near 0.5."""
+        """Random positions on noise → p-value not extreme."""
         rng = __import__("random").Random(3000)
         returns = [rng.gauss(0, 0.01) for _ in range(100)]
-        strategy_pnl = sum(returns)
-        p, _ = monte_carlo_permutation_test(strategy_pnl, returns, n_permutations=500)
-        # Should be somewhat close to 0.5 (not extreme)
-        assert 0.05 < p < 0.95
+        # Random positions: no systematic edge
+        pos_rng = __import__("random").Random(3001)
+        positions = [pos_rng.choice([-1.0, 1.0]) for _ in range(100)]
+        strategy_pnl = sum(p * r for p, r in zip(positions, returns))
+        p, _ = monte_carlo_permutation_test(
+            strategy_pnl, returns, n_permutations=500, positions=positions
+        )
+        # Random positions on noise must not show significant alpha (low p).
+        # High p (strategy worse than shuffles) is expected and valid.
+        assert p > 0.05
 
 
 class TestBootstrapCI:

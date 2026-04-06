@@ -1,0 +1,40 @@
+# Production configuration — Fortress v4
+# REVIEW ALL VALUES BEFORE DEPLOYING
+
+symbols:
+  - symbol: "BTC-USD"
+    enabled: true
+    timeframe: "1h"
+    strategies:
+      - "ma_crossover"
+
+  # Add more symbols only AFTER canary phase succeeds
+  # - symbol: "ETH-USD"
+  #   enabled: true
+  #   timeframe: "1h"
+  #   strategies:
+  #     - "ma_crossover"
+
+trading:
+  dry_run: false
+  observe_only: true       # START WITH TRUE — switch to false after shadow
+  initial_cash: 10000      # MUST match real account balance
+  max_position_pct: 0.10   # Conservative: 10% per position (start low)
+  max_notional_per_symbol: 5000  # Conservative: $5k per symbol (start low)
+  max_orders_per_minute: 5
+  smoke_test_mode: false
+  max_cycles: 0
+  sizing_mode: "NOTIONAL"
+  notional_pct: 0.005      # Conservative: 0.5% per trade (start low)
+
+risk:
+  max_daily_loss: 0.03     # 3% — tighter than default for initial live
+  max_drawdown: 0.10       # 10% — tighter than default for initial live
+  max_consecutive_losses: 3
+  max_total_exposure_pct: 0.50  # 50% max across all symbols
+
+monitoring:
+  log_level: "INFO"
+  latency_p95_threshold_ms: 500.0
+  reject_rate_threshold: 0.03
+  slippage_drift_threshold_bps: 10.0

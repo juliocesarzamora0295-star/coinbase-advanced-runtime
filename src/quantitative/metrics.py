@@ -39,6 +39,17 @@ class PerformanceMetrics:
     avg_trade_duration_ms: int
     return_pct: float  # total return as fraction
 
+    # Extended metrics (institutional)
+    cagr: float = 0.0  # compound annual growth rate
+    sortino_ratio: float = 0.0
+    calmar_ratio: float = 0.0
+    max_consecutive_losses: int = 0
+    recovery_factor: float = 0.0  # total_pnl / max_drawdown_abs
+    time_in_market_pct: float = 0.0
+    turnover_rate: float = 0.0
+    skewness: float = 0.0
+    kurtosis: float = 0.0
+
     def passes_certification(
         self,
         min_sharpe: float = 0.0,
@@ -109,6 +120,61 @@ def compute_metrics(
     max_dd = _max_drawdown(equity_curve)
     sharpe = _sharpe_ratio(equity_curve, periods_per_year=periods_per_year)
 
+    # Extended metrics (compute from returns series)
+    returns = []
+    for i in range(1, len(equity_curve)):
+        prev = float(equity_curve[i - 1][1])
+        curr = float(equity_curve[i][1])
+        if prev > 0:
+            returns.append((curr - prev) / prev)
+
+    trade_pnls = [float(t.pnl) for t in trades]
+    n_bars = len(equity_curve)
+
+    # CAGR
+    cagr = 0.0
+    if return_pct > -1.0 and n_bars > 1:
+        years = n_bars / periods_per_year if periods_per_year > 0 else 1.0
+        if years > 0:
+            cagr = (1 + return_pct) ** (1 / years) - 1
+
+    # Sortino (downside deviation)
+    sortino = 0.0
+    if returns:
+        mean_r = sum(returns) / len(returns)
+        downside = [min(0.0, r - mean_r) ** 2 for r in returns]
+        dd_dev = math.sqrt(sum(downside) / max(len(returns) - 1, 1))
+        sortino = (mean_r / dd_dev * math.sqrt(periods_per_year)) if dd_dev > 0 else 0.0
+
+    # Calmar
+    max_dd_abs = max_dd * float(initial_equity) if initial_equity > ZERO else 0.0
+    calmar = 0.0
+    if max_dd_abs > 0 and returns:
+        ann_ret = (sum(returns) / len(returns)) * periods_per_year
+        calmar = ann_ret / max_dd_abs if max_dd_abs > 0 else 0.0
+
+    # Max consecutive losses
+    max_consec = 0
+    consec = 0
+    for pnl in trade_pnls:
+        if pnl < 0:
+            consec += 1
+            max_consec = max(max_consec, consec)
+        else:
+            consec = 0
+
+    # Recovery factor
+    recovery = float(total_pnl) / max_dd_abs if max_dd_abs > 0 else 0.0
+
+    # Skewness/kurtosis
+    from src.quantitative.advanced import _skewness, _kurtosis
+    skew = _skewness(returns) if len(returns) >= 3 else 0.0
+    kurt = _kurtosis(returns) if len(returns) >= 4 else 0.0
+
+    # Time in market / turnover (estimated from trades vs bars)
+    time_pct = min(1.0, total * 2 / n_bars) if n_bars > 0 else 0.0  # rough: each trade covers ~2 bars
+    turnover = total / n_bars if n_bars > 0 else 0.0
+
     return PerformanceMetrics(
         total_trades=total,
         winning_trades=len(winners),
@@ -123,6 +189,15 @@ def compute_metrics(
         avg_loss=avg_loss,
         avg_trade_duration_ms=avg_duration,
         return_pct=return_pct,
+        cagr=cagr,
+        sortino_ratio=sortino,
+        calmar_ratio=calmar,
+        max_consecutive_losses=max_consec,
+        recovery_factor=recovery,
+        time_in_market_pct=time_pct,
+        turnover_rate=turnover,
+        skewness=skew,
+        kurtosis=kurt,
     )
 
 

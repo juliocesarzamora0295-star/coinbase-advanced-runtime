@@ -1,0 +1,39 @@
+# Shadow testing configuration
+# Used with ExchangeSimulator, not real exchange
+
+trading:
+  dry_run: true
+  observe_only: true
+  initial_cash: 10000
+  max_position_pct: 0.20
+  max_notional_per_symbol: 5000
+  max_orders_per_minute: 10
+  sizing_mode: "NOTIONAL"
+  notional_pct: 0.01
+
+risk:
+  max_daily_loss: 0.05
+  max_drawdown: 0.15
+  max_consecutive_losses: 3
+  max_total_exposure_pct: 0.80
+
+shadow:
+  duration_s: 3600
+  max_drawdown_pct: 5.0
+  min_sharpe: 0.0
+  max_avg_latency_ms: 500
+  max_crashes: 0
+  min_trades: 1
+
+symbols:
+  - symbol: "BTC-USD"
+    enabled: true
+    timeframe: "1h"
+    strategies:
+      - "ma_crossover"
+
+  - symbol: "ETH-USD"
+    enabled: true
+    timeframe: "1h"
+    strategies:
+      - "ma_crossover"

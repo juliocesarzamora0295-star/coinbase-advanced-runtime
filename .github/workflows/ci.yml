@@ -30,6 +30,9 @@ jobs:
     - name: Smoke test (build + core imports)
       run: bash scripts/ci_smoke.sh
 
+    - name: Config validation
+      run: python -m src.config_validator configs/symbols.yaml
+
     - name: Lint with ruff
       run: ruff check src/ tests/
 
@@ -40,7 +43,7 @@ jobs:
       run: |
         mypy src/risk/ src/execution/ src/accounting/ src/oms/ \
              src/observability/ src/backtest/ src/strategy/ \
-             src/marketdata/orderbook.py
+             src/marketdata/orderbook.py src/quantitative/
 
     - name: Unit tests with coverage (global ≥ 70%)
       run: |
@@ -70,17 +73,27 @@ jobs:
           --ignore=tests/integration/test_coinbase_integration.py \
           --ignore=tests/integration/test_websocket_integration.py
 
-    - name: Runtime smoke test
+    - name: Quantitative certification tests
       run: |
-        python -m pytest tests/integration/test_runtime_smoke.py -v --tb=short
+        python -m pytest tests/quantitative/ -v --tb=short
 
-    - name: Replay integration test
+    - name: Docker build smoke
       run: |
-        python -m pytest tests/integration/test_replay_integration.py -v --tb=short
+        if command -v docker &> /dev/null; then
+          docker build -t fortress-smoke --target=build . || \
+          docker build -t fortress-smoke .
+        else
+          echo "Docker not available — running build smoke script instead"
+          bash scripts/ci_smoke.sh
+        fi
 
+  # Scheduled live integration — runs weekly or on manual trigger
   live-integration-test:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && contains(github.event.head_commit.message, '[integration]')
+    if: >
+      (github.event_name == 'schedule') ||
+      (github.event_name == 'workflow_dispatch') ||
+      (github.event_name == 'push' && contains(github.event.head_commit.message, '[integration]'))
 
     steps:
     - uses: actions/checkout@v4

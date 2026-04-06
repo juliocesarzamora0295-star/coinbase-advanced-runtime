@@ -110,6 +110,22 @@ class RiskConfig:
     max_position_pct: float = 0.20
 
 
+_VALID_SIZING_MODES = {"NOTIONAL", "RISK_BASED"}
+
+
+def _validate_sizing_mode(value: str) -> str:
+    """Validate sizing_mode from config. Fail-closed on invalid."""
+    upper = value.upper().strip()
+    if upper in _VALID_SIZING_MODES:
+        return upper
+    import logging
+    logging.getLogger("Config").warning(
+        "Invalid sizing_mode '%s'. Valid: %s. Falling back to NOTIONAL.",
+        value, _VALID_SIZING_MODES,
+    )
+    return "NOTIONAL"
+
+
 @dataclass
 class MonitoringConfig:
     """Configuración de monitoreo."""
@@ -228,6 +244,7 @@ class Config:
                     trading_cfg.get("risk_per_trade_pct", 0.01),  # backward compat from YAML
                 ),
                 initial_cash=trading_cfg.get("initial_cash", 10000.0),
+                sizing_mode=_validate_sizing_mode(trading_cfg.get("sizing_mode", "NOTIONAL")),
             )
 
             # P0 FIX: Cargar risk config

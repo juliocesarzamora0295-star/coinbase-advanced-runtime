@@ -717,6 +717,30 @@ class TradingBot:
             )
             return
 
+        # Cross-symbol exposure check (was dead code — now wired)
+        exposures: Dict[str, Decimal] = {}
+        for sym, ldg in self.ledgers.items():
+            if ldg.position_qty > Decimal("0"):
+                sym_price = self.current_prices.get(sym, Decimal("0"))
+                exposures[sym] = ldg.position_qty * sym_price
+        new_notional = risk_decision.hard_max_qty * entry_ref
+        total_equity = sum(
+            ldg.get_equity(self.current_prices.get(s, Decimal("0")))
+            for s, ldg in self.ledgers.items()
+        )
+        exposure_verdict = self.risk_gate.check_total_exposure(
+            equity=total_equity,
+            exposures=exposures,
+            new_symbol=symbol,
+            new_notional=new_notional,
+        )
+        if not exposure_verdict.allowed:
+            self.metrics.inc("signals.blocked.total_exposure")
+            logger.warning(
+                f"[{symbol}] Signal REJECTED by total exposure: {exposure_verdict.reason}"
+            )
+            return
+
         # OrderPlanner — final_qty = min(target_qty, hard_max_qty)
         risk_input = RiskDecisionInput(
             allowed=risk_decision.allowed,

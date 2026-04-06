@@ -72,6 +72,14 @@ class RuntimeMetrics:
     ts_ms: int = 0
 
 
+def _make_key(name: str, labels: Dict[str, str] | None = None) -> str:
+    """Build metric key from name + sorted labels."""
+    if not labels:
+        return name
+    label_str = ",".join(f"{k}={v}" for k, v in sorted(labels.items()))
+    return f"{name}{{{label_str}}}"
+
+
 class MetricsCollector:
     """
     Colector de métricas en memoria con flush periódico a log.
@@ -94,6 +102,11 @@ class MetricsCollector:
         self._order_rejected: int = 0
         self._riskgate_rejections: Dict[str, int] = defaultdict(int)
         self._signal_counts: Dict[str, int] = defaultdict(int)
+
+        # Generic metric stores
+        self._counters: Dict[str, int] = {}
+        self._gauges: Dict[str, float] = {}
+        self._histograms: Dict[str, list] = {}
 
     # ── OMS ──────────────────────────────────────────────
 
@@ -187,6 +200,80 @@ class MetricsCollector:
         snap = self.snapshot()
         snap_dict = asdict(snap)
         logger.info(json.dumps(snap_dict, default=str))
+
+    # ── Generic API ────────────────────────────────
+
+    def inc(self, name: str, delta: int = 1, labels: Dict[str, str] | None = None) -> None:
+        """
+        Incrementar un contador genérico.
+
+        Args:
+            name: nombre del contador (e.g. "orders.submitted")
+            delta: cantidad a incrementar (default 1)
+            labels: labels opcionales
+        """
+        key = _make_key(name, labels)
+        self._counters[key] = self._counters.get(key, 0) + delta
+
+    def gauge(self, name: str, value: float, labels: Dict[str, str] | None = None) -> None:
+        """
+        Establecer un gauge genérico.
+
+        Args:
+            name: nombre del gauge (e.g. "equity.current")
+            value: valor actual
+            labels: labels opcionales
+        """
+        key = _make_key(name, labels)
+        self._gauges[key] = value
+
+    def observe(self, name: str, value: float, labels: Dict[str, str] | None = None) -> None:
+        """
+        Registrar observación en un histograma genérico.
+
+        Args:
+            name: nombre del histograma (e.g. "latency.ms")
+            value: valor observado
+            labels: labels opcionales
+        """
+        key = _make_key(name, labels)
+        if key not in self._histograms:
+            self._histograms[key] = []
+        self._histograms[key].append(value)
+
+    def get_counter(self, name: str, labels: Dict[str, str] | None = None) -> int:
+        """Obtener valor actual de un contador."""
+        return self._counters.get(_make_key(name, labels), 0)
+
+    def get_gauge(self, name: str, labels: Dict[str, str] | None = None) -> float:
+        """Obtener valor actual de un gauge."""
+        return self._gauges.get(_make_key(name, labels), 0.0)
+
+    def get_histogram(self, name: str, labels: Dict[str, str] | None = None) -> list:
+        """Obtener observaciones de un histograma."""
+        return list(self._histograms.get(_make_key(name, labels), []))
+
+    def generic_snapshot(self) -> Dict:
+        """Snapshot de métricas genéricas (counters + gauges + histograms)."""
+        result: Dict = {
+            "ts_ms": int(time.time() * 1000),
+            "counters": dict(self._counters),
+            "gauges": dict(self._gauges),
+            "histograms": {},
+        }
+        for key, values in self._histograms.items():
+            if values:
+                sorted_v = sorted(values)
+                result["histograms"][key] = {
+                    "count": len(values),
+                    "min": sorted_v[0],
+                    "max": sorted_v[-1],
+                    "mean": sum(values) / len(values),
+                    "p50": sorted_v[len(sorted_v) // 2],
+                    "p95": sorted_v[int(len(sorted_v) * 0.95)],
+                    "p99": sorted_v[min(int(len(sorted_v) * 0.99), len(sorted_v) - 1)],
+                }
+        return result
 
     def reset(self) -> None:
         """Reiniciar todos los contadores (para tests o reset diario)."""

@@ -499,7 +499,10 @@ class TradingBot:
                     exchange_orders = self.client.list_orders(
                         product_id=sym, order_status=["OPEN", "PENDING"]
                     ) if hasattr(self.client, "list_orders") else []
-                    exchange_fills = []  # fills already processed via WS
+                    # Fetch recent fills from exchange for drift detection
+                    exchange_fills = self.client.list_fills(
+                        product_id=sym
+                    ) if hasattr(self.client, "list_fills") else []
                     clean, drifts = oms_svc.reconcile_against_exchange(
                         exchange_orders, exchange_fills,
                     )
@@ -1021,10 +1024,27 @@ class TradingBot:
                     )
                     result = executor.submit_order(flatten_intent)
                     self.metrics.inc("kill_switch.flatten", labels={"symbol": symbol})
-                    logger.critical(
-                        "KILL_SWITCH FLATTEN SUBMITTED: %s qty=%s success=%s",
-                        symbol, qty, result.success,
-                    )
+
+                    # Wait for ledger convergence (fill arrives async via OMS)
+                    flatten_converged = False
+                    for wait_attempt in range(5):
+                        if ledger.position_qty <= Decimal("0.00001"):
+                            flatten_converged = True
+                            break
+                        time.sleep(0.2)
+                    if flatten_converged:
+                        logger.critical(
+                            "KILL_SWITCH FLATTEN CONVERGED: %s position=%s",
+                            symbol, ledger.position_qty,
+                        )
+                    else:
+                        converged = False
+                        logger.warning(
+                            "KILL_SWITCH FLATTEN CONVERGENCE TIMEOUT: %s position=%s "
+                            "after submit (success=%s). Position may still be open.",
+                            symbol, ledger.position_qty, result.success,
+                        )
+                        self.metrics.inc("kill_switch.flatten_timeout", labels={"symbol": symbol})
                 except Exception as e:
                     converged = False
                     logger.error("KILL_SWITCH FLATTEN FAILED: %s — %s", symbol, e)

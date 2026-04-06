@@ -18,7 +18,8 @@ from decimal import Decimal
 from unittest.mock import MagicMock
 
 from src.accounting.ledger import TradeLedger
-from src.execution.idempotency import IdempotencyStore, OrderIntent, OrderState
+from src.execution.idempotency import IdempotencyStore, OrderState
+from src.execution.order_planner import OrderIntent
 from src.oms.reconcile import OMSReconcileService
 
 
@@ -188,16 +189,18 @@ class TestOrphanHandling:
 
         # Pre-populate con orden conocida
         intent = OrderIntent(
-            intent_id="known-intent",
             client_order_id="known-client",
-            product_id="BTC-USD",
+            signal_id="test-signal",
+            strategy_id="test-strategy",
+            symbol="BTC-USD",
             side="BUY",
+            final_qty=Decimal("0.1"),
             order_type="LIMIT",
-            qty=Decimal("0.1"),
             price=Decimal("50000"),
-            stop_price=None,
+            reduce_only=False,
             post_only=True,
-            created_ts_ms=12345,
+            viable=True,
+            planner_version="test",
         )
         idempotency.save_intent(intent, OrderState.OPEN_PENDING)
 
@@ -234,16 +237,18 @@ class TestFillFetcherDegradation:
 
         # Pre-populate
         intent = OrderIntent(
-            intent_id="fill-intent",
             client_order_id="fill-client",
-            product_id="BTC-USD",
+            signal_id="test-signal",
+            strategy_id="test-strategy",
+            symbol="BTC-USD",
             side="BUY",
+            final_qty=Decimal("0.1"),
             order_type="MARKET",
-            qty=Decimal("0.1"),
             price=None,
-            stop_price=None,
+            reduce_only=False,
             post_only=False,
-            created_ts_ms=12345,
+            viable=True,
+            planner_version="test",
         )
         idempotency.save_intent(intent, OrderState.OPEN_PENDING)
 
@@ -277,16 +282,18 @@ class TestFillFetcherDegradation:
         _complete_bootstrap(oms)
 
         intent = OrderIntent(
-            intent_id="ok-intent",
             client_order_id="ok-client",
-            product_id="BTC-USD",
+            signal_id="test-signal",
+            strategy_id="test-strategy",
+            symbol="BTC-USD",
             side="BUY",
+            final_qty=Decimal("0.1"),
             order_type="MARKET",
-            qty=Decimal("0.1"),
             price=None,
-            stop_price=None,
+            reduce_only=False,
             post_only=False,
-            created_ts_ms=12345,
+            viable=True,
+            planner_version="test",
         )
         idempotency.save_intent(intent, OrderState.OPEN_PENDING)
 

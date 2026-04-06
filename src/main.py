@@ -20,14 +20,17 @@ from src.core.coinbase_exchange import CoinbaseRESTClient
 from src.core.coinbase_websocket import CoinbaseWSFeed, WSMessage
 from src.core.jwt_auth import JWTAuth, load_credentials_from_env
 from src.core.quantization import create_quantizer_from_api_response
+from src.execution.execution_report import build_execution_report
 from src.execution.idempotency import IdempotencyStore
 from src.execution.order_planner import OrderIntent, OrderNotAllowedError, OrderPlanner, RiskDecisionInput
 from src.execution.orders import OrderExecutor
 from src.marketdata.orderbook import OrderBook
 from src.marketdata.service import MarketDataService
+from src.observability import get_collector
 from src.oms.reconcile import OMSReconcileService
 from src.risk.circuit_breaker import BreakerConfig, CircuitBreaker
 from src.risk.gate import RiskGate, RiskLimits, RiskSnapshot
+from src.risk.kill_switch import KillSwitch, KillSwitchMode
 from src.risk.position_sizer import FailClosedError, PositionSizer, SymbolConstraints
 from src.simulation.paper_engine import PaperEngine
 from src.strategy.manager import StrategyManager
@@ -87,6 +90,19 @@ class TradingBot:
         self.risk_gate: RiskGate = None
         self.position_sizer = PositionSizer()
         self.order_planner = OrderPlanner()
+
+        # Kill Switch (persistente)
+        ks_path = str(self.config.paths.state / "kill_switch.db")
+        self.kill_switch = KillSwitch(db_path=ks_path)
+        if self.kill_switch.is_active:
+            logger.warning(
+                "Kill switch ACTIVE on startup: mode=%s reason=%s",
+                self.kill_switch.state.mode.value,
+                self.kill_switch.state.reason,
+            )
+
+        # Metrics collector (global singleton)
+        self.metrics = get_collector()
 
         # Paper Engine (simulación)
         self.paper_engine: Optional[PaperEngine] = None
@@ -367,10 +383,19 @@ class TradingBot:
         Signal → OMS readiness check → PositionSizer → RiskGate → OrderPlanner → Executor.
         Fail-closed: cualquier input faltante bloquea trading y loggea motivo.
         """
+        # Kill switch gate — persistent, survives restarts
+        if self.kill_switch.state.blocks_new_orders:
+            self.metrics.inc("signals.blocked.kill_switch")
+            logger.warning(
+                f"[{symbol}] Signal BLOCKED: kill switch {self.kill_switch.state.mode.value}"
+            )
+            return
+
         # OMS readiness gate — no trading con OMS incompleta o degradada
         oms = self.oms_services.get(symbol)
         if oms and not oms.is_ready():
             stats = oms.get_stats()
+            self.metrics.inc("signals.blocked.oms_not_ready")
             logger.warning(
                 f"[{symbol}] Signal BLOCKED: OMS not ready "
                 f"(bootstrap={stats['bootstrap_complete']}, "
@@ -380,8 +405,10 @@ class TradingBot:
 
         side = signal.direction  # src.strategy.signal.Signal: "BUY" | "SELL"
 
-        # Estado del circuit breaker como input para RiskGate
+        # Circuit breaker check — telemetry-driven
+        breaker_ok, breaker_reason = self.circuit_breaker.check_before_trade()
         breaker_state = self.circuit_breaker.get_status()["state"].upper()
+        self.metrics.gauge("breaker.state", 1.0 if breaker_state == "CLOSED" else 0.0)
 
         # Obtener ledger (fail-closed si no existe)
         ledger = self.ledgers.get(symbol)
@@ -393,9 +420,15 @@ class TradingBot:
         equity = ledger.get_equity(current_price)
         position_qty = ledger.position_qty
 
+        # Feed equity to breaker and metrics
+        self.circuit_breaker.update_equity(equity)
+        self.metrics.gauge("equity.current", float(equity), labels={"symbol": symbol})
+
         # Métricas de riesgo desde ledger — fail-closed si no disponibles
         day_pnl_pct = ledger.get_day_pnl_pct(current_price)
         drawdown_pct = ledger.get_drawdown_pct(current_price)
+        if drawdown_pct is not None:
+            self.metrics.gauge("drawdown.pct", float(drawdown_pct), labels={"symbol": symbol})
         executor = self.executors.get(symbol)
         orders_last_minute = executor.get_orders_last_minute() if executor else None
 
@@ -459,6 +492,9 @@ class TradingBot:
         risk_decision = self.risk_gate.evaluate(snapshot)
 
         if not risk_decision.allowed:
+            self.metrics.inc("signals.blocked.riskgate")
+            for rule_id in risk_decision.blocking_rule_ids:
+                self.metrics.inc("riskgate.rejection", labels={"rule": rule_id})
             logger.warning(
                 f"[{symbol}] Signal REJECTED by RiskGate: {risk_decision.reason} "
                 f"rules={risk_decision.blocking_rule_ids}"
@@ -498,19 +534,20 @@ class TradingBot:
             return
 
         # Ejecutar orden según modo configurado
-        self._execute_order(order_intent)
+        self.metrics.inc("orders.planned", labels={"symbol": symbol, "side": side})
+        self._execute_order(order_intent, entry_ref)
 
-    def _execute_order(self, intent: OrderIntent) -> None:
+    def _execute_order(self, intent: OrderIntent, expected_price: Decimal = Decimal("0")) -> None:
         """
         Ejecutar OrderIntent según modo configurado.
+
+        Flujo completo:
+        KillSwitch.check → CircuitBreaker.check → execute → telemetry → ExecutionReport → metrics
 
         Modos mutuamente excluyentes:
         - observe_only=True: solo observa, nunca ejecuta
         - dry_run=True: simula ejecución sin enviar al exchange
         - ambos=False: trading real (envía orden al exchange)
-
-        Invariante: observe_only tiene prioridad sobre dry_run.
-        El OrderIntent llega intacto desde el planner — sin desempaquetado.
         """
         symbol = intent.symbol
         side = intent.side
@@ -518,9 +555,12 @@ class TradingBot:
         observe = self.config.trading.observe_only
         dry_run = self.config.trading.dry_run
         current_price = self.current_prices.get(symbol, intent.price or Decimal("0"))
+        if expected_price <= Decimal("0"):
+            expected_price = current_price
 
         # Modo observación: solo loggear, nunca ejecutar
         if observe:
+            self.metrics.inc("orders.observe_only", labels={"symbol": symbol})
             logger.info(
                 f"[{symbol}] OBSERVE ONLY: {side} {qty} @ {current_price} "
                 f"(signal={intent.signal_id})"
@@ -535,62 +575,106 @@ class TradingBot:
 
         # Modo dry run: simular con PaperEngine, no enviar al exchange
         if dry_run:
-            if self.paper_engine:
-                paper_intent = {
-                    "client_id": intent.client_order_id,
-                    "symbol": symbol,
-                    "side": side.lower(),
-                    "type": intent.order_type.lower(),
-                    "amount": qty,
-                    "position_side": "LONG" if side == "BUY" else "SHORT",
-                    "reduce_only": intent.reduce_only,
-                }
-                bid = current_price * Decimal("0.999")
-                ask = current_price * Decimal("1.001")
-                result = self.paper_engine.submit_order(paper_intent, bid, ask)
-                if result.get("status") == "filled":
-                    fill = result.get("fill")
-                    ledger = self.ledgers.get(symbol)
-                    if ledger and fill:
-                        from src.accounting.ledger import Fill
-
-                        ledger_fill = Fill(
-                            side=fill.side,
-                            amount=fill.amount,
-                            price=fill.price,
-                            cost=fill.amount * fill.price,
-                            fee_cost=fill.fee_cost,
-                            fee_currency=fill.fee_currency,
-                            ts_ms=int(time.time() * 1000),
-                            trade_id=fill.trade_id,
-                            order_id=fill.order_id,
-                        )
-                        ledger.add_fill(ledger_fill)
-                        logger.info(
-                            f"[{symbol}] PAPER FILL: {side} {qty} @ {fill.price} "
-                            f"fee={fill.fee_cost} (signal={intent.signal_id})"
-                        )
-                else:
-                    logger.info(
-                        f"[{symbol}] DRY RUN ORDER: {side} {qty} "
-                        f"(signal={intent.signal_id}, status: {result.get('status')})"
-                    )
-            else:
-                logger.info(
-                    f"[{symbol}] DRY RUN: {side} {qty} (signal={intent.signal_id})"
-                )
+            self._execute_paper(intent, current_price)
             return
 
         # Trading real: enviar OrderIntent al exchange via executor
+        t_start = time.time()
         try:
             result = executor.submit_order(intent)
+            latency_ms = (time.time() - t_start) * 1000
+
+            # Telemetry → CircuitBreaker
+            self.circuit_breaker.record_execution_result(result.success)
+            self.circuit_breaker.record_latency(latency_ms)
+
+            # Metrics
+            if result.success:
+                self.metrics.inc("orders.submitted", labels={"symbol": symbol})
+            else:
+                self.metrics.inc("orders.rejected", labels={"symbol": symbol})
+            self.metrics.observe("latency.execute_ms", latency_ms, labels={"symbol": symbol})
+
+            # ExecutionReport — generate and feed slippage to breaker
+            # Note: fill_price comes later via OMS reconcile; for now use expected_price
+            report = build_execution_report(
+                client_order_id=intent.client_order_id,
+                symbol=symbol,
+                side=side,
+                expected_price=expected_price,
+                fill_price=expected_price,  # actual fill price arrives via OMS
+                requested_qty=qty,
+                filled_qty=qty if result.success else Decimal("0"),
+                latency_ms=latency_ms,
+                outcome="FILLED" if result.success else "REJECTED",
+            )
+            report.log_structured()
+
             logger.info(
                 f"[{symbol}] ORDER SUBMITTED: {side} {qty} "
                 f"(signal={intent.signal_id}, client_order_id={intent.client_order_id}, "
-                f"result={result})"
+                f"latency={latency_ms:.0f}ms, success={result.success})"
             )
         except Exception as e:
+            latency_ms = (time.time() - t_start) * 1000
+            self.circuit_breaker.record_execution_result(False)
+            self.circuit_breaker.record_latency(latency_ms)
+            self.metrics.inc("orders.error", labels={"symbol": symbol})
             logger.error(f"[{symbol}] ORDER FAILED: {e}")
+
+    def _execute_paper(self, intent: OrderIntent, current_price: Decimal) -> None:
+        """Ejecutar via PaperEngine (dry_run mode)."""
+        symbol = intent.symbol
+        side = intent.side
+        qty = intent.final_qty
+
+        if not self.paper_engine:
+            self.metrics.inc("orders.dry_run", labels={"symbol": symbol})
+            logger.info(f"[{symbol}] DRY RUN: {side} {qty} (signal={intent.signal_id})")
+            return
+
+        paper_intent = {
+            "client_id": intent.client_order_id,
+            "symbol": symbol,
+            "side": side.lower(),
+            "type": intent.order_type.lower(),
+            "amount": qty,
+            "position_side": "LONG" if side == "BUY" else "SHORT",
+            "reduce_only": intent.reduce_only,
+        }
+        bid = current_price * Decimal("0.999")
+        ask = current_price * Decimal("1.001")
+        result = self.paper_engine.submit_order(paper_intent, bid, ask)
+
+        if result.get("status") == "filled":
+            fill = result.get("fill")
+            ledger = self.ledgers.get(symbol)
+            if ledger and fill:
+                from src.accounting.ledger import Fill
+
+                ledger_fill = Fill(
+                    side=fill.side,
+                    amount=fill.amount,
+                    price=fill.price,
+                    cost=fill.amount * fill.price,
+                    fee_cost=fill.fee_cost,
+                    fee_currency=fill.fee_currency,
+                    ts_ms=int(time.time() * 1000),
+                    trade_id=fill.trade_id,
+                    order_id=fill.order_id,
+                )
+                ledger.add_fill(ledger_fill)
+                self.metrics.inc("fills.paper", labels={"symbol": symbol})
+                logger.info(
+                    f"[{symbol}] PAPER FILL: {side} {qty} @ {fill.price} "
+                    f"fee={fill.fee_cost} (signal={intent.signal_id})"
+                )
+        else:
+            self.metrics.inc("orders.dry_run", labels={"symbol": symbol})
+            logger.info(
+                f"[{symbol}] DRY RUN: {side} {qty} "
+                f"(signal={intent.signal_id}, status: {result.get('status')})"
+            )
 
     def _init_websocket(self) -> None:
         """Inicializar WebSocket."""

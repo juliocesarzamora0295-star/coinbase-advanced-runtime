@@ -27,6 +27,7 @@ from src.execution.orders import OrderExecutor
 from src.marketdata.orderbook import OrderBook
 from src.marketdata.service import MarketDataService
 from src.observability import get_collector
+from src.observability.json_sink import JSONLineSink
 from src.oms.reconcile import OMSReconcileService
 from src.risk.circuit_breaker import BreakerConfig, CircuitBreaker
 from src.risk.gate import RiskGate, RiskLimits, RiskSnapshot
@@ -101,8 +102,12 @@ class TradingBot:
                 self.kill_switch.state.reason,
             )
 
-        # Metrics collector (global singleton)
+        # Metrics collector (global singleton) + JSON sink for persistence (R5)
         self.metrics = get_collector()
+        sink_path = str(self.config.paths.logs / "metrics.jsonl")
+        self.metrics_sink = JSONLineSink(path=sink_path)
+        self._last_flush_time: float = time.time()
+        self._flush_interval_s: float = 60.0  # flush every 60 seconds (R6)
 
         # Paper Engine (simulación)
         self.paper_engine: Optional[PaperEngine] = None
@@ -413,6 +418,14 @@ class TradingBot:
                 oms.record_clean_reconcile()
             elif oms.is_degraded():
                 oms.record_dirty_reconcile()
+
+        # R5+R6 — Periodic metrics flush to JSONLineSink
+        now = time.time()
+        if now - self._last_flush_time >= self._flush_interval_s:
+            self._last_flush_time = now
+            snap = self.metrics.generic_snapshot()
+            self.metrics_sink.write_snapshot(snap)
+            self.metrics.flush()  # also write to logger
 
     def _on_candle_closed(self, symbol: str, candle) -> None:
         """

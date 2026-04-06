@@ -116,8 +116,11 @@ class TradingBot:
         self._lock = threading.Lock()
 
         # Order tracking for deferred ExecutionReport generation
-        # Maps client_order_id → (symbol, side, expected_price, requested_qty)
+        # Maps client_order_id → (symbol, side, expected_price, requested_qty, latency_ms)
         self._pending_reports: Dict[str, tuple] = {}
+
+        # Day change detection for daily PnL reset (R4)
+        self._last_date = datetime.now(timezone.utc).date()
 
     def initialize(self) -> bool:
         """Inicializar el bot."""
@@ -360,14 +363,69 @@ class TradingBot:
 
         logger.info("Trading pipeline v3 initialized")
 
+    def _post_cycle_housekeeping(self, symbol: str, current_price: Decimal) -> None:
+        """
+        Housekeeping after each trading cycle.
+
+        R1: Update reserved balances from OMS open orders.
+        R2: Record clean/dirty reconcile for auto-recovery.
+        R4: Detect day change and reset daily PnL.
+        """
+        # R4 — Day change detection
+        today = datetime.now(timezone.utc).date()
+        if today != self._last_date:
+            self._last_date = today
+            logger.info("Day changed — resetting daily metrics")
+            for sym, ledger in self.ledgers.items():
+                price = self.current_prices.get(sym, Decimal("0"))
+                if price > Decimal("0"):
+                    ledger.reset_day(price)
+                    logger.info(
+                        "[%s] reset_day: equity_day_start=%s",
+                        sym, ledger.equity_day_start,
+                    )
+            if self.circuit_breaker:
+                eq = sum(
+                    l.get_equity(self.current_prices.get(s, Decimal("0")))
+                    for s, l in self.ledgers.items()
+                )
+                self.circuit_breaker.reset_day(eq)
+
+        # R1 — Update reserved balances from OMS open orders
+        ledger = self.ledgers.get(symbol)
+        oms = self.oms_services.get(symbol)
+        if ledger and oms:
+            open_orders = oms.idempotency.get_pending_or_open()
+            reserved = Decimal("0")
+            for record in open_orders:
+                # Estimate notional from intent's qty * price
+                intent = record.intent
+                if intent.price and intent.price > Decimal("0"):
+                    reserved += intent.final_qty * intent.price
+                else:
+                    reserved += intent.final_qty * current_price
+            ledger.set_reserved(reserved)
+
+        # R2 — Reconcile health tracking
+        if oms:
+            open_count = len(oms.idempotency.get_pending_or_open())
+            if open_count == 0 and oms.is_bootstrap_complete():
+                oms.record_clean_reconcile()
+            elif oms.is_degraded():
+                oms.record_dirty_reconcile()
+
     def _on_candle_closed(self, symbol: str, candle) -> None:
         """
         Callback para eventos CandleClosed.
 
         Pipeline v3:
-        1. StrategyManager.on_candle_closed() → Signal | None
-        2. _process_signal_with_risk() → PositionSizer → RiskGate → OrderPlanner → Executor
+        1. Housekeeping (reserved balances, reconcile, day change)
+        2. StrategyManager.on_candle_closed() → Signal | None
+        3. _process_signal_with_risk() → PositionSizer → RiskGate → OrderPlanner → Executor
         """
+        # Housekeeping before signal processing
+        current_price = self.current_prices.get(symbol, candle.close)
+        self._post_cycle_housekeeping(symbol, current_price)
         sm = self.strategy_managers.get(symbol)
         if not sm:
             return
@@ -784,7 +842,18 @@ class TradingBot:
         if pending:
             _, _, expected_price, requested_qty, submit_latency_ms = pending
         else:
-            # Fill for order we didn't track (e.g. recovered after restart)
+            # R3 FALLBACK: Fill for order not in _pending_reports.
+            # This happens when the process restarts between submit and fill.
+            # _pending_reports is in-memory — not persisted across restarts.
+            # Fallback: use fill_price as expected_price (slippage=0).
+            # This is documented and accepted — real slippage data is lost
+            # but the fill is still correctly applied to the ledger.
+            logger.warning(
+                "EXECUTION_REPORT FALLBACK: order %s not in pending_reports "
+                "(likely restart between submit and fill). "
+                "Using fill_price as expected_price — slippage will be 0.",
+                client_order_id,
+            )
             expected_price = fill_price
             requested_qty = filled_qty
             submit_latency_ms = 0.0

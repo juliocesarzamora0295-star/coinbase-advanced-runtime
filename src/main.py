@@ -547,7 +547,7 @@ class TradingBot:
             self.alert_manager.heartbeat("trading_bot")
 
         # H6: Cleanup stale pending reports
-        self._pending_store.cleanup_stale()
+        self._pending_store.cleanup_stale(max_age_ms=7 * 86400 * 1000)  # 7 days
 
     def _on_candle_closed(self, symbol: str, candle) -> None:
         """
@@ -1106,13 +1106,20 @@ class TradingBot:
             submit_latency_ms = pending.submit_latency_ms
             self._pending_store.delete(client_order_id)
         else:
-            # Fallback: no pending metadata (edge case — very old order or manual).
-            # Mark slippage as estimated.
+            # Fallback: no pending metadata.
+            # This should be extremely rare — PendingReportStore is SQLite durable.
+            # Triggers only if: DB deleted, cleanup removed entry (>7d), or pre-store order.
             logger.warning(
                 "EXECUTION_REPORT ESTIMATED: order %s not in pending store. "
-                "Using fill_price as expected_price — slippage marked estimated.",
+                "Using fill_price as expected_price — slippage will be 0.",
                 client_order_id,
             )
+            self.alert_manager.alert(
+                AlertLevel.WARNING, "telemetry",
+                f"Estimated slippage for order {client_order_id} — "
+                f"pending metadata missing (restart or cleanup?)",
+            )
+            self.metrics.inc("telemetry.fallback_estimated")
             expected_price = fill_price
             requested_qty = filled_qty
             submit_latency_ms = 0.0

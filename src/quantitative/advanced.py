@@ -363,3 +363,91 @@ def check_data_snooping(
             f"(need {required:.0f} for ratio {threshold_ratio})"
         )
     return LeakageCheckResult(clean=len(issues) == 0, issues=issues)
+
+
+# ──────────────────────────────────────────────
+# Integrated certification protocol
+# ──────────────────────────────────────────────
+
+
+@dataclass(frozen=True)
+class CertificationResult:
+    """Result of full strategy certification."""
+
+    passed: bool
+    metrics_pass: bool
+    metrics_failures: List[str]
+    walk_forward_pass: bool
+    overfitting_detected: bool
+    oos_degradation: float
+    leakage_clean: bool
+    leakage_issues: List[str]
+    total_oos_pnl: float
+    total_is_pnl: float
+
+
+def certify_strategy(
+    bars: list,
+    run_backtest_fn: Callable,
+    *,
+    train_size: int = 100,
+    test_size: int = 50,
+    min_sharpe: float = 0.0,
+    max_drawdown: float = 0.50,
+    min_trades: int = 5,
+    min_profit_factor: float = 0.5,
+    max_consecutive_losses: int = 20,
+    overfitting_threshold: float = 0.5,
+    n_parameters: int = 2,
+    strategy_fn: Optional[Callable] = None,
+) -> CertificationResult:
+    """
+    Integrated certification: walk-forward + metrics + anti-leakage.
+
+    Returns CertificationResult with combined pass/fail.
+    """
+    from src.quantitative.metrics import TradeRecord, compute_metrics
+
+    # 1. Walk-forward OOS
+    wf = walk_forward_validate(
+        bars, run_backtest_fn,
+        train_size=train_size, test_size=test_size,
+        overfitting_threshold=overfitting_threshold,
+    )
+
+    # 2. Full-sample metrics
+    full_report, full_ledger = run_backtest_fn(bars)
+    trades = [
+        TradeRecord(pnl=t.pnl, duration_ms=t.duration_ms)
+        for t in full_ledger.trades
+    ]
+    metrics = compute_metrics(trades, full_ledger.equity_curve, full_ledger.initial_cash)
+    metrics_ok, metrics_failures = metrics.passes_certification(
+        min_sharpe=min_sharpe, max_drawdown=max_drawdown,
+        min_trades=min_trades, min_profit_factor=min_profit_factor,
+        max_consecutive_losses=max_consecutive_losses,
+    )
+
+    # 3. Anti-leakage
+    snooping = check_data_snooping(n_parameters=n_parameters, n_data_points=len(bars))
+    leakage_issues = list(snooping.issues)
+    if strategy_fn is not None:
+        lookahead = check_lookahead_bias(bars, strategy_fn)
+        leakage_issues.extend(lookahead.issues)
+    leakage_clean = len(leakage_issues) == 0
+
+    # Combined
+    wf_pass = not wf.overfitting_detected and len(wf.windows) > 0
+    passed = metrics_ok and wf_pass and leakage_clean
+
+    return CertificationResult(
+        passed=passed, metrics_pass=metrics_ok,
+        metrics_failures=metrics_failures,
+        walk_forward_pass=wf_pass,
+        overfitting_detected=wf.overfitting_detected,
+        oos_degradation=wf.avg_oos_degradation,
+        leakage_clean=leakage_clean,
+        leakage_issues=leakage_issues,
+        total_oos_pnl=wf.total_oos_pnl,
+        total_is_pnl=wf.total_is_pnl,
+    )

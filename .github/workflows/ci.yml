@@ -77,6 +77,20 @@ jobs:
       run: |
         python -m pytest tests/quantitative/ -v --tb=short
 
+    - name: Package install smoke (artifact verification)
+      run: |
+        python -m venv /tmp/pkg-smoke
+        /tmp/pkg-smoke/bin/pip install --quiet .
+        /tmp/pkg-smoke/bin/python -c "
+        from src.risk.gate import RiskGate
+        from src.oms.reconcile import OMSReconcileService
+        from src.execution.order_planner import OrderPlanner
+        from src.monitoring.alert_manager import AlertManager
+        from src.quantitative.metrics import compute_metrics
+        print('Package install smoke: ALL IMPORTS OK')
+        "
+        rm -rf /tmp/pkg-smoke
+
     - name: Docker build smoke
       run: |
         if command -v docker &> /dev/null; then

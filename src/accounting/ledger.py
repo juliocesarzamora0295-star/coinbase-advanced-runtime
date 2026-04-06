@@ -114,6 +114,7 @@ class TradeLedger:
         self.fees_paid_quote: Decimal = Decimal("0")  # fees acumulados en quote
         self.equity_day_start: Decimal = Decimal("0")  # equity al inicio del día
         self.equity_peak: Decimal = Decimal("0")  # equity máximo histórico
+        self.reserved_quote: Decimal = Decimal("0")  # capital en órdenes abiertas
 
         # Inferir monedas del símbolo
         parts = symbol.split("-")
@@ -390,15 +391,28 @@ class TradeLedger:
         position_value = self.position_qty * current_price
         return position_value - self.cost_basis_quote
 
+    def set_reserved(self, reserved_quote: Decimal) -> None:
+        """
+        Establecer capital reservado por órdenes abiertas.
+
+        Debe llamarse periódicamente con el total notional de órdenes abiertas.
+        """
+        self.reserved_quote = reserved_quote
+
     def get_equity(self, current_price: Decimal) -> Decimal:
         """
-        Equity = cash + mark_to_market(inventory).
+        Equity = cash + mark_to_market(inventory) - reserved.
 
         cash = initial_cash + sum(sell_proceeds) - sum(buy_costs) - fees
         inventory_value = position_qty * current_price
+        reserved = capital comprometido en órdenes abiertas
         """
         inventory_value = self.position_qty * current_price
-        return self.cash + inventory_value
+        return self.cash + inventory_value - self.reserved_quote
+
+    def get_available_cash(self) -> Decimal:
+        """Cash disponible (descontando reservas)."""
+        return max(Decimal("0"), self.cash - self.reserved_quote)
 
     def mark_equity(self, current_price: Decimal) -> Decimal:
         """

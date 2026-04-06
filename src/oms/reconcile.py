@@ -97,6 +97,10 @@ class OMSReconcileService:
         self._degraded_reason: str = ""
         self._incidents: List[OMSIncident] = []
 
+        # Reconcile health tracking
+        self._consecutive_clean_reconciles: int = 0
+        self.clean_reconcile_threshold: int = 3  # auto-clear after N clean cycles
+
         # Tracking de fills para evitar duplicados
         self._seen_trade_ids: set = set()
         self._last_fill_counts: Dict[str, int] = {}
@@ -135,6 +139,29 @@ class OMSReconcileService:
             )
             self._degraded = False
             self._degraded_reason = ""
+
+    def record_clean_reconcile(self) -> None:
+        """
+        Registrar un ciclo de reconcile limpio (sin errores).
+
+        Después de `clean_reconcile_threshold` ciclos limpios consecutivos,
+        auto-clear degraded state.
+        """
+        self._consecutive_clean_reconciles += 1
+        if (
+            self._degraded
+            and self._consecutive_clean_reconciles >= self.clean_reconcile_threshold
+        ):
+            logger.info(
+                "OMS: Auto-clearing degradation after %d clean reconciles",
+                self._consecutive_clean_reconciles,
+            )
+            self.clear_degraded()
+            self._consecutive_clean_reconciles = 0
+
+    def record_dirty_reconcile(self) -> None:
+        """Registrar un ciclo de reconcile con errores. Reset del contador limpio."""
+        self._consecutive_clean_reconciles = 0
 
     # ──────────────────────────────────────────────
     # Event handling

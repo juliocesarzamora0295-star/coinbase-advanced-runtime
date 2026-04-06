@@ -34,7 +34,7 @@ def sma_crossover_strategy(
     fast_period: int = 10,
     slow_period: int = 30,
     qty: Decimal = Decimal("0.01"),
-    position: list = [],  # mutable default as state container
+    position: list | None = None,
 ) -> Optional[Signal]:
     """
     SMA crossover strategy.
@@ -42,6 +42,8 @@ def sma_crossover_strategy(
     BUY when fast SMA crosses above slow SMA (and not already long).
     SELL when fast SMA crosses below slow SMA (and is long).
     """
+    if position is None:
+        position = []
     closes = [b.close for b in history] + [bar.close]
 
     fast = sma(closes, fast_period)

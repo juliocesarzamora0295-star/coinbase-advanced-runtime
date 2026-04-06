@@ -1,0 +1,34 @@
+# Shadow/observe mode configuration
+# Use with: python -m src.main --config configs/shadow.yaml
+# or set observe_only: true in configs/symbols.yaml
+
+trading:
+  dry_run: false         # Connect to exchange for real data
+  observe_only: true     # Do NOT execute orders — observe only
+  initial_cash: 10000
+  max_position_pct: 0.20
+  max_notional_per_symbol: 10000
+  max_orders_per_minute: 10
+  sizing_mode: "NOTIONAL"
+  notional_pct: 0.01
+
+risk:
+  max_daily_loss: 0.05
+  max_drawdown: 0.15
+  max_consecutive_losses: 3
+
+monitoring:
+  log_level: "INFO"
+  latency_p95_threshold_ms: 500.0
+  reject_rate_threshold: 0.03
+  slippage_drift_threshold_bps: 10.0
+  alert_webhook_url: ""   # Set to Slack/Discord webhook URL
+  health_check_interval_s: 60
+  heartbeat_interval_s: 300
+
+symbols:
+  - symbol: "BTC-USD"
+    enabled: true
+    timeframe: "1h"
+    strategies:
+      - "ma_crossover"

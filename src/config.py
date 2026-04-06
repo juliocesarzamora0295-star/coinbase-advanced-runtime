@@ -97,6 +97,7 @@ class TradingConfig:
     max_cycles: int = 0
     risk_per_trade_pct: float = 0.01  # DEPRECATED: use notional_pct
     notional_pct: float = 0.01  # fracción del equity como notional por trade
+    initial_cash: float = 10000.0  # capital inicial en quote currency
 
 
 @dataclass
@@ -227,6 +228,7 @@ class Config:
                     "notional_pct",
                     trading_cfg.get("risk_per_trade_pct", 0.01),
                 ),
+                initial_cash=trading_cfg.get("initial_cash", 10000.0),
             )
 
             # P0 FIX: Cargar risk config

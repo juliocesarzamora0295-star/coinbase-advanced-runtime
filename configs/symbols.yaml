@@ -27,6 +27,7 @@ symbols:
 trading:
   dry_run: true           # true = no ejecuta órdenes reales
   observe_only: true      # true = solo observa, no genera señales de trading
+  initial_cash: 10000     # Capital inicial en quote currency (USD)
   max_position_pct: 0.20  # Máximo 20% del capital por posición
   max_notional_per_symbol: 10000  # Máximo notional por símbolo ($)
   max_orders_per_minute: 10       # Máximo órdenes por minuto

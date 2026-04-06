@@ -121,15 +121,21 @@ class TradingBot:
         logger.info("Fortress v4.0 - Coinbase Advanced Trade Integration")
         logger.info("=" * 60)
         logger.info("")
-        logger.info("ESTADO: Esqueleto de integración (NO es un bot completo)")
+        # Determinar modo operativo real
+        if self.config.trading.observe_only:
+            _mode = "OBSERVE_ONLY (no genera señales de trading)"
+        elif self.config.trading.dry_run:
+            _mode = "DRY_RUN (simula con PaperEngine, no envía al exchange)"
+        else:
+            _mode = "LIVE TRADING (envía órdenes reales al exchange)"
+
+        logger.info("ESTADO: Runtime pre-producción")
+        logger.info(f"MODO: {_mode}")
         logger.info("- API Client: OK")
         logger.info("- WebSocket: OK")
-        logger.info("- Ledger: OK")
-        logger.info("- Idempotency: OK")
-        logger.info("- Strategy Layer: StrategyManager v3 pipeline")
-        logger.info("- OMS Reconciliation: PARCIAL")
-        logger.info("")
-        logger.info("El bot opera en modo OBSERVACIÓN (no ejecuta órdenes)")
+        logger.info("- Ledger: institucional (cash + MTM)")
+        logger.info("- OMS: bootstrap gating + orphan detection")
+        logger.info("- Risk: RiskGate + CircuitBreaker + KillSwitch")
         logger.info("")
 
         # Verificar credenciales
@@ -233,18 +239,22 @@ class TradingBot:
                 self.quantizers[symbol] = quantizer
 
                 # Crear ledger con callback al circuit breaker
+                initial_cash = Decimal(str(self.config.trading.initial_cash))
                 db_path = str(self.config.paths.state / f"ledger_{symbol}.db")
                 ledger = TradeLedger(
                     symbol,
                     db_path=db_path,
                     on_fill_callback=self.circuit_breaker.get_fill_callback(),
+                    initial_cash=initial_cash,
                 )
                 self.ledgers[symbol] = ledger
 
-                # Inicializar circuit breaker con equity
-                if ledger.position_qty > 0:
-                    position_value = ledger.position_qty * ledger.avg_entry
-                    self.circuit_breaker.reset_day(position_value)
+                # Inicializar circuit breaker con equity real
+                current_equity = ledger.get_equity(ledger.avg_entry or initial_cash)
+                self.circuit_breaker.reset_day(current_equity)
+
+                # Reset daily PnL reference
+                ledger.reset_day(ledger.avg_entry if ledger.position_qty > 0 else Decimal("0"))
 
                 logger.info(
                     f"   Position: {ledger.position_qty} "
@@ -386,6 +396,7 @@ class TradingBot:
         # Kill switch gate — persistent, survives restarts
         if self.kill_switch.state.blocks_new_orders:
             self.metrics.inc("signals.blocked.kill_switch")
+            self._enforce_kill_switch_policies(symbol)
             logger.warning(
                 f"[{symbol}] Signal BLOCKED: kill switch {self.kill_switch.state.mode.value}"
             )
@@ -675,6 +686,74 @@ class TradingBot:
                 f"[{symbol}] DRY RUN: {side} {qty} "
                 f"(signal={intent.signal_id}, status: {result.get('status')})"
             )
+
+    def _enforce_kill_switch_policies(self, symbol: str) -> None:
+        """
+        Ejecutar policies del kill switch activo.
+
+        CANCEL_OPEN: cancelar órdenes abiertas conocidas por OMS.
+        CANCEL_AND_FLATTEN: cancelar + cerrar posiciones con market order.
+        """
+        ks = self.kill_switch.state
+        if not ks.is_active:
+            return
+
+        executor = self.executors.get(symbol)
+
+        # CANCEL_OPEN: cancelar órdenes abiertas
+        if ks.should_cancel_open and executor:
+            idempotency = executor.idempotency
+            open_orders = idempotency.get_pending_or_open()
+            for record in open_orders:
+                if record.exchange_order_id:
+                    try:
+                        executor.cancel_order(record.client_order_id)
+                        self.metrics.inc("kill_switch.cancel", labels={"symbol": symbol})
+                        logger.info(
+                            "KILL_SWITCH CANCEL: order=%s exchange=%s",
+                            record.client_order_id,
+                            record.exchange_order_id,
+                        )
+                    except Exception as e:
+                        logger.error("KILL_SWITCH CANCEL FAILED: %s — %s", record.client_order_id, e)
+
+        # CANCEL_AND_FLATTEN: close open positions with market orders
+        if ks.should_flatten:
+            ledger = self.ledgers.get(symbol)
+            if ledger and ledger.position_qty > Decimal("0") and executor:
+                qty = ledger.position_qty
+                logger.critical(
+                    "KILL_SWITCH FLATTEN: selling %s %s at market",
+                    qty, symbol,
+                )
+                try:
+                    from src.execution.order_planner import OrderIntent as OI
+                    import hashlib
+
+                    flatten_intent = OI(
+                        client_order_id=hashlib.sha256(
+                            f"flatten:{symbol}:{int(time.time())}".encode()
+                        ).hexdigest()[:32],
+                        signal_id="kill_switch_flatten",
+                        strategy_id="kill_switch",
+                        symbol=symbol,
+                        side="SELL",
+                        final_qty=qty,
+                        order_type="MARKET",
+                        price=None,
+                        reduce_only=True,
+                        post_only=False,
+                        viable=True,
+                        planner_version="kill_switch",
+                    )
+                    result = executor.submit_order(flatten_intent)
+                    self.metrics.inc("kill_switch.flatten", labels={"symbol": symbol})
+                    logger.critical(
+                        "KILL_SWITCH FLATTEN SUBMITTED: %s qty=%s success=%s",
+                        symbol, qty, result.success,
+                    )
+                except Exception as e:
+                    logger.error("KILL_SWITCH FLATTEN FAILED: %s — %s", symbol, e)
 
     def _init_websocket(self) -> None:
         """Inicializar WebSocket."""

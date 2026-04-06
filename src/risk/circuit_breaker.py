@@ -342,9 +342,9 @@ class CircuitBreaker:
 
     def force_open(self, reason: str) -> None:
         """
-        Forzar apertura del circuit breaker desde fuera (e.g. OMS degraded).
+        Forzar apertura del circuit breaker desde fuera.
 
-        A diferencia de _trip(), es público y no retorna tupla.
+        Usado por: OMS degraded, kill switch, external monitoring.
         """
         self._trip(reason)
 

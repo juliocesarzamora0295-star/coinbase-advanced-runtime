@@ -1,4 +1,4 @@
-# Prompt para Claude Code — Monitor de Shadow Live
+# Prompt para Claude Code — Monitor de Shadow Live (CMD)
 
 Copia y pega esto en Claude Code cuando el bot esté corriendo.
 
@@ -26,113 +26,144 @@ Tu trabajo:
 - State (SQLite): E:\Proyectos\BotsDeTrading\fortress_runtime\state
 - Config: E:\Proyectos\BotsDeTrading\fortress_v4\configs\prod_symbols.yaml
 
-## Comandos de monitoreo que puedes usar
+## Comandos de monitoreo (CMD)
 
-### Ver logs recientes
-```powershell
-Get-Content E:\Proyectos\BotsDeTrading\fortress_runtime\logs\*.log -Tail 50
+### Ver logs recientes (ultimas 50 lineas)
+```cmd
+cd /d E:\Proyectos\BotsDeTrading\fortress_runtime\logs
+for %f in (*.log) do (powershell -command "Get-Content '%f' -Tail 50")
+```
+
+Alternativa sin PowerShell:
+```cmd
+cd /d E:\Proyectos\BotsDeTrading\fortress_runtime\logs
+for %f in (*.log) do (more +0 "%f")
 ```
 
 ### Buscar errores
-```powershell
-Select-String -Path E:\Proyectos\BotsDeTrading\fortress_runtime\logs\*.log -Pattern "ERROR|CRITICAL|DEGRADED|TRIPPED"
+```cmd
+cd /d E:\Proyectos\BotsDeTrading\fortress_runtime\logs
+findstr /i "ERROR CRITICAL DEGRADED TRIPPED" *.log
 ```
 
 ### Buscar señales generadas
-```powershell
-Select-String -Path E:\Proyectos\BotsDeTrading\fortress_runtime\logs\*.log -Pattern "OBSERVE ONLY"
+```cmd
+cd /d E:\Proyectos\BotsDeTrading\fortress_runtime\logs
+findstr /i "OBSERVE ONLY" *.log
 ```
 
 ### Ver health checks
-```powershell
-Select-String -Path E:\Proyectos\BotsDeTrading\fortress_runtime\logs\*.log -Pattern "HEALTH_CHECK"
+```cmd
+cd /d E:\Proyectos\BotsDeTrading\fortress_runtime\logs
+findstr /i "HEALTH_CHECK" *.log
 ```
 
-### Verificar proceso
-```powershell
-Get-Process python -ErrorAction SilentlyContinue | Format-Table Id, CPU, WorkingSet64
+### Contar señales generadas
+```cmd
+cd /d E:\Proyectos\BotsDeTrading\fortress_runtime\logs
+findstr /c:"OBSERVE ONLY" *.log | find /c /v ""
 ```
 
-### Verificar memoria (MB)
-```powershell
-Get-Process python -ErrorAction SilentlyContinue | Select-Object Id, @{N='MB';E={[math]::Round($_.WorkingSet64/1MB,1)}}
+### Contar errores
+```cmd
+cd /d E:\Proyectos\BotsDeTrading\fortress_runtime\logs
+findstr /i "ERROR" *.log | find /c /v ""
+```
+
+### Verificar proceso python corriendo
+```cmd
+tasklist /fi "imagename eq python.exe"
+```
+
+### Verificar memoria del proceso (KB)
+```cmd
+tasklist /fi "imagename eq python.exe" /fo list
 ```
 
 ### Ver estado del kill switch
-```powershell
-cd E:\Proyectos\BotsDeTrading\fortress_v4
-python -c "from src.risk.kill_switch import KillSwitch; ks = KillSwitch(); print(ks.state); print(ks.get_log(limit=5))"
+```cmd
+cd /d E:\Proyectos\BotsDeTrading\fortress_v4
+call .venv\Scripts\activate.bat
+python -c "from src.risk.kill_switch import KillSwitch; ks = KillSwitch(); print('State:', ks.state); print('Log:', ks.get_log(limit=5))"
 ```
 
 ### Ver config actual
-```powershell
+```cmd
+cd /d E:\Proyectos\BotsDeTrading\fortress_v4
 python -c "import yaml; c=yaml.safe_load(open('configs/prod_symbols.yaml')); print('observe_only:', c['trading']['observe_only']); print('dry_run:', c['trading']['dry_run'])"
 ```
 
 ## Acciones de emergencia
 
-### Activar kill switch (bloquea nuevas órdenes sin matar proceso)
-```powershell
-cd E:\Proyectos\BotsDeTrading\fortress_v4
-python -c "
-from src.risk.kill_switch import KillSwitch, KillSwitchMode
-ks = KillSwitch()
-ks.activate(KillSwitchMode.BLOCK_NEW, 'claude code: anomaly detected', 'claude-monitor')
-print('Kill switch activated:', ks.state)
-"
+### Activar kill switch (bloquea nuevas ordenes sin matar proceso)
+```cmd
+cd /d E:\Proyectos\BotsDeTrading\fortress_v4
+call .venv\Scripts\activate.bat
+python -c "from src.risk.kill_switch import KillSwitch, KillSwitchMode; ks = KillSwitch(); ks.activate(KillSwitchMode.BLOCK_NEW, 'claude code: anomaly detected', 'claude-monitor'); print('Kill switch activated:', ks.state)"
 ```
 
 ### Matar el proceso (emergencia)
-```powershell
-Stop-Process -Name python -Force
+```cmd
+taskkill /im python.exe /f
 ```
 
-## Reglas de decisión
+### Matar por PID especifico (mas seguro)
+```cmd
+REM Primero busca el PID
+tasklist /fi "imagename eq python.exe"
+REM Luego mata ese PID
+taskkill /pid NUMERO /f
+```
+
+## Reglas de decision
 
 EJECUTA kill switch si detectas:
 - "CRITICAL" en logs
-- "OMS DEGRADED" más de 3 veces en 10 minutos
+- "OMS DEGRADED" mas de 3 veces en 10 minutos
 - Cualquier indicio de orden real enviada (no debe pasar en observe_only)
 - Memoria >500MB y creciendo
 - Circuit breaker tripped + no se recupera en 5 min
 
-REPORTA pero NO actúes si:
+REPORTA pero NO actues si:
 - Warning aislado
-- WebSocket reconexión exitosa
+- WebSocket reconexion exitosa
 - Health check muestra un componente degraded una sola vez
 
 NUNCA:
-- Modifiques código del bot mientras corre
+- Modifiques codigo del bot mientras corre
 - Cambies el config mientras corre
 - Desactives observe_only
 - Toques archivos en fortress_secrets
 
 ## Formato de reporte
 
-Cuando te pida status, responde así:
+Cuando te pida status, responde asi:
 
-```
 STATUS: [HEALTHY | WARNING | CRITICAL]
 Uptime: Xh Xm
-Señales generadas: N
+Senales generadas: N
 Errores: N
 Warnings: N
 Memoria: X MB
 Circuit breaker: CLOSED/OPEN
 Kill switch: OFF/ACTIVE
-Último health check: [timestamp]
+Ultimo health check: [timestamp]
 Notas: [si hay algo relevante]
-```
 ```
 
 ---
 
-## Cómo usarlo
+## Como usarlo
 
-1. Abre una terminal PowerShell separada (no la del bot)
-2. Navega al repo: `cd E:\Proyectos\BotsDeTrading\fortress_v4`
-3. Ejecuta `claude` para iniciar Claude Code
-4. Pega el prompt de arriba
-5. Dile: "Revisa el estado actual del bot"
-6. Periódicamente pídele: "Dame status"
-7. Si necesitas parar: "Activa el kill switch"
+1. Abre una ventana CMD separada (no la del bot)
+2. Ejecuta:
+   ```cmd
+   cd /d E:\Proyectos\BotsDeTrading\fortress_v4
+   call env.bat
+   call .venv\Scripts\activate.bat
+   claude
+   ```
+3. Pega el prompt de arriba
+4. Dile: "Revisa el estado actual del bot"
+5. Periodicamente pidele: "Dame status"
+6. Si necesitas parar: "Activa el kill switch"

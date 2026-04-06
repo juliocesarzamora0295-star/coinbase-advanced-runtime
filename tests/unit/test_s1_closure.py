@@ -118,6 +118,9 @@ class TestR2ReconcileTracking:
         oms.report_divergence("test issue")
         assert not oms.is_ready()
 
+        # External reconcile must also be clean for auto-clear
+        oms.reconcile_against_exchange([], [])
+
         for _ in range(3):
             oms.record_clean_reconcile()
 

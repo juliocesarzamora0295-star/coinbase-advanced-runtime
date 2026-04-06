@@ -153,9 +153,11 @@ class OMSReconcileService:
         if (
             self._degraded
             and self._consecutive_clean_reconciles >= self.clean_reconcile_threshold
+            and self.last_external_reconcile_clean
         ):
             logger.info(
-                "OMS: Auto-clearing degradation after %d clean reconciles",
+                "OMS: Auto-clearing degradation after %d clean reconciles "
+                "(external reconcile also clean)",
                 self._consecutive_clean_reconciles,
             )
             self.clear_degraded()
@@ -164,6 +166,57 @@ class OMSReconcileService:
     def record_dirty_reconcile(self) -> None:
         """Registrar un ciclo de reconcile con errores. Reset del contador limpio."""
         self._consecutive_clean_reconciles = 0
+
+    def reconcile_against_exchange(
+        self,
+        exchange_open_orders: List[Dict],
+        exchange_recent_fills: List[Dict],
+    ) -> tuple[bool, List[str]]:
+        """
+        Compare internal OMS state against exchange REST snapshot.
+
+        Returns:
+            (clean, drifts) — clean=True if no drift, drifts lists issues.
+        """
+        drifts: List[str] = []
+
+        # OMS orders that exchange doesn't know about
+        oms_open = self.idempotency.get_pending_or_open()
+        exchange_cids = {o.get("client_order_id") for o in exchange_open_orders}
+        for record in oms_open:
+            if record.client_order_id not in exchange_cids:
+                drifts.append(f"OMS_OPEN_NOT_ON_EXCHANGE: {record.client_order_id}")
+
+        # Exchange orders that OMS doesn't know about
+        oms_cids = {r.client_order_id for r in oms_open}
+        for order in exchange_open_orders:
+            cid = order.get("client_order_id", "")
+            if cid and cid not in oms_cids:
+                existing = self.idempotency.get_by_client_order_id(cid)
+                if existing is None:
+                    drifts.append(f"EXCHANGE_OPEN_NOT_IN_OMS: {cid}")
+
+        # Fills we haven't seen
+        for fill in exchange_recent_fills:
+            tid = fill.get("trade_id", "")
+            if tid and tid not in self._seen_trade_ids:
+                drifts.append(f"UNSEEN_FILL: {tid}")
+
+        if drifts:
+            for d in drifts:
+                logger.warning("RECONCILE DRIFT: %s", d)
+            self.record_dirty_reconcile()
+            self.report_divergence(f"External reconcile: {len(drifts)} drifts")
+        else:
+            self.record_clean_reconcile()
+            self._last_external_reconcile_clean = True
+
+        return len(drifts) == 0, drifts
+
+    @property
+    def last_external_reconcile_clean(self) -> bool:
+        """Whether the last external reconcile was clean."""
+        return getattr(self, "_last_external_reconcile_clean", False)
 
     # ──────────────────────────────────────────────
     # Event handling

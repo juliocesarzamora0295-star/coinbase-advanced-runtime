@@ -51,16 +51,18 @@ class TestReconcileAutoRecovery:
         assert self.oms._consecutive_clean_reconciles == 0
 
     def test_auto_clear_after_threshold(self):
-        """Degradado se limpia después de N reconciles limpios."""
+        """Degradado se limpia después de N reconciles limpios + external clean."""
         self.oms.handle_user_event("snapshot", [])
         self.oms.report_divergence("test issue")
         assert self.oms.is_degraded()
         assert not self.oms.is_ready()
 
-        # Threshold default = 3
-        self.oms.record_clean_reconcile()
-        self.oms.record_clean_reconcile()
-        assert self.oms.is_degraded()  # still degraded
+        # External reconcile (clean) counts as 1 internal clean too
+        self.oms.reconcile_against_exchange([], [])
+        assert self.oms.is_degraded()  # 1 clean, need 3
+
+        self.oms.record_clean_reconcile()  # 2nd
+        assert self.oms.is_degraded()
 
         self.oms.record_clean_reconcile()  # 3rd → auto-clear
         assert not self.oms.is_degraded()
@@ -83,6 +85,7 @@ class TestReconcileAutoRecovery:
         self.oms.handle_user_event("snapshot", [])
         self.oms.clean_reconcile_threshold = 1
         self.oms.report_divergence("issue")
+        self.oms.reconcile_against_exchange([], [])  # external clean required
 
         self.oms.record_clean_reconcile()  # 1 clean = threshold
         assert not self.oms.is_degraded()

@@ -524,6 +524,39 @@ class TradeLedger:
         # Si no existe, debería poder aplicarse sin problemas
         return True, f"Fill {fill.trade_id} is new"
 
+    def bootstrap_from_exchange(
+        self,
+        quote_balance: Decimal,
+        base_balance: Decimal,
+        current_price: Decimal,
+    ) -> None:
+        """
+        Initialize cash and equity from real exchange balances.
+
+        Called at startup when exchange credentials are available.
+        Overrides initial_cash with real balance.
+
+        Args:
+            quote_balance: available quote currency (e.g. USD)
+            base_balance: available base currency (e.g. BTC)
+            current_price: current market price for MTM
+        """
+        self.initial_cash = quote_balance + base_balance * current_price
+        self.cash = quote_balance
+        self.position_qty = base_balance
+        if base_balance > Decimal("0") and current_price > Decimal("0"):
+            self.avg_entry = current_price  # best estimate without fill history
+            self.cost_basis_quote = base_balance * current_price
+        equity = self.get_equity(current_price)
+        self.equity_peak = max(self.equity_peak, equity)
+        self.equity_day_start = equity
+        self.save()
+        import logging
+        logging.getLogger("TradeLedger").info(
+            "Bootstrap from exchange: quote=%s base=%s price=%s equity=%s",
+            quote_balance, base_balance, current_price, equity,
+        )
+
     def get_stats(self) -> Dict[str, Any]:
         """Obtener estadísticas del ledger."""
         return {

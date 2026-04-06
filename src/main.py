@@ -120,6 +120,11 @@ class TradingBot:
         self._running = False
         self._lock = threading.Lock()
 
+        # External reconcile interval tracking (R-B)
+        self._last_external_reconcile: float = 0.0
+        self._external_reconcile_interval_s: float = 300.0  # every 5 minutes
+        self._bootstrap_source: str = "unknown"
+
         # Order tracking for deferred ExecutionReport generation
         # Maps client_order_id → (symbol, side, expected_price, requested_qty, latency_ms)
         self._pending_reports: Dict[str, tuple] = {}
@@ -261,12 +266,40 @@ class TradingBot:
                 )
                 self.ledgers[symbol] = ledger
 
+                # Bootstrap equity from exchange if possible (C)
+                try:
+                    accounts = self.client.list_accounts()
+                    parts = symbol.split("-")
+                    base_cur, quote_cur = parts[0], parts[1] if len(parts) > 1 else ""
+                    quote_bal = Decimal("0")
+                    base_bal = Decimal("0")
+                    for acct in accounts:
+                        cur = acct.get("currency", "")
+                        bal = Decimal(str(acct.get("available_balance", {}).get("value", "0")))
+                        if cur == quote_cur:
+                            quote_bal = bal
+                        elif cur == base_cur:
+                            base_bal = bal
+                    mid_price = Decimal(str(product.get("price", "0") or "0"))
+                    if mid_price <= Decimal("0"):
+                        mid_price = ledger.avg_entry or Decimal("1")
+                    ledger.bootstrap_from_exchange(quote_bal, base_bal, mid_price)
+                    self._bootstrap_source = "exchange"
+                    logger.info(f"[{symbol}] Bootstrap from EXCHANGE: quote={quote_bal} base={base_bal}")
+                except Exception as e:
+                    logger.warning(
+                        f"[{symbol}] Bootstrap from exchange failed: {e}. "
+                        f"Using config initial_cash={initial_cash}"
+                    )
+                    self._bootstrap_source = "config_fallback"
+
                 # Inicializar circuit breaker con equity real
-                current_equity = ledger.get_equity(ledger.avg_entry or initial_cash)
+                current_price = ledger.avg_entry if ledger.position_qty > Decimal("0") else Decimal("1")
+                current_equity = ledger.get_equity(current_price)
                 self.circuit_breaker.reset_day(current_equity)
 
                 # Reset daily PnL reference
-                ledger.reset_day(ledger.avg_entry if ledger.position_qty > 0 else Decimal("0"))
+                ledger.reset_day(current_price)
 
                 logger.info(
                     f"   Position: {ledger.position_qty} "
@@ -425,7 +458,30 @@ class TradingBot:
             self._last_flush_time = now
             snap = self.metrics.generic_snapshot()
             self.metrics_sink.write_snapshot(snap)
-            self.metrics.flush()  # also write to logger
+            self.metrics.flush()
+
+        # External reconcile against exchange (conditioned on client availability)
+        if (
+            now - self._last_external_reconcile >= self._external_reconcile_interval_s
+            and hasattr(self, "client") and self.client
+        ):
+            self._last_external_reconcile = now
+            for sym, oms_svc in self.oms_services.items():
+                try:
+                    exchange_orders = self.client.list_orders(
+                        product_id=sym, order_status=["OPEN", "PENDING"]
+                    ) if hasattr(self.client, "list_orders") else []
+                    exchange_fills = []  # fills already processed via WS
+                    clean, drifts = oms_svc.reconcile_against_exchange(
+                        exchange_orders, exchange_fills,
+                    )
+                    if not clean:
+                        logger.warning(
+                            "[%s] External reconcile drift: %s", sym, drifts
+                        )
+                        self.metrics.inc("reconcile.drift", labels={"symbol": sym})
+                except Exception as e:
+                    logger.error("[%s] External reconcile failed: %s", sym, e)
 
     def _on_candle_closed(self, symbol: str, candle) -> None:
         """
@@ -784,62 +840,70 @@ class TradingBot:
 
     def _enforce_kill_switch_policies(self, symbol: str) -> None:
         """
-        Ejecutar policies del kill switch activo.
+        Execute kill switch policies with convergence confirmation.
 
-        CANCEL_OPEN: cancelar órdenes abiertas conocidas por OMS.
-        CANCEL_AND_FLATTEN: cancelar + cerrar posiciones con market order.
+        CANCEL_OPEN: cancel open orders, verify OMS converges.
+        CANCEL_AND_FLATTEN: cancel + close positions, verify ledger converges.
+        Retry with timeout. Fallback to BLOCK_NEW if convergence fails.
         """
         ks = self.kill_switch.state
         if not ks.is_active:
             return
 
         executor = self.executors.get(symbol)
+        max_retries = 3
+        converged = True
 
-        # CANCEL_OPEN: cancelar órdenes abiertas
+        # CANCEL_OPEN: cancel open orders + verify convergence
         if ks.should_cancel_open and executor:
             idempotency = executor.idempotency
-            open_orders = idempotency.get_pending_or_open()
-            for record in open_orders:
-                if record.exchange_order_id:
-                    try:
-                        executor.cancel_order(record.client_order_id)
-                        self.metrics.inc("kill_switch.cancel", labels={"symbol": symbol})
-                        logger.info(
-                            "KILL_SWITCH CANCEL: order=%s exchange=%s",
-                            record.client_order_id,
-                            record.exchange_order_id,
-                        )
-                    except Exception as e:
-                        logger.error("KILL_SWITCH CANCEL FAILED: %s — %s", record.client_order_id, e)
+            for attempt in range(max_retries):
+                open_orders = idempotency.get_pending_or_open()
+                if not open_orders:
+                    break  # converged
+                for record in open_orders:
+                    if record.exchange_order_id:
+                        try:
+                            executor.cancel_order(record.client_order_id)
+                            self.metrics.inc("kill_switch.cancel", labels={"symbol": symbol})
+                        except Exception as e:
+                            logger.error("KILL_SWITCH CANCEL FAILED: %s — %s",
+                                         record.client_order_id, e)
+                # Brief pause for OMS to process (in live, cancels are async)
+                if attempt < max_retries - 1:
+                    time.sleep(0.1)
 
-        # CANCEL_AND_FLATTEN: close open positions with market orders
+            # Verify convergence
+            remaining = idempotency.get_pending_or_open()
+            if remaining:
+                converged = False
+                logger.warning(
+                    "KILL_SWITCH CONVERGENCE TIMEOUT: %d orders still open for %s "
+                    "after %d retries. Falling back to BLOCK_NEW.",
+                    len(remaining), symbol, max_retries,
+                )
+                self.metrics.inc("kill_switch.convergence_timeout", labels={"symbol": symbol})
+            else:
+                logger.info("KILL_SWITCH CANCEL CONVERGED: 0 open orders for %s", symbol)
+
+        # CANCEL_AND_FLATTEN: close open positions + verify convergence
         if ks.should_flatten:
             ledger = self.ledgers.get(symbol)
             if ledger and ledger.position_qty > Decimal("0") and executor:
                 qty = ledger.position_qty
-                logger.critical(
-                    "KILL_SWITCH FLATTEN: selling %s %s at market",
-                    qty, symbol,
-                )
+                logger.critical("KILL_SWITCH FLATTEN: selling %s %s at market", qty, symbol)
                 try:
-                    from src.execution.order_planner import OrderIntent as OI
                     import hashlib
-
-                    flatten_intent = OI(
+                    flatten_intent = OrderIntent(
                         client_order_id=hashlib.sha256(
                             f"flatten:{symbol}:{int(time.time())}".encode()
                         ).hexdigest()[:32],
                         signal_id="kill_switch_flatten",
                         strategy_id="kill_switch",
-                        symbol=symbol,
-                        side="SELL",
-                        final_qty=qty,
-                        order_type="MARKET",
-                        price=None,
-                        reduce_only=True,
-                        post_only=False,
-                        viable=True,
-                        planner_version="kill_switch",
+                        symbol=symbol, side="SELL", final_qty=qty,
+                        order_type="MARKET", price=None,
+                        reduce_only=True, post_only=False,
+                        viable=True, planner_version="kill_switch",
                     )
                     result = executor.submit_order(flatten_intent)
                     self.metrics.inc("kill_switch.flatten", labels={"symbol": symbol})
@@ -848,7 +912,18 @@ class TradingBot:
                         symbol, qty, result.success,
                     )
                 except Exception as e:
+                    converged = False
                     logger.error("KILL_SWITCH FLATTEN FAILED: %s — %s", symbol, e)
+
+        if not converged:
+            # Ensure at minimum BLOCK_NEW is in effect
+            if ks.mode not in (KillSwitchMode.BLOCK_NEW, KillSwitchMode.CANCEL_OPEN,
+                                KillSwitchMode.CANCEL_AND_FLATTEN):
+                self.kill_switch.activate(
+                    KillSwitchMode.BLOCK_NEW,
+                    "convergence_timeout_fallback",
+                    activated_by="system",
+                )
 
     def _on_fill_reconciled(
         self,

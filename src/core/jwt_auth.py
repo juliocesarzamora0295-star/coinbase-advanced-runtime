@@ -42,9 +42,11 @@ class JWTAuth:
         self.issuer = issuer
         self.expiry_seconds = expiry_seconds
 
-        # Cargar clave privada desde PEM
+        # Normalizar saltos de línea literales (\n como texto) a newlines reales.
+        # Común en .env files y variables de entorno en Windows.
+        pem_text = credentials.key_secret.replace("\\n", "\n").strip()
         self.private_key = serialization.load_pem_private_key(
-            credentials.key_secret.encode(),
+            pem_text.encode(),
             password=None,
         )
 

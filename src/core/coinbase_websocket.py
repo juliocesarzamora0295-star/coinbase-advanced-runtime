@@ -258,6 +258,11 @@ class CoinbaseWSFeed:
         """Callback cuando se abre conexión de market data."""
         logger.info("Market WebSocket connected")
         self._connected_at = time.time()
+        # Reset gap trackers so reconnected stream doesn't compare against
+        # pre-disconnect counters (causes false negative-gap alerts)
+        self._last_heartbeat_counter = None
+        self._last_sequence_num.clear()
+        self._ws_gap_flag = False
         self._send_subscriptions(ws, public_only=True)
 
     def _on_user_open(self, ws) -> None:

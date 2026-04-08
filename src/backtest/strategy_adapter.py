@@ -188,3 +188,112 @@ class SelectorAdapter:
     @property
     def regime_history(self) -> list:
         return self._selector.regime_history
+
+
+class AdaptiveAdapter:
+    """
+    Wraps any strategy adapter and applies adaptive position sizing.
+
+    Instead of fixed qty, computes qty dynamically based on market
+    conditions (volatility, trend, volume, drawdown).
+
+    Works with StrategyAdapter, SelectorAdapter, or any callable
+    that returns BacktestSignal.
+    """
+
+    def __init__(
+        self,
+        inner: Any,
+        equity: Decimal,
+        base_pct: Decimal = Decimal("0.005"),
+        adaptive_config: Optional[Dict[str, Any]] = None,
+    ) -> None:
+        from src.risk.adaptive_sizer import AdaptiveSizer
+
+        self._inner = inner
+        self._equity = equity
+        self._base_pct = base_pct
+        cfg = adaptive_config or {}
+        self._sizer = AdaptiveSizer(
+            base_pct=base_pct,
+            **{k: v for k, v in cfg.items() if k in AdaptiveSizer.__init__.__code__.co_varnames},
+        )
+        self._ledger = None  # set externally for drawdown tracking
+        self._df_cache: pd.DataFrame = pd.DataFrame()
+        self.sizing_log: List[Dict[str, Any]] = []
+
+    def set_ledger(self, ledger: Any) -> None:
+        """Attach ledger for drawdown tracking."""
+        self._ledger = ledger
+
+    def __call__(
+        self,
+        bar: Bar,
+        history: List[Bar],
+    ) -> Optional[BacktestSignal]:
+        """
+        Delegates to inner adapter, then adjusts qty with AdaptiveSizer.
+        """
+        from src.risk.adaptive_sizer import build_context_from_df
+
+        signal = self._inner(bar, history)
+        if signal is None:
+            return None
+
+        # Build DataFrame for context
+        all_bars = history + [bar]
+        if len(all_bars) < 30:
+            return signal  # not enough data for adaptive — use default
+
+        rows = [
+            {
+                "open": float(b.open), "high": float(b.high),
+                "low": float(b.low), "close": float(b.close),
+                "volume": float(b.volume),
+            }
+            for b in all_bars
+        ]
+        df = pd.DataFrame(rows)
+
+        # Drawdown from ledger
+        dd_pct = 0.0
+        if self._ledger is not None:
+            dd_pct = float(self._ledger.get_drawdown(bar.close))
+
+        ctx = build_context_from_df(
+            df=df,
+            signal_direction=signal.side,
+            drawdown_pct=dd_pct,
+        )
+
+        if ctx is None:
+            return signal
+
+        result = self._sizer.compute(ctx)
+
+        # Convert pct to qty: qty = (equity × pct) / price
+        price = bar.close
+        if price <= Decimal("0"):
+            return signal
+
+        current_equity = self._equity
+        if self._ledger is not None:
+            current_equity = self._ledger.get_equity(price)
+
+        adaptive_qty = (current_equity * result.effective_pct) / price
+
+        # Log for analysis
+        self.sizing_log.append({
+            "bar_ts": bar.timestamp_ms,
+            "side": signal.side,
+            "base_qty": float(signal.qty),
+            "adaptive_qty": float(adaptive_qty),
+            "effective_pct": float(result.effective_pct),
+            "multiplier": result.combined_multiplier,
+            "vol_f": result.vol_factor,
+            "trend_f": result.trend_factor,
+            "volume_f": result.volume_factor,
+            "dd_f": result.dd_factor,
+        })
+
+        return BacktestSignal(side=signal.side, qty=adaptive_qty)

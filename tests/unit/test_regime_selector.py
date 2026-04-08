@@ -22,28 +22,30 @@ from src.backtest.data_feed import HistoricalDataFeed
 
 def _trending_df(n: int = 200, direction: str = "up") -> pd.DataFrame:
     """Generate strongly trending OHLCV data."""
+    rng = np.random.RandomState(101)
     if direction == "up":
-        close = 30000.0 + np.arange(n) * 50.0 + np.random.randn(n) * 20
+        close = 30000.0 + np.arange(n) * 50.0 + rng.randn(n) * 20
     else:
-        close = 50000.0 - np.arange(n) * 50.0 + np.random.randn(n) * 20
-    high = close + np.random.uniform(30, 80, n)
-    low = close - np.random.uniform(30, 80, n)
-    volume = np.random.uniform(100, 500, n)
+        close = 50000.0 - np.arange(n) * 50.0 + rng.randn(n) * 20
+    high = close + rng.uniform(30, 80, n)
+    low = close - rng.uniform(30, 80, n)
+    volume = rng.uniform(100, 500, n)
     return pd.DataFrame({
-        "open": close + np.random.randn(n) * 10,
+        "open": close + rng.randn(n) * 10,
         "high": high, "low": low, "close": close, "volume": volume,
     })
 
 
 def _ranging_df(n: int = 200, center: float = 40000.0, amplitude: float = 500.0) -> pd.DataFrame:
     """Generate sideways/ranging OHLCV data."""
+    rng = np.random.RandomState(202)
     t = np.linspace(0, 8 * np.pi, n)
-    close = center + amplitude * np.sin(t) + np.random.randn(n) * 50
-    high = close + np.random.uniform(20, 60, n)
-    low = close - np.random.uniform(20, 60, n)
-    volume = np.random.uniform(50, 300, n)
+    close = center + amplitude * np.sin(t) + rng.randn(n) * 50
+    high = close + rng.uniform(20, 60, n)
+    low = close - rng.uniform(20, 60, n)
+    volume = rng.uniform(50, 300, n)
     return pd.DataFrame({
-        "open": close + np.random.randn(n) * 10,
+        "open": close + rng.randn(n) * 10,
         "high": high, "low": low, "close": close, "volume": volume,
     })
 

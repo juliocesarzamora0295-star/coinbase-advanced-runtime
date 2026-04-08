@@ -83,11 +83,17 @@ class CoinbaseRESTClient:
         if elapsed < self._min_interval:
             time.sleep(self._min_interval - elapsed)
 
-        # P0: Firmar exactamente el path que se enviará, incluyendo query string
-        signed_path = path
+        # Build query string once (sorted + doseq) and use it for both
+        # JWT signing and the actual request URL.  Previously, the JWT was
+        # signed with sorted params but requests serialised in insertion
+        # order, causing an auth mismatch on endpoints with >1 param.
         if params:
             qs = urlencode(sorted(params.items()), doseq=True)
             signed_path = f"{path}?{qs}"
+            full_url = f"{url}?{qs}"
+        else:
+            signed_path = path
+            full_url = url
 
         # Generar JWT para esta llamada
         token = self.jwt_auth.generate_rest_jwt(method, signed_path)
@@ -100,9 +106,8 @@ class CoinbaseRESTClient:
         try:
             response = self.session.request(
                 method=method,
-                url=url,
+                url=full_url,
                 headers=headers,
-                params=params,
                 json=json_data,
                 timeout=self.timeout,
             )
@@ -112,20 +117,28 @@ class CoinbaseRESTClient:
             return response.json()
 
         except requests.exceptions.HTTPError as e:
-            status = e.response.status_code if e.response else None
+            # NOTE: bool(Response) is False for 4xx/5xx — use `is not None`
+            resp = e.response
+            status = resp.status_code if resp is not None else None
             try:
-                error_data = e.response.json() if e.response else None
+                error_data = resp.json() if resp is not None else None
             except Exception:
-                error_data = None
+                error_data = resp.text if resp is not None else None
 
-            logger.error(f"HTTP {status}: {error_data}")
+            logger.error("HTTP %s: %s (url=%s)", status, error_data, full_url)
             raise CoinbaseAPIError(
                 f"HTTP {status}: {error_data}",
                 status_code=status,
                 response=error_data,
             )
+        except requests.exceptions.ConnectionError as e:
+            logger.error("Connection error: %s (url=%s)", e, full_url)
+            raise CoinbaseAPIError(f"Connection error: {e}")
+        except requests.exceptions.Timeout as e:
+            logger.error("Timeout: %s (url=%s)", e, full_url)
+            raise CoinbaseAPIError(f"Timeout: {e}")
         except requests.exceptions.RequestException as e:
-            logger.error(f"Request error: {e}")
+            logger.error("Request error: %s (url=%s)", e, full_url)
             raise CoinbaseAPIError(f"Request error: {e}")
 
     @retry(

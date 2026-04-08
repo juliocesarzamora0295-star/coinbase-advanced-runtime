@@ -487,6 +487,9 @@ class TradingBot:
         now = time.time()
         if now - self._last_flush_time >= self._flush_interval_s:
             self._last_flush_time = now
+            # Sync ledger equity into metrics before flush
+            if ledger and current_price:
+                self.metrics.set_ledger_equity(ledger.get_equity(current_price))
             snap = self.metrics.generic_snapshot()
             self.metrics_sink.write_snapshot(snap)
             self.metrics.flush()

@@ -246,15 +246,15 @@ class CoinbaseRESTClient:
     def list_orders(
         self,
         product_id: Optional[str] = None,
-        status: Optional[str] = None,
+        order_status: Optional[List[str]] = None,
         limit: int = 100,
     ) -> List[Dict[str, Any]]:
         """GET /orders/historical/batch - Listar órdenes."""
-        params = {"limit": limit}
+        params: Dict[str, Any] = {"limit": limit}
         if product_id:
             params["product_id"] = product_id
-        if status:
-            params["status"] = status
+        if order_status:
+            params["order_status"] = order_status
 
         response = self._request_with_retry("GET", "/orders/historical/batch", params=params)
         return response.get("orders", [])

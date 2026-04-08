@@ -113,3 +113,78 @@ class StrategyAdapter:
             return BacktestSignal(side="SELL", qty=self._qty)
 
         return None
+
+
+class SelectorAdapter:
+    """
+    Adapts StrategySelector to a BacktestEngine StrategyCallback.
+
+    Uses regime-aware strategy switching. Each bar:
+    1. Builds DataFrame from history
+    2. Feeds to StrategySelector (which detects regime + picks strategy)
+    3. Translates signal to BacktestSignal
+
+    Exposes regime_history for post-backtest analysis.
+    """
+
+    def __init__(
+        self,
+        symbol: str,
+        config: Dict[str, Any],
+        qty: Decimal = Decimal("0.01"),
+    ) -> None:
+        from src.strategy.selector import StrategySelector
+
+        self._selector = StrategySelector.from_config(symbol=symbol, config=config)
+        self._qty = qty
+        self._in_position = False
+
+    def __call__(
+        self,
+        bar: Bar,
+        history: List[Bar],
+    ) -> Optional[BacktestSignal]:
+        """BacktestEngine StrategyCallback interface."""
+        candle = pd.Series({
+            "timestamp": bar.timestamp_ms,
+            "open": float(bar.open),
+            "high": float(bar.high),
+            "low": float(bar.low),
+            "close": float(bar.close),
+            "volume": float(bar.volume),
+        })
+
+        bar_ts = datetime.fromtimestamp(bar.timestamp_ms / 1000, tz=timezone.utc)
+
+        signal = self._selector.on_candle_closed(
+            candle=candle,
+            mid=bar.close,
+            bar_timestamp=bar_ts,
+        )
+
+        if signal is None:
+            return None
+
+        direction = signal.direction  # "BUY" or "SELL"
+
+        if direction == "BUY" and not self._in_position:
+            self._in_position = True
+            return BacktestSignal(side="BUY", qty=self._qty)
+
+        if direction == "SELL" and self._in_position:
+            self._in_position = False
+            return BacktestSignal(side="SELL", qty=self._qty)
+
+        return None
+
+    @property
+    def current_regime(self) -> str:
+        return self._selector.current_regime.value
+
+    @property
+    def current_strategy(self) -> str:
+        return self._selector.current_strategy_name
+
+    @property
+    def regime_history(self) -> list:
+        return self._selector.regime_history

@@ -24,6 +24,8 @@ from typing import Any, Dict, List, Optional
 import pandas as pd
 
 from src.strategy.base import Strategy
+from src.strategy.mean_reversion import MeanReversionStrategy
+from src.strategy.momentum_breakout import MomentumBreakoutStrategy
 from src.strategy.sma_crossover import SmaCrossoverStrategy
 
 logger = logging.getLogger("StrategyManager")
@@ -33,6 +35,8 @@ logger = logging.getLogger("StrategyManager")
 _STRATEGY_REGISTRY: Dict[str, type] = {
     "ma_crossover": SmaCrossoverStrategy,
     "sma_crossover": SmaCrossoverStrategy,
+    "mean_reversion": MeanReversionStrategy,
+    "momentum_breakout": MomentumBreakoutStrategy,
 }
 
 

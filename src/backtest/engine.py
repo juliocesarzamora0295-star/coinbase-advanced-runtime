@@ -92,6 +92,7 @@ class BacktestEngine:
                         side=signal.side,
                         qty=signal.qty,
                         price=bar.close,
+                        ts_ms=bar.timestamp_ms,
                     )
                     if not verdict.allowed:
                         execute = False

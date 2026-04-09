@@ -25,7 +25,7 @@ class BacktestRiskAdapter:
     then calls RiskGate.evaluate(). If blocked, the signal is dropped
     and the reason is logged.
 
-    Tracks orders_last_minute approximately (resets every 60 bars as proxy).
+    Tracks orders_last_minute by bar timestamp (resets when bar time advances ≥60 min).
     """
 
     def __init__(
@@ -38,8 +38,7 @@ class BacktestRiskAdapter:
         self._ledger = ledger
         self._symbol = symbol
         self._orders_this_window: int = 0
-        self._window_start_bar: int = 0
-        self._bar_count: int = 0
+        self._window_start_ms: int = 0
         self.blocked_count: int = 0
         self.blocked_reasons: list[str] = []
 
@@ -48,6 +47,7 @@ class BacktestRiskAdapter:
         side: str,
         qty: Decimal,
         price: Decimal,
+        ts_ms: int = 0,
     ) -> RiskVerdict:
         """
         Evaluate a proposed trade through RiskGate.
@@ -56,16 +56,15 @@ class BacktestRiskAdapter:
             side: "BUY" or "SELL"
             qty: proposed quantity
             price: current bar close price
+            ts_ms: bar timestamp in milliseconds (used for rate-limit window)
 
         Returns:
             RiskVerdict from the real RiskGate.
         """
-        self._bar_count += 1
-
-        # Approximate orders-per-minute window (reset every 60 bars)
-        if self._bar_count - self._window_start_bar >= 60:
+        # Reset orders-per-minute window based on bar time, not iteration count
+        if ts_ms - self._window_start_ms >= 60_000 * 60:
             self._orders_this_window = 0
-            self._window_start_bar = self._bar_count
+            self._window_start_ms = ts_ms
 
         equity = self._ledger.get_equity(price)
         position_qty = self._ledger.position_qty

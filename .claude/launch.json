@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "fortress (trading bot)",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "src.main"],
+      "port": null
+    },
+    {
+      "name": "fortress (test suite)",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "pytest", "-q"],
+      "port": null
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//e/Proyectos/BotsDeTrading/coinbase-runtime-live-canary/logs//**)",
+      "Read(//e/Proyectos/BotsDeTrading/coinbase-secrets//**)",
+      "Bash(source .venv/Scripts/activate)",
+      "Bash(python -c \"import sys, os, platform; print\\(platform.system\\(\\)\\); print\\(os.getcwd\\(\\)\\); print\\(sys.executable\\)\")",
+      "Bash(export FORTRESS_REPO='/e/Proyectos/BotsDeTrading/coinbase-advanced-runtime')",
+      "Bash(export FORTRESS_RUNTIME='/e/Proyectos/BotsDeTrading/coinbase-runtime-live-canary')",
+      "Bash(export FORTRESS_SECRETS='/e/Proyectos/BotsDeTrading/coinbase-secrets')",
+      "Bash(echo \"$FORTRESS_REPO\")",
+      "Bash(echo \"$FORTRESS_RUNTIME\")",
+      "Bash(python -m pytest tests/unit/test_backtest_integration.py tests/unit/test_adaptive_sizer.py -q)"
+    ]
+  }
+}

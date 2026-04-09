@@ -26,7 +26,7 @@ from src.backtest.ledger import BacktestLedger
 from src.backtest.paper_executor import PaperExecutor
 from src.backtest.report import BacktestReport
 from src.backtest.risk_adapter import BacktestRiskAdapter
-from src.backtest.strategy_adapter import StrategyAdapter
+from src.backtest.strategy_adapter import SelectorAdapter, StrategyAdapter
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(name)s] %(message)s")
 logger = logging.getLogger("SegmentedRunner")
@@ -41,6 +41,7 @@ def run_single_regime(
     slippage_bps: Decimal,
     qty: Decimal,
     use_risk: bool = False,
+    use_selector: bool = False,
 ) -> Optional[BacktestReport]:
     """
     Run backtest on a single CSV file (one market regime).
@@ -63,11 +64,14 @@ def run_single_regime(
         fee_rate=fee_rate,
     )
 
-    adapter = StrategyAdapter.from_config(
-        symbol=symbol,
-        config=strategy_config,
-        qty=qty,
-    )
+    if use_selector:
+        adapter = SelectorAdapter(symbol=symbol, config=strategy_config, qty=qty)
+    else:
+        adapter = StrategyAdapter.from_config(
+            symbol=symbol,
+            config=strategy_config,
+            qty=qty,
+        )
 
     risk_adapter = None
     if use_risk:
@@ -96,6 +100,7 @@ def run_all_regimes(
     slippage_bps: Decimal,
     qty: Decimal,
     use_risk: bool = False,
+    use_selector: bool = False,
     regimes: Optional[List] = None,
 ) -> Dict[str, BacktestReport]:
     """
@@ -130,6 +135,7 @@ def run_all_regimes(
             slippage_bps=slippage_bps,
             qty=qty,
             use_risk=use_risk,
+            use_selector=use_selector,
         )
 
         if report is not None:
@@ -206,6 +212,7 @@ def main() -> None:
     parser.add_argument("--sma-fast", type=int, default=20, help="Fast SMA period")
     parser.add_argument("--sma-slow", type=int, default=50, help="Slow SMA period")
     parser.add_argument("--use-risk", action="store_true", help="Enable RiskGate in backtest")
+    parser.add_argument("--use-selector", action="store_true", help="Use regime-aware SelectorAdapter instead of SMA crossover")
     parser.add_argument("--download", action="store_true", help="Download data from Coinbase")
     parser.add_argument("--data-dir", default="data/regimes", help="Directory for CSV files")
     args = parser.parse_args()
@@ -247,6 +254,7 @@ def main() -> None:
         slippage_bps=Decimal(str(args.slippage)),
         qty=Decimal(str(args.qty)),
         use_risk=args.use_risk,
+        use_selector=args.use_selector,
     )
 
     print_comparative_report(results)

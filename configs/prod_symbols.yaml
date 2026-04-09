@@ -26,7 +26,7 @@ trading:
   max_cycles: 0
   sizing_mode: "NOTIONAL"
   notional_pct: 0.005      # Conservative: 0.5% per trade (start low)
-  strategy_mode: "fixed"   # "fixed" | "selector" | "full_adaptive"
+  strategy_mode: "selector"   # "fixed" | "selector" | "full_adaptive"
   mtf_enabled: false
   adaptive_sizing: false
 

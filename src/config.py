@@ -22,6 +22,58 @@ from typing import List, Optional
 import yaml
 from dotenv import load_dotenv
 
+# ---------------------------------------------------------------------------
+# Startup validation
+# ---------------------------------------------------------------------------
+
+
+def validate_config(
+    trading: "TradingConfig",
+    risk: "RiskConfig",
+    symbols: "List[SymbolConfig]",
+) -> None:
+    """
+    Validar coherencia de config en startup.
+
+    Fail-closed: lanza ValueError con todos los errores encontrados si algún
+    valor crítico haría que el bot arrancara silenciosamente sin operar.
+
+    Invariantes verificados:
+    - risk_per_trade_pct > 0  (si 0 → PositionSizer siempre retorna qty=0)
+    - max_notional_per_symbol > 0  (si 0 → toda orden bloqueada por cap)
+    - max_daily_loss en (0, 1]  (fuera de rango → RiskGate inoperable)
+    - max_drawdown en (0, 1]   (fuera de rango → RiskGate inoperable)
+    - Al menos un símbolo enabled si la lista no es vacía
+    """
+    errors: List[str] = []
+
+    if trading.risk_per_trade_pct <= 0:
+        errors.append(
+            f"risk_per_trade_pct={trading.risk_per_trade_pct} debe ser > 0 "
+            "(con 0 el PositionSizer retorna qty=0 para toda señal)"
+        )
+
+    if trading.max_notional_per_symbol <= 0:
+        errors.append(
+            f"max_notional_per_symbol={trading.max_notional_per_symbol} debe ser > 0 "
+            "(con 0 toda orden queda bloqueada por cap de notional)"
+        )
+
+    if not (0 < risk.max_daily_loss <= 1.0):
+        errors.append(f"max_daily_loss={risk.max_daily_loss} debe estar en (0, 1]")
+
+    if not (0 < risk.max_drawdown <= 1.0):
+        errors.append(f"max_drawdown={risk.max_drawdown} debe estar en (0, 1]")
+
+    if symbols and not any(s.enabled for s in symbols):
+        errors.append("ningún símbolo está enabled — el bot arrancará pero nunca operará")
+
+    if errors:
+        raise ValueError(
+            "Config inválida — corrígela antes de arrancar:\n"
+            + "\n".join(f"  - {e}" for e in errors)
+        )
+
 
 def get_repo_path() -> Path:
     """Obtener ruta al repositorio (código)."""
@@ -213,6 +265,7 @@ class Config:
         """Inicialización posterior."""
         self.paths.ensure_directories()
         self._load_yaml_config()
+        validate_config(self.trading, self.risk, self.symbols)
 
     def _load_yaml_config(self) -> None:
         """Cargar configuración completa desde YAML.

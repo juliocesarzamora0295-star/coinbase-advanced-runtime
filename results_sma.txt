@@ -1,0 +1,1485 @@
+2026-04-08 23:49:27,598 [SegmentedRunner] ════════════════════════════════════════════════════════════
+2026-04-08 23:49:27,598 [SegmentedRunner] Regime: bull_2020_q4 — BTC rally from $10k to $29k
+2026-04-08 23:49:27,598 [SegmentedRunner] Period: 2020-10-01 to 2020-12-31
+2026-04-08 23:49:27,606 [SmaCrossoverStrategy] Insufficient data: 1 < 52
+2026-04-08 23:49:27,606 [SmaCrossoverStrategy] Insufficient data: 2 < 52
+2026-04-08 23:49:27,607 [SmaCrossoverStrategy] Insufficient data: 3 < 52
+2026-04-08 23:49:27,607 [SmaCrossoverStrategy] Insufficient data: 4 < 52
+2026-04-08 23:49:27,607 [SmaCrossoverStrategy] Insufficient data: 5 < 52
+2026-04-08 23:49:27,607 [SmaCrossoverStrategy] Insufficient data: 6 < 52
+2026-04-08 23:49:27,607 [SmaCrossoverStrategy] Insufficient data: 7 < 52
+2026-04-08 23:49:27,607 [SmaCrossoverStrategy] Insufficient data: 8 < 52
+2026-04-08 23:49:27,607 [SmaCrossoverStrategy] Insufficient data: 9 < 52
+2026-04-08 23:49:27,608 [SmaCrossoverStrategy] Insufficient data: 10 < 52
+2026-04-08 23:49:27,608 [SmaCrossoverStrategy] Insufficient data: 11 < 52
+2026-04-08 23:49:27,608 [SmaCrossoverStrategy] Insufficient data: 12 < 52
+2026-04-08 23:49:27,608 [SmaCrossoverStrategy] Insufficient data: 13 < 52
+2026-04-08 23:49:27,608 [SmaCrossoverStrategy] Insufficient data: 14 < 52
+2026-04-08 23:49:27,608 [SmaCrossoverStrategy] Insufficient data: 15 < 52
+2026-04-08 23:49:27,608 [SmaCrossoverStrategy] Insufficient data: 16 < 52
+2026-04-08 23:49:27,609 [SmaCrossoverStrategy] Insufficient data: 17 < 52
+2026-04-08 23:49:27,609 [SmaCrossoverStrategy] Insufficient data: 18 < 52
+2026-04-08 23:49:27,609 [SmaCrossoverStrategy] Insufficient data: 19 < 52
+2026-04-08 23:49:27,609 [SmaCrossoverStrategy] Insufficient data: 20 < 52
+2026-04-08 23:49:27,609 [SmaCrossoverStrategy] Insufficient data: 21 < 52
+2026-04-08 23:49:27,610 [SmaCrossoverStrategy] Insufficient data: 22 < 52
+2026-04-08 23:49:27,610 [SmaCrossoverStrategy] Insufficient data: 23 < 52
+2026-04-08 23:49:27,610 [SmaCrossoverStrategy] Insufficient data: 24 < 52
+2026-04-08 23:49:27,610 [SmaCrossoverStrategy] Insufficient data: 25 < 52
+2026-04-08 23:49:27,610 [SmaCrossoverStrategy] Insufficient data: 26 < 52
+2026-04-08 23:49:27,610 [SmaCrossoverStrategy] Insufficient data: 27 < 52
+2026-04-08 23:49:27,610 [SmaCrossoverStrategy] Insufficient data: 28 < 52
+2026-04-08 23:49:27,611 [SmaCrossoverStrategy] Insufficient data: 29 < 52
+2026-04-08 23:49:27,611 [SmaCrossoverStrategy] Insufficient data: 30 < 52
+2026-04-08 23:49:27,611 [SmaCrossoverStrategy] Insufficient data: 31 < 52
+2026-04-08 23:49:27,611 [SmaCrossoverStrategy] Insufficient data: 32 < 52
+2026-04-08 23:49:27,611 [SmaCrossoverStrategy] Insufficient data: 33 < 52
+2026-04-08 23:49:27,611 [SmaCrossoverStrategy] Insufficient data: 34 < 52
+2026-04-08 23:49:27,612 [SmaCrossoverStrategy] Insufficient data: 35 < 52
+2026-04-08 23:49:27,612 [SmaCrossoverStrategy] Insufficient data: 36 < 52
+2026-04-08 23:49:27,612 [SmaCrossoverStrategy] Insufficient data: 37 < 52
+2026-04-08 23:49:27,612 [SmaCrossoverStrategy] Insufficient data: 38 < 52
+2026-04-08 23:49:27,612 [SmaCrossoverStrategy] Insufficient data: 39 < 52
+2026-04-08 23:49:27,612 [SmaCrossoverStrategy] Insufficient data: 40 < 52
+2026-04-08 23:49:27,612 [SmaCrossoverStrategy] Insufficient data: 41 < 52
+2026-04-08 23:49:27,613 [SmaCrossoverStrategy] Insufficient data: 42 < 52
+2026-04-08 23:49:27,613 [SmaCrossoverStrategy] Insufficient data: 43 < 52
+2026-04-08 23:49:27,613 [SmaCrossoverStrategy] Insufficient data: 44 < 52
+2026-04-08 23:49:27,613 [SmaCrossoverStrategy] Insufficient data: 45 < 52
+2026-04-08 23:49:27,613 [SmaCrossoverStrategy] Insufficient data: 46 < 52
+2026-04-08 23:49:27,613 [SmaCrossoverStrategy] Insufficient data: 47 < 52
+2026-04-08 23:49:27,614 [SmaCrossoverStrategy] Insufficient data: 48 < 52
+2026-04-08 23:49:27,614 [SmaCrossoverStrategy] Insufficient data: 49 < 52
+2026-04-08 23:49:27,614 [SmaCrossoverStrategy] Insufficient data: 50 < 52
+2026-04-08 23:49:27,614 [SmaCrossoverStrategy] Insufficient data: 51 < 52
+2026-04-08 23:49:27,619 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:27,648 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:27,665 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:27,738 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:27,771 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:27,785 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:27,810 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:27,923 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:27,940 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:27,969 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:27,982 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:27,993 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:27,997 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:28,042 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:28,071 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:28,156 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:28,201 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:28,316 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:28,355 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:28,396 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:28,432 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:28,539 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:28,606 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:28,728 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:28,752 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:28,842 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:28,901 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:28,999 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:29,100 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:29,273 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:29,331 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:29,397 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:29,462 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:29,563 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:29,786 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:30,172 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:30,184 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:30,303 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:30,393 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:30,468 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:30,522 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:30,760 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:30,835 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:30,959 [BacktestEngine] Backtest complete: BacktestReport:
+  Bars: 2207
+  Trades: 21 (W:10 L:11)
+  Win Rate: 47.6%
+  PnL: $114.51
+  Return: 1.21%
+  Max Drawdown: 0.31%
+  Sharpe: 0.79
+  Avg PnL/Trade: $5.45
+  Avg Duration: 243257s
+  Fees: $7.18
+  Equity: $10,000.00 → $10,120.73
+2026-04-08 23:49:30,959 [SegmentedRunner]   Return: 1.21% | Trades: 21 | Sharpe: 0.79 | MaxDD: 0.31%
+2026-04-08 23:49:30,959 [SegmentedRunner] ════════════════════════════════════════════════════════════
+2026-04-08 23:49:30,959 [SegmentedRunner] Regime: bull_2021_q1 — BTC rally to $64k ATH
+2026-04-08 23:49:30,959 [SegmentedRunner] Period: 2021-01-01 to 2021-04-14
+2026-04-08 23:49:30,968 [SmaCrossoverStrategy] Insufficient data: 1 < 52
+2026-04-08 23:49:30,968 [SmaCrossoverStrategy] Insufficient data: 2 < 52
+2026-04-08 23:49:30,968 [SmaCrossoverStrategy] Insufficient data: 3 < 52
+2026-04-08 23:49:30,968 [SmaCrossoverStrategy] Insufficient data: 4 < 52
+2026-04-08 23:49:30,968 [SmaCrossoverStrategy] Insufficient data: 5 < 52
+2026-04-08 23:49:30,968 [SmaCrossoverStrategy] Insufficient data: 6 < 52
+2026-04-08 23:49:30,969 [SmaCrossoverStrategy] Insufficient data: 7 < 52
+2026-04-08 23:49:30,969 [SmaCrossoverStrategy] Insufficient data: 8 < 52
+2026-04-08 23:49:30,969 [SmaCrossoverStrategy] Insufficient data: 9 < 52
+2026-04-08 23:49:30,969 [SmaCrossoverStrategy] Insufficient data: 10 < 52
+2026-04-08 23:49:30,969 [SmaCrossoverStrategy] Insufficient data: 11 < 52
+2026-04-08 23:49:30,969 [SmaCrossoverStrategy] Insufficient data: 12 < 52
+2026-04-08 23:49:30,969 [SmaCrossoverStrategy] Insufficient data: 13 < 52
+2026-04-08 23:49:30,969 [SmaCrossoverStrategy] Insufficient data: 14 < 52
+2026-04-08 23:49:30,970 [SmaCrossoverStrategy] Insufficient data: 15 < 52
+2026-04-08 23:49:30,970 [SmaCrossoverStrategy] Insufficient data: 16 < 52
+2026-04-08 23:49:30,970 [SmaCrossoverStrategy] Insufficient data: 17 < 52
+2026-04-08 23:49:30,970 [SmaCrossoverStrategy] Insufficient data: 18 < 52
+2026-04-08 23:49:30,970 [SmaCrossoverStrategy] Insufficient data: 19 < 52
+2026-04-08 23:49:30,970 [SmaCrossoverStrategy] Insufficient data: 20 < 52
+2026-04-08 23:49:30,970 [SmaCrossoverStrategy] Insufficient data: 21 < 52
+2026-04-08 23:49:30,971 [SmaCrossoverStrategy] Insufficient data: 22 < 52
+2026-04-08 23:49:30,971 [SmaCrossoverStrategy] Insufficient data: 23 < 52
+2026-04-08 23:49:30,971 [SmaCrossoverStrategy] Insufficient data: 24 < 52
+2026-04-08 23:49:30,971 [SmaCrossoverStrategy] Insufficient data: 25 < 52
+2026-04-08 23:49:30,971 [SmaCrossoverStrategy] Insufficient data: 26 < 52
+2026-04-08 23:49:30,971 [SmaCrossoverStrategy] Insufficient data: 27 < 52
+2026-04-08 23:49:30,971 [SmaCrossoverStrategy] Insufficient data: 28 < 52
+2026-04-08 23:49:30,971 [SmaCrossoverStrategy] Insufficient data: 29 < 52
+2026-04-08 23:49:30,972 [SmaCrossoverStrategy] Insufficient data: 30 < 52
+2026-04-08 23:49:30,972 [SmaCrossoverStrategy] Insufficient data: 31 < 52
+2026-04-08 23:49:30,972 [SmaCrossoverStrategy] Insufficient data: 32 < 52
+2026-04-08 23:49:30,972 [SmaCrossoverStrategy] Insufficient data: 33 < 52
+2026-04-08 23:49:30,972 [SmaCrossoverStrategy] Insufficient data: 34 < 52
+2026-04-08 23:49:30,972 [SmaCrossoverStrategy] Insufficient data: 35 < 52
+2026-04-08 23:49:30,973 [SmaCrossoverStrategy] Insufficient data: 36 < 52
+2026-04-08 23:49:30,973 [SmaCrossoverStrategy] Insufficient data: 37 < 52
+2026-04-08 23:49:30,973 [SmaCrossoverStrategy] Insufficient data: 38 < 52
+2026-04-08 23:49:30,973 [SmaCrossoverStrategy] Insufficient data: 39 < 52
+2026-04-08 23:49:30,973 [SmaCrossoverStrategy] Insufficient data: 40 < 52
+2026-04-08 23:49:30,973 [SmaCrossoverStrategy] Insufficient data: 41 < 52
+2026-04-08 23:49:30,973 [SmaCrossoverStrategy] Insufficient data: 42 < 52
+2026-04-08 23:49:30,974 [SmaCrossoverStrategy] Insufficient data: 43 < 52
+2026-04-08 23:49:30,974 [SmaCrossoverStrategy] Insufficient data: 44 < 52
+2026-04-08 23:49:30,974 [SmaCrossoverStrategy] Insufficient data: 45 < 52
+2026-04-08 23:49:30,974 [SmaCrossoverStrategy] Insufficient data: 46 < 52
+2026-04-08 23:49:30,974 [SmaCrossoverStrategy] Insufficient data: 47 < 52
+2026-04-08 23:49:30,974 [SmaCrossoverStrategy] Insufficient data: 48 < 52
+2026-04-08 23:49:30,975 [SmaCrossoverStrategy] Insufficient data: 49 < 52
+2026-04-08 23:49:30,975 [SmaCrossoverStrategy] Insufficient data: 50 < 52
+2026-04-08 23:49:30,975 [SmaCrossoverStrategy] Insufficient data: 51 < 52
+2026-04-08 23:49:30,986 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:30,998 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:31,050 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:31,079 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:31,083 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:31,095 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:31,123 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:31,172 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:31,203 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:31,260 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:31,281 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:31,307 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:31,334 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:31,391 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:31,436 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:31,505 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:31,610 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:31,613 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:31,680 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:31,710 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:31,783 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:31,818 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:31,880 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:31,909 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:31,954 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:31,979 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:32,096 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:32,097 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:32,224 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:32,321 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:32,373 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:32,452 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:32,467 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:32,532 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:32,684 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:32,755 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:33,219 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:33,336 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:33,471 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:33,478 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:33,563 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:33,777 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:33,814 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:33,910 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:34,072 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:34,083 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:34,441 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:34,574 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:34,684 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:34,812 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:35,034 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:35,068 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:35,267 [BacktestEngine] Backtest complete: BacktestReport:
+  Bars: 2496
+  Trades: 25 (W:12 L:13)
+  Win Rate: 48.0%
+  PnL: $131.96
+  Return: 1.49%
+  Max Drawdown: 1.01%
+  Sharpe: 0.29
+  Avg PnL/Trade: $5.28
+  Avg Duration: 208080s
+  Fees: $23.67
+  Equity: $10,000.00 → $10,149.43
+2026-04-08 23:49:35,267 [SegmentedRunner]   Return: 1.49% | Trades: 25 | Sharpe: 0.29 | MaxDD: 1.01%
+2026-04-08 23:49:35,267 [SegmentedRunner] ════════════════════════════════════════════════════════════
+2026-04-08 23:49:35,267 [SegmentedRunner] Regime: crash_may_2021 — BTC crash from $64k to $29k
+2026-04-08 23:49:35,267 [SegmentedRunner] Period: 2021-04-15 to 2021-07-20
+2026-04-08 23:49:35,276 [SmaCrossoverStrategy] Insufficient data: 1 < 52
+2026-04-08 23:49:35,276 [SmaCrossoverStrategy] Insufficient data: 2 < 52
+2026-04-08 23:49:35,276 [SmaCrossoverStrategy] Insufficient data: 3 < 52
+2026-04-08 23:49:35,276 [SmaCrossoverStrategy] Insufficient data: 4 < 52
+2026-04-08 23:49:35,277 [SmaCrossoverStrategy] Insufficient data: 5 < 52
+2026-04-08 23:49:35,277 [SmaCrossoverStrategy] Insufficient data: 6 < 52
+2026-04-08 23:49:35,277 [SmaCrossoverStrategy] Insufficient data: 7 < 52
+2026-04-08 23:49:35,277 [SmaCrossoverStrategy] Insufficient data: 8 < 52
+2026-04-08 23:49:35,277 [SmaCrossoverStrategy] Insufficient data: 9 < 52
+2026-04-08 23:49:35,277 [SmaCrossoverStrategy] Insufficient data: 10 < 52
+2026-04-08 23:49:35,277 [SmaCrossoverStrategy] Insufficient data: 11 < 52
+2026-04-08 23:49:35,277 [SmaCrossoverStrategy] Insufficient data: 12 < 52
+2026-04-08 23:49:35,278 [SmaCrossoverStrategy] Insufficient data: 13 < 52
+2026-04-08 23:49:35,278 [SmaCrossoverStrategy] Insufficient data: 14 < 52
+2026-04-08 23:49:35,278 [SmaCrossoverStrategy] Insufficient data: 15 < 52
+2026-04-08 23:49:35,278 [SmaCrossoverStrategy] Insufficient data: 16 < 52
+2026-04-08 23:49:35,278 [SmaCrossoverStrategy] Insufficient data: 17 < 52
+2026-04-08 23:49:35,278 [SmaCrossoverStrategy] Insufficient data: 18 < 52
+2026-04-08 23:49:35,278 [SmaCrossoverStrategy] Insufficient data: 19 < 52
+2026-04-08 23:49:35,278 [SmaCrossoverStrategy] Insufficient data: 20 < 52
+2026-04-08 23:49:35,279 [SmaCrossoverStrategy] Insufficient data: 21 < 52
+2026-04-08 23:49:35,279 [SmaCrossoverStrategy] Insufficient data: 22 < 52
+2026-04-08 23:49:35,279 [SmaCrossoverStrategy] Insufficient data: 23 < 52
+2026-04-08 23:49:35,279 [SmaCrossoverStrategy] Insufficient data: 24 < 52
+2026-04-08 23:49:35,279 [SmaCrossoverStrategy] Insufficient data: 25 < 52
+2026-04-08 23:49:35,279 [SmaCrossoverStrategy] Insufficient data: 26 < 52
+2026-04-08 23:49:35,279 [SmaCrossoverStrategy] Insufficient data: 27 < 52
+2026-04-08 23:49:35,280 [SmaCrossoverStrategy] Insufficient data: 28 < 52
+2026-04-08 23:49:35,280 [SmaCrossoverStrategy] Insufficient data: 29 < 52
+2026-04-08 23:49:35,280 [SmaCrossoverStrategy] Insufficient data: 30 < 52
+2026-04-08 23:49:35,280 [SmaCrossoverStrategy] Insufficient data: 31 < 52
+2026-04-08 23:49:35,280 [SmaCrossoverStrategy] Insufficient data: 32 < 52
+2026-04-08 23:49:35,280 [SmaCrossoverStrategy] Insufficient data: 33 < 52
+2026-04-08 23:49:35,280 [SmaCrossoverStrategy] Insufficient data: 34 < 52
+2026-04-08 23:49:35,281 [SmaCrossoverStrategy] Insufficient data: 35 < 52
+2026-04-08 23:49:35,281 [SmaCrossoverStrategy] Insufficient data: 36 < 52
+2026-04-08 23:49:35,281 [SmaCrossoverStrategy] Insufficient data: 37 < 52
+2026-04-08 23:49:35,281 [SmaCrossoverStrategy] Insufficient data: 38 < 52
+2026-04-08 23:49:35,281 [SmaCrossoverStrategy] Insufficient data: 39 < 52
+2026-04-08 23:49:35,281 [SmaCrossoverStrategy] Insufficient data: 40 < 52
+2026-04-08 23:49:35,281 [SmaCrossoverStrategy] Insufficient data: 41 < 52
+2026-04-08 23:49:35,282 [SmaCrossoverStrategy] Insufficient data: 42 < 52
+2026-04-08 23:49:35,282 [SmaCrossoverStrategy] Insufficient data: 43 < 52
+2026-04-08 23:49:35,282 [SmaCrossoverStrategy] Insufficient data: 44 < 52
+2026-04-08 23:49:35,282 [SmaCrossoverStrategy] Insufficient data: 45 < 52
+2026-04-08 23:49:35,282 [SmaCrossoverStrategy] Insufficient data: 46 < 52
+2026-04-08 23:49:35,282 [SmaCrossoverStrategy] Insufficient data: 47 < 52
+2026-04-08 23:49:35,283 [SmaCrossoverStrategy] Insufficient data: 48 < 52
+2026-04-08 23:49:35,283 [SmaCrossoverStrategy] Insufficient data: 49 < 52
+2026-04-08 23:49:35,283 [SmaCrossoverStrategy] Insufficient data: 50 < 52
+2026-04-08 23:49:35,283 [SmaCrossoverStrategy] Insufficient data: 51 < 52
+2026-04-08 23:49:35,318 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:35,325 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:35,363 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:35,371 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:35,379 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:35,421 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:35,447 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:35,480 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:35,495 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:35,511 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:35,543 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:35,573 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:35,589 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:35,634 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:35,655 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:35,661 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:35,696 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:35,712 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:35,765 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:35,786 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:35,974 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:36,006 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:36,098 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:36,190 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:36,322 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:36,412 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:36,432 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:36,505 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:36,626 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:36,651 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:36,723 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:36,837 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:36,912 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:37,043 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:37,396 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:37,469 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:37,478 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:37,532 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:37,632 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:37,817 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:37,969 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:38,109 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:38,197 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:38,275 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:38,392 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:38,496 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:38,515 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:38,588 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:38,739 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:38,773 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:38,936 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:39,004 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:39,139 [BacktestEngine] Backtest complete: BacktestReport:
+  Bars: 2328
+  Trades: 26 (W:7 L:19)
+  Win Rate: 26.9%
+  PnL: $-213.68
+  Return: -2.25%
+  Max Drawdown: 2.59%
+  Sharpe: -0.64
+  Avg PnL/Trade: $-8.22
+  Avg Duration: 127938s
+  Fees: $22.13
+  Equity: $10,000.00 → $9,775.15
+2026-04-08 23:49:39,139 [SegmentedRunner]   Return: -2.25% | Trades: 26 | Sharpe: -0.64 | MaxDD: 2.59%
+2026-04-08 23:49:39,139 [SegmentedRunner] ════════════════════════════════════════════════════════════
+2026-04-08 23:49:39,139 [SegmentedRunner] Regime: recovery_2021_q3 — BTC recovery to $69k ATH
+2026-04-08 23:49:39,139 [SegmentedRunner] Period: 2021-07-21 to 2021-11-10
+2026-04-08 23:49:39,148 [SmaCrossoverStrategy] Insufficient data: 1 < 52
+2026-04-08 23:49:39,148 [SmaCrossoverStrategy] Insufficient data: 2 < 52
+2026-04-08 23:49:39,148 [SmaCrossoverStrategy] Insufficient data: 3 < 52
+2026-04-08 23:49:39,149 [SmaCrossoverStrategy] Insufficient data: 4 < 52
+2026-04-08 23:49:39,149 [SmaCrossoverStrategy] Insufficient data: 5 < 52
+2026-04-08 23:49:39,149 [SmaCrossoverStrategy] Insufficient data: 6 < 52
+2026-04-08 23:49:39,149 [SmaCrossoverStrategy] Insufficient data: 7 < 52
+2026-04-08 23:49:39,149 [SmaCrossoverStrategy] Insufficient data: 8 < 52
+2026-04-08 23:49:39,149 [SmaCrossoverStrategy] Insufficient data: 9 < 52
+2026-04-08 23:49:39,149 [SmaCrossoverStrategy] Insufficient data: 10 < 52
+2026-04-08 23:49:39,149 [SmaCrossoverStrategy] Insufficient data: 11 < 52
+2026-04-08 23:49:39,149 [SmaCrossoverStrategy] Insufficient data: 12 < 52
+2026-04-08 23:49:39,150 [SmaCrossoverStrategy] Insufficient data: 13 < 52
+2026-04-08 23:49:39,150 [SmaCrossoverStrategy] Insufficient data: 14 < 52
+2026-04-08 23:49:39,150 [SmaCrossoverStrategy] Insufficient data: 15 < 52
+2026-04-08 23:49:39,150 [SmaCrossoverStrategy] Insufficient data: 16 < 52
+2026-04-08 23:49:39,150 [SmaCrossoverStrategy] Insufficient data: 17 < 52
+2026-04-08 23:49:39,150 [SmaCrossoverStrategy] Insufficient data: 18 < 52
+2026-04-08 23:49:39,150 [SmaCrossoverStrategy] Insufficient data: 19 < 52
+2026-04-08 23:49:39,151 [SmaCrossoverStrategy] Insufficient data: 20 < 52
+2026-04-08 23:49:39,151 [SmaCrossoverStrategy] Insufficient data: 21 < 52
+2026-04-08 23:49:39,151 [SmaCrossoverStrategy] Insufficient data: 22 < 52
+2026-04-08 23:49:39,151 [SmaCrossoverStrategy] Insufficient data: 23 < 52
+2026-04-08 23:49:39,151 [SmaCrossoverStrategy] Insufficient data: 24 < 52
+2026-04-08 23:49:39,151 [SmaCrossoverStrategy] Insufficient data: 25 < 52
+2026-04-08 23:49:39,151 [SmaCrossoverStrategy] Insufficient data: 26 < 52
+2026-04-08 23:49:39,152 [SmaCrossoverStrategy] Insufficient data: 27 < 52
+2026-04-08 23:49:39,152 [SmaCrossoverStrategy] Insufficient data: 28 < 52
+2026-04-08 23:49:39,152 [SmaCrossoverStrategy] Insufficient data: 29 < 52
+2026-04-08 23:49:39,152 [SmaCrossoverStrategy] Insufficient data: 30 < 52
+2026-04-08 23:49:39,152 [SmaCrossoverStrategy] Insufficient data: 31 < 52
+2026-04-08 23:49:39,152 [SmaCrossoverStrategy] Insufficient data: 32 < 52
+2026-04-08 23:49:39,152 [SmaCrossoverStrategy] Insufficient data: 33 < 52
+2026-04-08 23:49:39,153 [SmaCrossoverStrategy] Insufficient data: 34 < 52
+2026-04-08 23:49:39,153 [SmaCrossoverStrategy] Insufficient data: 35 < 52
+2026-04-08 23:49:39,153 [SmaCrossoverStrategy] Insufficient data: 36 < 52
+2026-04-08 23:49:39,153 [SmaCrossoverStrategy] Insufficient data: 37 < 52
+2026-04-08 23:49:39,153 [SmaCrossoverStrategy] Insufficient data: 38 < 52
+2026-04-08 23:49:39,153 [SmaCrossoverStrategy] Insufficient data: 39 < 52
+2026-04-08 23:49:39,154 [SmaCrossoverStrategy] Insufficient data: 40 < 52
+2026-04-08 23:49:39,154 [SmaCrossoverStrategy] Insufficient data: 41 < 52
+2026-04-08 23:49:39,154 [SmaCrossoverStrategy] Insufficient data: 42 < 52
+2026-04-08 23:49:39,154 [SmaCrossoverStrategy] Insufficient data: 43 < 52
+2026-04-08 23:49:39,154 [SmaCrossoverStrategy] Insufficient data: 44 < 52
+2026-04-08 23:49:39,154 [SmaCrossoverStrategy] Insufficient data: 45 < 52
+2026-04-08 23:49:39,154 [SmaCrossoverStrategy] Insufficient data: 46 < 52
+2026-04-08 23:49:39,155 [SmaCrossoverStrategy] Insufficient data: 47 < 52
+2026-04-08 23:49:39,155 [SmaCrossoverStrategy] Insufficient data: 48 < 52
+2026-04-08 23:49:39,155 [SmaCrossoverStrategy] Insufficient data: 49 < 52
+2026-04-08 23:49:39,155 [SmaCrossoverStrategy] Insufficient data: 50 < 52
+2026-04-08 23:49:39,155 [SmaCrossoverStrategy] Insufficient data: 51 < 52
+2026-04-08 23:49:39,197 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:39,199 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:39,223 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:39,236 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:39,260 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:39,305 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:39,384 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:39,390 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:39,426 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:39,430 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:39,451 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:39,484 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:39,523 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:39,548 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:39,568 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:39,639 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:39,716 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:39,730 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:39,768 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:39,881 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:39,948 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:40,063 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:40,184 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:40,209 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:40,280 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:40,363 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:40,397 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:40,475 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:40,510 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:40,561 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:40,680 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:40,737 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:40,793 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:40,950 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:41,036 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:41,125 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:41,218 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:41,319 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:41,565 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:41,582 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:41,791 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:41,808 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:42,055 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:42,129 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:42,329 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:42,382 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:42,619 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:42,858 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:42,967 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:43,111 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:43,269 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:43,391 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:43,582 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:43,840 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:44,094 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:44,146 [BacktestEngine] Backtest complete: BacktestReport:
+  Bars: 2712
+  Trades: 27 (W:14 L:13)
+  Win Rate: 51.9%
+  PnL: $146.88
+  Return: 1.33%
+  Max Drawdown: 1.11%
+  Sharpe: 0.31
+  Avg PnL/Trade: $5.44
+  Avg Duration: 197867s
+  Fees: $26.94
+  Equity: $10,000.00 → $10,133.49
+2026-04-08 23:49:44,146 [SegmentedRunner]   Return: 1.33% | Trades: 27 | Sharpe: 0.31 | MaxDD: 1.11%
+2026-04-08 23:49:44,146 [SegmentedRunner] ════════════════════════════════════════════════════════════
+2026-04-08 23:49:44,146 [SegmentedRunner] Regime: bear_2022_h1 — BTC bear from $47k to $19k (Luna/3AC collapse)
+2026-04-08 23:49:44,146 [SegmentedRunner] Period: 2022-01-01 to 2022-06-30
+2026-04-08 23:49:44,160 [SmaCrossoverStrategy] Insufficient data: 1 < 52
+2026-04-08 23:49:44,160 [SmaCrossoverStrategy] Insufficient data: 2 < 52
+2026-04-08 23:49:44,160 [SmaCrossoverStrategy] Insufficient data: 3 < 52
+2026-04-08 23:49:44,161 [SmaCrossoverStrategy] Insufficient data: 4 < 52
+2026-04-08 23:49:44,161 [SmaCrossoverStrategy] Insufficient data: 5 < 52
+2026-04-08 23:49:44,161 [SmaCrossoverStrategy] Insufficient data: 6 < 52
+2026-04-08 23:49:44,161 [SmaCrossoverStrategy] Insufficient data: 7 < 52
+2026-04-08 23:49:44,161 [SmaCrossoverStrategy] Insufficient data: 8 < 52
+2026-04-08 23:49:44,161 [SmaCrossoverStrategy] Insufficient data: 9 < 52
+2026-04-08 23:49:44,161 [SmaCrossoverStrategy] Insufficient data: 10 < 52
+2026-04-08 23:49:44,161 [SmaCrossoverStrategy] Insufficient data: 11 < 52
+2026-04-08 23:49:44,162 [SmaCrossoverStrategy] Insufficient data: 12 < 52
+2026-04-08 23:49:44,162 [SmaCrossoverStrategy] Insufficient data: 13 < 52
+2026-04-08 23:49:44,162 [SmaCrossoverStrategy] Insufficient data: 14 < 52
+2026-04-08 23:49:44,162 [SmaCrossoverStrategy] Insufficient data: 15 < 52
+2026-04-08 23:49:44,162 [SmaCrossoverStrategy] Insufficient data: 16 < 52
+2026-04-08 23:49:44,162 [SmaCrossoverStrategy] Insufficient data: 17 < 52
+2026-04-08 23:49:44,162 [SmaCrossoverStrategy] Insufficient data: 18 < 52
+2026-04-08 23:49:44,162 [SmaCrossoverStrategy] Insufficient data: 19 < 52
+2026-04-08 23:49:44,163 [SmaCrossoverStrategy] Insufficient data: 20 < 52
+2026-04-08 23:49:44,163 [SmaCrossoverStrategy] Insufficient data: 21 < 52
+2026-04-08 23:49:44,163 [SmaCrossoverStrategy] Insufficient data: 22 < 52
+2026-04-08 23:49:44,163 [SmaCrossoverStrategy] Insufficient data: 23 < 52
+2026-04-08 23:49:44,163 [SmaCrossoverStrategy] Insufficient data: 24 < 52
+2026-04-08 23:49:44,163 [SmaCrossoverStrategy] Insufficient data: 25 < 52
+2026-04-08 23:49:44,163 [SmaCrossoverStrategy] Insufficient data: 26 < 52
+2026-04-08 23:49:44,163 [SmaCrossoverStrategy] Insufficient data: 27 < 52
+2026-04-08 23:49:44,164 [SmaCrossoverStrategy] Insufficient data: 28 < 52
+2026-04-08 23:49:44,164 [SmaCrossoverStrategy] Insufficient data: 29 < 52
+2026-04-08 23:49:44,164 [SmaCrossoverStrategy] Insufficient data: 30 < 52
+2026-04-08 23:49:44,165 [SmaCrossoverStrategy] Insufficient data: 31 < 52
+2026-04-08 23:49:44,165 [SmaCrossoverStrategy] Insufficient data: 32 < 52
+2026-04-08 23:49:44,165 [SmaCrossoverStrategy] Insufficient data: 33 < 52
+2026-04-08 23:49:44,165 [SmaCrossoverStrategy] Insufficient data: 34 < 52
+2026-04-08 23:49:44,166 [SmaCrossoverStrategy] Insufficient data: 35 < 52
+2026-04-08 23:49:44,166 [SmaCrossoverStrategy] Insufficient data: 36 < 52
+2026-04-08 23:49:44,166 [SmaCrossoverStrategy] Insufficient data: 37 < 52
+2026-04-08 23:49:44,166 [SmaCrossoverStrategy] Insufficient data: 38 < 52
+2026-04-08 23:49:44,167 [SmaCrossoverStrategy] Insufficient data: 39 < 52
+2026-04-08 23:49:44,167 [SmaCrossoverStrategy] Insufficient data: 40 < 52
+2026-04-08 23:49:44,167 [SmaCrossoverStrategy] Insufficient data: 41 < 52
+2026-04-08 23:49:44,168 [SmaCrossoverStrategy] Insufficient data: 42 < 52
+2026-04-08 23:49:44,168 [SmaCrossoverStrategy] Insufficient data: 43 < 52
+2026-04-08 23:49:44,168 [SmaCrossoverStrategy] Insufficient data: 44 < 52
+2026-04-08 23:49:44,169 [SmaCrossoverStrategy] Insufficient data: 45 < 52
+2026-04-08 23:49:44,169 [SmaCrossoverStrategy] Insufficient data: 46 < 52
+2026-04-08 23:49:44,169 [SmaCrossoverStrategy] Insufficient data: 47 < 52
+2026-04-08 23:49:44,169 [SmaCrossoverStrategy] Insufficient data: 48 < 52
+2026-04-08 23:49:44,170 [SmaCrossoverStrategy] Insufficient data: 49 < 52
+2026-04-08 23:49:44,170 [SmaCrossoverStrategy] Insufficient data: 50 < 52
+2026-04-08 23:49:44,170 [SmaCrossoverStrategy] Insufficient data: 51 < 52
+2026-04-08 23:49:44,171 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:44,250 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:44,263 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:44,273 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:44,310 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:44,329 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:44,351 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:44,405 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:44,406 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:44,414 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:44,435 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:44,495 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:44,504 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:44,523 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:44,571 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:44,603 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:44,665 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:44,691 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:44,735 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:44,787 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:44,935 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:44,959 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:45,014 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:45,116 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:45,122 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:45,154 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:45,243 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:45,489 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:45,530 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:45,574 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:45,657 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:45,732 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:45,845 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:46,106 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:46,205 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:46,315 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:46,351 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:46,438 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:46,652 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:46,681 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:46,787 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:46,888 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:46,987 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:47,010 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:47,393 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:47,591 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:47,671 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:47,707 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:47,719 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:47,730 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:47,739 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:47,803 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:47,851 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:48,176 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:48,224 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:48,411 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:48,517 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:48,619 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:48,689 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:48,848 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:49,080 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:49,268 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:49,291 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:49,305 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:49,308 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:49,398 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:49,472 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:49,578 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:49,694 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:49,908 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:50,015 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:50,119 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:50,221 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:50,898 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:51,007 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:51,095 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:51,223 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:51,306 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:51,401 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:51,539 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:51,643 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:51,776 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:51,944 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:52,074 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:52,187 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:52,431 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:52,820 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:52,993 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:53,043 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:53,200 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:53,423 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:53,526 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:53,631 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:54,448 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:54,507 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:54,872 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:55,166 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:55,332 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:55,743 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:56,218 [BacktestEngine] Backtest complete: BacktestReport:
+  Bars: 4344
+  Trades: 49 (W:11 L:38)
+  Win Rate: 22.4%
+  PnL: $-175.84
+  Return: -1.94%
+  Max Drawdown: 2.16%
+  Sharpe: -0.43
+  Avg PnL/Trade: $-3.59
+  Avg Duration: 133861s
+  Fees: $36.68
+  Equity: $10,000.00 → $9,805.74
+2026-04-08 23:49:56,218 [SegmentedRunner]   Return: -1.94% | Trades: 49 | Sharpe: -0.43 | MaxDD: 2.16%
+2026-04-08 23:49:56,218 [SegmentedRunner] ════════════════════════════════════════════════════════════
+2026-04-08 23:49:56,218 [SegmentedRunner] Regime: sideways_2022_h2 — BTC sideways $16k-$24k range
+2026-04-08 23:49:56,218 [SegmentedRunner] Period: 2022-07-01 to 2022-12-31
+2026-04-08 23:49:56,233 [SmaCrossoverStrategy] Insufficient data: 1 < 52
+2026-04-08 23:49:56,233 [SmaCrossoverStrategy] Insufficient data: 2 < 52
+2026-04-08 23:49:56,233 [SmaCrossoverStrategy] Insufficient data: 3 < 52
+2026-04-08 23:49:56,233 [SmaCrossoverStrategy] Insufficient data: 4 < 52
+2026-04-08 23:49:56,233 [SmaCrossoverStrategy] Insufficient data: 5 < 52
+2026-04-08 23:49:56,234 [SmaCrossoverStrategy] Insufficient data: 6 < 52
+2026-04-08 23:49:56,234 [SmaCrossoverStrategy] Insufficient data: 7 < 52
+2026-04-08 23:49:56,234 [SmaCrossoverStrategy] Insufficient data: 8 < 52
+2026-04-08 23:49:56,234 [SmaCrossoverStrategy] Insufficient data: 9 < 52
+2026-04-08 23:49:56,234 [SmaCrossoverStrategy] Insufficient data: 10 < 52
+2026-04-08 23:49:56,234 [SmaCrossoverStrategy] Insufficient data: 11 < 52
+2026-04-08 23:49:56,234 [SmaCrossoverStrategy] Insufficient data: 12 < 52
+2026-04-08 23:49:56,234 [SmaCrossoverStrategy] Insufficient data: 13 < 52
+2026-04-08 23:49:56,235 [SmaCrossoverStrategy] Insufficient data: 14 < 52
+2026-04-08 23:49:56,235 [SmaCrossoverStrategy] Insufficient data: 15 < 52
+2026-04-08 23:49:56,235 [SmaCrossoverStrategy] Insufficient data: 16 < 52
+2026-04-08 23:49:56,235 [SmaCrossoverStrategy] Insufficient data: 17 < 52
+2026-04-08 23:49:56,235 [SmaCrossoverStrategy] Insufficient data: 18 < 52
+2026-04-08 23:49:56,235 [SmaCrossoverStrategy] Insufficient data: 19 < 52
+2026-04-08 23:49:56,235 [SmaCrossoverStrategy] Insufficient data: 20 < 52
+2026-04-08 23:49:56,235 [SmaCrossoverStrategy] Insufficient data: 21 < 52
+2026-04-08 23:49:56,236 [SmaCrossoverStrategy] Insufficient data: 22 < 52
+2026-04-08 23:49:56,236 [SmaCrossoverStrategy] Insufficient data: 23 < 52
+2026-04-08 23:49:56,236 [SmaCrossoverStrategy] Insufficient data: 24 < 52
+2026-04-08 23:49:56,236 [SmaCrossoverStrategy] Insufficient data: 25 < 52
+2026-04-08 23:49:56,236 [SmaCrossoverStrategy] Insufficient data: 26 < 52
+2026-04-08 23:49:56,236 [SmaCrossoverStrategy] Insufficient data: 27 < 52
+2026-04-08 23:49:56,236 [SmaCrossoverStrategy] Insufficient data: 28 < 52
+2026-04-08 23:49:56,237 [SmaCrossoverStrategy] Insufficient data: 29 < 52
+2026-04-08 23:49:56,237 [SmaCrossoverStrategy] Insufficient data: 30 < 52
+2026-04-08 23:49:56,237 [SmaCrossoverStrategy] Insufficient data: 31 < 52
+2026-04-08 23:49:56,237 [SmaCrossoverStrategy] Insufficient data: 32 < 52
+2026-04-08 23:49:56,237 [SmaCrossoverStrategy] Insufficient data: 33 < 52
+2026-04-08 23:49:56,237 [SmaCrossoverStrategy] Insufficient data: 34 < 52
+2026-04-08 23:49:56,238 [SmaCrossoverStrategy] Insufficient data: 35 < 52
+2026-04-08 23:49:56,238 [SmaCrossoverStrategy] Insufficient data: 36 < 52
+2026-04-08 23:49:56,238 [SmaCrossoverStrategy] Insufficient data: 37 < 52
+2026-04-08 23:49:56,238 [SmaCrossoverStrategy] Insufficient data: 38 < 52
+2026-04-08 23:49:56,238 [SmaCrossoverStrategy] Insufficient data: 39 < 52
+2026-04-08 23:49:56,238 [SmaCrossoverStrategy] Insufficient data: 40 < 52
+2026-04-08 23:49:56,238 [SmaCrossoverStrategy] Insufficient data: 41 < 52
+2026-04-08 23:49:56,239 [SmaCrossoverStrategy] Insufficient data: 42 < 52
+2026-04-08 23:49:56,239 [SmaCrossoverStrategy] Insufficient data: 43 < 52
+2026-04-08 23:49:56,239 [SmaCrossoverStrategy] Insufficient data: 44 < 52
+2026-04-08 23:49:56,239 [SmaCrossoverStrategy] Insufficient data: 45 < 52
+2026-04-08 23:49:56,239 [SmaCrossoverStrategy] Insufficient data: 46 < 52
+2026-04-08 23:49:56,239 [SmaCrossoverStrategy] Insufficient data: 47 < 52
+2026-04-08 23:49:56,240 [SmaCrossoverStrategy] Insufficient data: 48 < 52
+2026-04-08 23:49:56,240 [SmaCrossoverStrategy] Insufficient data: 49 < 52
+2026-04-08 23:49:56,240 [SmaCrossoverStrategy] Insufficient data: 50 < 52
+2026-04-08 23:49:56,240 [SmaCrossoverStrategy] Insufficient data: 51 < 52
+2026-04-08 23:49:56,251 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:56,304 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:56,363 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:56,495 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:56,518 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:56,534 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:56,565 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:56,578 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:56,635 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:56,731 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:56,815 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:56,847 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:56,882 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:56,928 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:56,958 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:57,010 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:57,051 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:57,105 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:57,135 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:57,197 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:57,451 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:57,500 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:57,539 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:57,652 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:57,815 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:57,872 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:57,900 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:57,924 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:57,987 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:58,029 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:58,117 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:58,153 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:58,179 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:58,200 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:58,287 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:58,578 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:58,803 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:58,879 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:58,966 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:59,008 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:59,117 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:59,183 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:59,222 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:59,242 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:59,255 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:59,286 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:59,360 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:59,450 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:59,518 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:49:59,663 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:49:59,817 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:00,034 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:00,263 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:00,291 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:00,460 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:00,514 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:00,565 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:00,655 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:00,769 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:00,941 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:01,188 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:01,434 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:01,468 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:01,656 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:01,751 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:01,895 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:02,305 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:02,511 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:02,916 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:03,009 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:03,282 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:03,456 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:03,589 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:03,693 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:03,816 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:03,824 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:03,832 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:03,848 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:04,078 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:04,295 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:04,400 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:04,502 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:04,565 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:04,574 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:04,736 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:05,025 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:05,146 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:05,204 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:05,293 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:05,448 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:05,741 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:05,939 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:06,053 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:06,151 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:06,285 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:06,554 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:06,930 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:07,049 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:07,166 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:07,346 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:07,517 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:07,783 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:07,879 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:08,048 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:08,343 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:08,369 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:08,531 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:08,575 [BacktestEngine] Backtest complete: BacktestReport:
+  Bars: 4416
+  Trades: 53 (W:13 L:40)
+  Win Rate: 24.5%
+  PnL: $1.14
+  Return: -0.10%
+  Max Drawdown: 0.70%
+  Sharpe: -0.04
+  Avg PnL/Trade: $0.02
+  Avg Duration: 139042s
+  Fees: $20.59
+  Equity: $10,000.00 → $9,990.19
+2026-04-08 23:50:08,576 [SegmentedRunner]   Return: -0.10% | Trades: 53 | Sharpe: -0.04 | MaxDD: 0.70%
+2026-04-08 23:50:08,576 [SegmentedRunner] ════════════════════════════════════════════════════════════
+2026-04-08 23:50:08,576 [SegmentedRunner] Regime: recovery_2023 — BTC recovery from $16k to $31k
+2026-04-08 23:50:08,576 [SegmentedRunner] Period: 2023-01-01 to 2023-06-30
+2026-04-08 23:50:08,590 [SmaCrossoverStrategy] Insufficient data: 1 < 52
+2026-04-08 23:50:08,590 [SmaCrossoverStrategy] Insufficient data: 2 < 52
+2026-04-08 23:50:08,591 [SmaCrossoverStrategy] Insufficient data: 3 < 52
+2026-04-08 23:50:08,591 [SmaCrossoverStrategy] Insufficient data: 4 < 52
+2026-04-08 23:50:08,591 [SmaCrossoverStrategy] Insufficient data: 5 < 52
+2026-04-08 23:50:08,591 [SmaCrossoverStrategy] Insufficient data: 6 < 52
+2026-04-08 23:50:08,591 [SmaCrossoverStrategy] Insufficient data: 7 < 52
+2026-04-08 23:50:08,591 [SmaCrossoverStrategy] Insufficient data: 8 < 52
+2026-04-08 23:50:08,591 [SmaCrossoverStrategy] Insufficient data: 9 < 52
+2026-04-08 23:50:08,591 [SmaCrossoverStrategy] Insufficient data: 10 < 52
+2026-04-08 23:50:08,592 [SmaCrossoverStrategy] Insufficient data: 11 < 52
+2026-04-08 23:50:08,592 [SmaCrossoverStrategy] Insufficient data: 12 < 52
+2026-04-08 23:50:08,592 [SmaCrossoverStrategy] Insufficient data: 13 < 52
+2026-04-08 23:50:08,592 [SmaCrossoverStrategy] Insufficient data: 14 < 52
+2026-04-08 23:50:08,592 [SmaCrossoverStrategy] Insufficient data: 15 < 52
+2026-04-08 23:50:08,592 [SmaCrossoverStrategy] Insufficient data: 16 < 52
+2026-04-08 23:50:08,592 [SmaCrossoverStrategy] Insufficient data: 17 < 52
+2026-04-08 23:50:08,592 [SmaCrossoverStrategy] Insufficient data: 18 < 52
+2026-04-08 23:50:08,593 [SmaCrossoverStrategy] Insufficient data: 19 < 52
+2026-04-08 23:50:08,593 [SmaCrossoverStrategy] Insufficient data: 20 < 52
+2026-04-08 23:50:08,593 [SmaCrossoverStrategy] Insufficient data: 21 < 52
+2026-04-08 23:50:08,593 [SmaCrossoverStrategy] Insufficient data: 22 < 52
+2026-04-08 23:50:08,594 [SmaCrossoverStrategy] Insufficient data: 23 < 52
+2026-04-08 23:50:08,594 [SmaCrossoverStrategy] Insufficient data: 24 < 52
+2026-04-08 23:50:08,594 [SmaCrossoverStrategy] Insufficient data: 25 < 52
+2026-04-08 23:50:08,594 [SmaCrossoverStrategy] Insufficient data: 26 < 52
+2026-04-08 23:50:08,595 [SmaCrossoverStrategy] Insufficient data: 27 < 52
+2026-04-08 23:50:08,595 [SmaCrossoverStrategy] Insufficient data: 28 < 52
+2026-04-08 23:50:08,595 [SmaCrossoverStrategy] Insufficient data: 29 < 52
+2026-04-08 23:50:08,595 [SmaCrossoverStrategy] Insufficient data: 30 < 52
+2026-04-08 23:50:08,595 [SmaCrossoverStrategy] Insufficient data: 31 < 52
+2026-04-08 23:50:08,596 [SmaCrossoverStrategy] Insufficient data: 32 < 52
+2026-04-08 23:50:08,596 [SmaCrossoverStrategy] Insufficient data: 33 < 52
+2026-04-08 23:50:08,596 [SmaCrossoverStrategy] Insufficient data: 34 < 52
+2026-04-08 23:50:08,596 [SmaCrossoverStrategy] Insufficient data: 35 < 52
+2026-04-08 23:50:08,596 [SmaCrossoverStrategy] Insufficient data: 36 < 52
+2026-04-08 23:50:08,597 [SmaCrossoverStrategy] Insufficient data: 37 < 52
+2026-04-08 23:50:08,597 [SmaCrossoverStrategy] Insufficient data: 38 < 52
+2026-04-08 23:50:08,597 [SmaCrossoverStrategy] Insufficient data: 39 < 52
+2026-04-08 23:50:08,597 [SmaCrossoverStrategy] Insufficient data: 40 < 52
+2026-04-08 23:50:08,597 [SmaCrossoverStrategy] Insufficient data: 41 < 52
+2026-04-08 23:50:08,597 [SmaCrossoverStrategy] Insufficient data: 42 < 52
+2026-04-08 23:50:08,597 [SmaCrossoverStrategy] Insufficient data: 43 < 52
+2026-04-08 23:50:08,598 [SmaCrossoverStrategy] Insufficient data: 44 < 52
+2026-04-08 23:50:08,598 [SmaCrossoverStrategy] Insufficient data: 45 < 52
+2026-04-08 23:50:08,598 [SmaCrossoverStrategy] Insufficient data: 46 < 52
+2026-04-08 23:50:08,598 [SmaCrossoverStrategy] Insufficient data: 47 < 52
+2026-04-08 23:50:08,598 [SmaCrossoverStrategy] Insufficient data: 48 < 52
+2026-04-08 23:50:08,598 [SmaCrossoverStrategy] Insufficient data: 49 < 52
+2026-04-08 23:50:08,599 [SmaCrossoverStrategy] Insufficient data: 50 < 52
+2026-04-08 23:50:08,599 [SmaCrossoverStrategy] Insufficient data: 51 < 52
+2026-04-08 23:50:08,606 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:08,608 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:08,623 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:08,633 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:08,801 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:08,832 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:08,885 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:08,905 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:08,933 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:08,958 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:08,991 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:09,001 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:09,026 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:09,029 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:09,075 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:09,113 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:09,179 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:09,313 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:09,357 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:09,461 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:09,513 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:09,553 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:09,663 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:09,690 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:09,758 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:09,791 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:09,837 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:09,918 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:09,934 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:10,048 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:10,130 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:10,170 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:10,227 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:10,350 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:10,464 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:10,691 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:10,925 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:10,987 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:11,149 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:11,161 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:11,366 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:11,429 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:11,492 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:11,594 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:11,669 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:11,769 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:11,890 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:11,955 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:12,050 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:12,209 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:12,304 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:12,460 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:12,542 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:12,574 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:12,782 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:12,835 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:12,955 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:13,214 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:13,286 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:13,564 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:13,650 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:13,769 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:14,069 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:14,162 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:14,194 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:14,355 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:14,676 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:15,005 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:15,083 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:15,280 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:15,558 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:15,733 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:15,817 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:15,969 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:16,099 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:16,218 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:16,342 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:16,530 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:16,980 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:17,275 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:17,459 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:17,528 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:17,568 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:17,766 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:17,898 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:18,008 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:18,126 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:18,334 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:18,585 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:18,824 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:19,155 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:19,247 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:19,693 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:19,698 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:19,913 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:19,919 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:19,924 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:19,964 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:19,980 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:20,175 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:20,302 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:20,446 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:20,596 [BacktestEngine] Backtest complete: BacktestReport:
+  Bars: 4341
+  Trades: 50 (W:17 L:33)
+  Win Rate: 34.0%
+  PnL: $80.43
+  Return: 0.66%
+  Max Drawdown: 0.72%
+  Sharpe: 0.23
+  Avg PnL/Trade: $1.61
+  Avg Duration: 169416s
+  Fees: $26.38
+  Equity: $10,000.00 → $10,065.78
+2026-04-08 23:50:20,597 [SegmentedRunner]   Return: 0.66% | Trades: 50 | Sharpe: 0.23 | MaxDD: 0.72%
+2026-04-08 23:50:20,597 [SegmentedRunner] ════════════════════════════════════════════════════════════
+2026-04-08 23:50:20,597 [SegmentedRunner] Regime: pre_etf_2023_h2 — BTC ETF anticipation rally to $42k
+2026-04-08 23:50:20,597 [SegmentedRunner] Period: 2023-07-01 to 2023-12-31
+2026-04-08 23:50:20,618 [SmaCrossoverStrategy] Insufficient data: 1 < 52
+2026-04-08 23:50:20,618 [SmaCrossoverStrategy] Insufficient data: 2 < 52
+2026-04-08 23:50:20,618 [SmaCrossoverStrategy] Insufficient data: 3 < 52
+2026-04-08 23:50:20,618 [SmaCrossoverStrategy] Insufficient data: 4 < 52
+2026-04-08 23:50:20,619 [SmaCrossoverStrategy] Insufficient data: 5 < 52
+2026-04-08 23:50:20,619 [SmaCrossoverStrategy] Insufficient data: 6 < 52
+2026-04-08 23:50:20,619 [SmaCrossoverStrategy] Insufficient data: 7 < 52
+2026-04-08 23:50:20,619 [SmaCrossoverStrategy] Insufficient data: 8 < 52
+2026-04-08 23:50:20,619 [SmaCrossoverStrategy] Insufficient data: 9 < 52
+2026-04-08 23:50:20,619 [SmaCrossoverStrategy] Insufficient data: 10 < 52
+2026-04-08 23:50:20,619 [SmaCrossoverStrategy] Insufficient data: 11 < 52
+2026-04-08 23:50:20,619 [SmaCrossoverStrategy] Insufficient data: 12 < 52
+2026-04-08 23:50:20,620 [SmaCrossoverStrategy] Insufficient data: 13 < 52
+2026-04-08 23:50:20,620 [SmaCrossoverStrategy] Insufficient data: 14 < 52
+2026-04-08 23:50:20,620 [SmaCrossoverStrategy] Insufficient data: 15 < 52
+2026-04-08 23:50:20,620 [SmaCrossoverStrategy] Insufficient data: 16 < 52
+2026-04-08 23:50:20,620 [SmaCrossoverStrategy] Insufficient data: 17 < 52
+2026-04-08 23:50:20,620 [SmaCrossoverStrategy] Insufficient data: 18 < 52
+2026-04-08 23:50:20,620 [SmaCrossoverStrategy] Insufficient data: 19 < 52
+2026-04-08 23:50:20,620 [SmaCrossoverStrategy] Insufficient data: 20 < 52
+2026-04-08 23:50:20,621 [SmaCrossoverStrategy] Insufficient data: 21 < 52
+2026-04-08 23:50:20,621 [SmaCrossoverStrategy] Insufficient data: 22 < 52
+2026-04-08 23:50:20,621 [SmaCrossoverStrategy] Insufficient data: 23 < 52
+2026-04-08 23:50:20,621 [SmaCrossoverStrategy] Insufficient data: 24 < 52
+2026-04-08 23:50:20,621 [SmaCrossoverStrategy] Insufficient data: 25 < 52
+2026-04-08 23:50:20,621 [SmaCrossoverStrategy] Insufficient data: 26 < 52
+2026-04-08 23:50:20,621 [SmaCrossoverStrategy] Insufficient data: 27 < 52
+2026-04-08 23:50:20,622 [SmaCrossoverStrategy] Insufficient data: 28 < 52
+2026-04-08 23:50:20,622 [SmaCrossoverStrategy] Insufficient data: 29 < 52
+2026-04-08 23:50:20,622 [SmaCrossoverStrategy] Insufficient data: 30 < 52
+2026-04-08 23:50:20,622 [SmaCrossoverStrategy] Insufficient data: 31 < 52
+2026-04-08 23:50:20,622 [SmaCrossoverStrategy] Insufficient data: 32 < 52
+2026-04-08 23:50:20,622 [SmaCrossoverStrategy] Insufficient data: 33 < 52
+2026-04-08 23:50:20,622 [SmaCrossoverStrategy] Insufficient data: 34 < 52
+2026-04-08 23:50:20,623 [SmaCrossoverStrategy] Insufficient data: 35 < 52
+2026-04-08 23:50:20,623 [SmaCrossoverStrategy] Insufficient data: 36 < 52
+2026-04-08 23:50:20,623 [SmaCrossoverStrategy] Insufficient data: 37 < 52
+2026-04-08 23:50:20,623 [SmaCrossoverStrategy] Insufficient data: 38 < 52
+2026-04-08 23:50:20,623 [SmaCrossoverStrategy] Insufficient data: 39 < 52
+2026-04-08 23:50:20,623 [SmaCrossoverStrategy] Insufficient data: 40 < 52
+2026-04-08 23:50:20,623 [SmaCrossoverStrategy] Insufficient data: 41 < 52
+2026-04-08 23:50:20,624 [SmaCrossoverStrategy] Insufficient data: 42 < 52
+2026-04-08 23:50:20,624 [SmaCrossoverStrategy] Insufficient data: 43 < 52
+2026-04-08 23:50:20,624 [SmaCrossoverStrategy] Insufficient data: 44 < 52
+2026-04-08 23:50:20,624 [SmaCrossoverStrategy] Insufficient data: 45 < 52
+2026-04-08 23:50:20,624 [SmaCrossoverStrategy] Insufficient data: 46 < 52
+2026-04-08 23:50:20,624 [SmaCrossoverStrategy] Insufficient data: 47 < 52
+2026-04-08 23:50:20,625 [SmaCrossoverStrategy] Insufficient data: 48 < 52
+2026-04-08 23:50:20,625 [SmaCrossoverStrategy] Insufficient data: 49 < 52
+2026-04-08 23:50:20,625 [SmaCrossoverStrategy] Insufficient data: 50 < 52
+2026-04-08 23:50:20,625 [SmaCrossoverStrategy] Insufficient data: 51 < 52
+2026-04-08 23:50:20,641 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:20,674 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:20,682 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:20,684 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:20,685 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:20,686 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:20,687 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:20,687 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:20,693 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:20,703 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:20,733 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:20,743 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:20,763 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:20,791 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:20,792 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:20,795 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:20,802 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:20,843 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:20,868 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:20,895 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:20,909 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:20,923 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:20,938 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:20,980 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:21,023 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:21,050 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:21,084 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:21,088 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:21,091 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:21,100 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:21,122 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:21,158 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:21,187 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:21,220 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:21,222 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:21,223 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:21,233 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:21,291 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:21,320 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:21,327 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:21,328 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:21,332 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:21,403 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:21,483 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:21,519 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:21,561 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:21,585 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:21,767 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:21,815 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:21,904 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:21,960 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:22,028 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:22,037 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:22,063 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:22,108 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:22,139 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:22,154 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:22,160 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:22,243 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:22,379 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:22,465 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:22,623 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:22,625 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:22,628 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:22,711 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:22,914 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:23,133 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:23,161 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:23,237 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:23,259 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:23,446 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:23,665 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:23,693 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:23,819 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:23,822 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:23,862 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:24,063 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:24,093 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:24,261 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:24,361 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:24,454 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:24,504 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:24,636 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:24,997 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:25,436 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:25,503 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:26,123 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:26,276 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:26,527 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:26,585 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:26,801 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:26,920 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:27,125 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:27,133 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:27,137 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:27,141 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:27,168 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:27,241 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:27,652 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:27,702 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:27,753 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:27,990 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:28,107 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:28,246 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:28,571 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:28,699 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:29,048 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:29,287 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:29,476 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:29,581 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:30,281 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:30,412 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:30,580 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:30,997 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:31,202 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:31,598 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:32,068 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:32,207 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:32,275 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:32,457 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:32,477 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:32,672 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:32,803 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:33,094 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:33,185 [BacktestEngine] Backtest complete: BacktestReport:
+  Bars: 4416
+  Trades: 61 (W:16 L:45)
+  Win Rate: 26.2%
+  PnL: $25.66
+  Return: 0.06%
+  Max Drawdown: 0.85%
+  Sharpe: 0.02
+  Avg PnL/Trade: $0.42
+  Avg Duration: 133200s
+  Fees: $38.76
+  Equity: $10,000.00 → $10,006.41
+2026-04-08 23:50:33,185 [SegmentedRunner]   Return: 0.06% | Trades: 61 | Sharpe: 0.02 | MaxDD: 0.85%
+2026-04-08 23:50:33,185 [SegmentedRunner] ════════════════════════════════════════════════════════════
+2026-04-08 23:50:33,185 [SegmentedRunner] Regime: etf_bull_2024_q1 — BTC ETF approval rally to $73k
+2026-04-08 23:50:33,185 [SegmentedRunner] Period: 2024-01-01 to 2024-03-31
+2026-04-08 23:50:33,193 [SmaCrossoverStrategy] Insufficient data: 1 < 52
+2026-04-08 23:50:33,193 [SmaCrossoverStrategy] Insufficient data: 2 < 52
+2026-04-08 23:50:33,193 [SmaCrossoverStrategy] Insufficient data: 3 < 52
+2026-04-08 23:50:33,193 [SmaCrossoverStrategy] Insufficient data: 4 < 52
+2026-04-08 23:50:33,193 [SmaCrossoverStrategy] Insufficient data: 5 < 52
+2026-04-08 23:50:33,193 [SmaCrossoverStrategy] Insufficient data: 6 < 52
+2026-04-08 23:50:33,194 [SmaCrossoverStrategy] Insufficient data: 7 < 52
+2026-04-08 23:50:33,194 [SmaCrossoverStrategy] Insufficient data: 8 < 52
+2026-04-08 23:50:33,194 [SmaCrossoverStrategy] Insufficient data: 9 < 52
+2026-04-08 23:50:33,194 [SmaCrossoverStrategy] Insufficient data: 10 < 52
+2026-04-08 23:50:33,194 [SmaCrossoverStrategy] Insufficient data: 11 < 52
+2026-04-08 23:50:33,194 [SmaCrossoverStrategy] Insufficient data: 12 < 52
+2026-04-08 23:50:33,194 [SmaCrossoverStrategy] Insufficient data: 13 < 52
+2026-04-08 23:50:33,194 [SmaCrossoverStrategy] Insufficient data: 14 < 52
+2026-04-08 23:50:33,195 [SmaCrossoverStrategy] Insufficient data: 15 < 52
+2026-04-08 23:50:33,195 [SmaCrossoverStrategy] Insufficient data: 16 < 52
+2026-04-08 23:50:33,195 [SmaCrossoverStrategy] Insufficient data: 17 < 52
+2026-04-08 23:50:33,195 [SmaCrossoverStrategy] Insufficient data: 18 < 52
+2026-04-08 23:50:33,195 [SmaCrossoverStrategy] Insufficient data: 19 < 52
+2026-04-08 23:50:33,195 [SmaCrossoverStrategy] Insufficient data: 20 < 52
+2026-04-08 23:50:33,195 [SmaCrossoverStrategy] Insufficient data: 21 < 52
+2026-04-08 23:50:33,196 [SmaCrossoverStrategy] Insufficient data: 22 < 52
+2026-04-08 23:50:33,196 [SmaCrossoverStrategy] Insufficient data: 23 < 52
+2026-04-08 23:50:33,196 [SmaCrossoverStrategy] Insufficient data: 24 < 52
+2026-04-08 23:50:33,196 [SmaCrossoverStrategy] Insufficient data: 25 < 52
+2026-04-08 23:50:33,196 [SmaCrossoverStrategy] Insufficient data: 26 < 52
+2026-04-08 23:50:33,196 [SmaCrossoverStrategy] Insufficient data: 27 < 52
+2026-04-08 23:50:33,196 [SmaCrossoverStrategy] Insufficient data: 28 < 52
+2026-04-08 23:50:33,196 [SmaCrossoverStrategy] Insufficient data: 29 < 52
+2026-04-08 23:50:33,197 [SmaCrossoverStrategy] Insufficient data: 30 < 52
+2026-04-08 23:50:33,197 [SmaCrossoverStrategy] Insufficient data: 31 < 52
+2026-04-08 23:50:33,197 [SmaCrossoverStrategy] Insufficient data: 32 < 52
+2026-04-08 23:50:33,197 [SmaCrossoverStrategy] Insufficient data: 33 < 52
+2026-04-08 23:50:33,197 [SmaCrossoverStrategy] Insufficient data: 34 < 52
+2026-04-08 23:50:33,197 [SmaCrossoverStrategy] Insufficient data: 35 < 52
+2026-04-08 23:50:33,198 [SmaCrossoverStrategy] Insufficient data: 36 < 52
+2026-04-08 23:50:33,198 [SmaCrossoverStrategy] Insufficient data: 37 < 52
+2026-04-08 23:50:33,198 [SmaCrossoverStrategy] Insufficient data: 38 < 52
+2026-04-08 23:50:33,198 [SmaCrossoverStrategy] Insufficient data: 39 < 52
+2026-04-08 23:50:33,198 [SmaCrossoverStrategy] Insufficient data: 40 < 52
+2026-04-08 23:50:33,198 [SmaCrossoverStrategy] Insufficient data: 41 < 52
+2026-04-08 23:50:33,198 [SmaCrossoverStrategy] Insufficient data: 42 < 52
+2026-04-08 23:50:33,199 [SmaCrossoverStrategy] Insufficient data: 43 < 52
+2026-04-08 23:50:33,199 [SmaCrossoverStrategy] Insufficient data: 44 < 52
+2026-04-08 23:50:33,199 [SmaCrossoverStrategy] Insufficient data: 45 < 52
+2026-04-08 23:50:33,199 [SmaCrossoverStrategy] Insufficient data: 46 < 52
+2026-04-08 23:50:33,199 [SmaCrossoverStrategy] Insufficient data: 47 < 52
+2026-04-08 23:50:33,199 [SmaCrossoverStrategy] Insufficient data: 48 < 52
+2026-04-08 23:50:33,200 [SmaCrossoverStrategy] Insufficient data: 49 < 52
+2026-04-08 23:50:33,200 [SmaCrossoverStrategy] Insufficient data: 50 < 52
+2026-04-08 23:50:33,200 [SmaCrossoverStrategy] Insufficient data: 51 < 52
+2026-04-08 23:50:33,204 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:33,216 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:33,228 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:33,234 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:33,249 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:33,250 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:33,273 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:33,285 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:33,299 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:33,359 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:33,381 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:33,432 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:33,466 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:33,517 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:33,553 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:33,560 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:33,632 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:33,638 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:33,685 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:33,731 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:33,785 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:33,845 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:33,849 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:33,867 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:34,123 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:34,126 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:34,227 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:34,228 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:34,238 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:34,248 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:34,250 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:34,310 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:34,381 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:34,417 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:34,422 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:34,480 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:34,484 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:34,485 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:34,505 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:34,571 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:34,639 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:34,649 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:34,818 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:34,844 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:34,897 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:34,933 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:35,038 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:35,084 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:35,409 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:35,425 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:35,496 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:35,683 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:35,740 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:35,851 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:35,936 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:36,025 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:36,250 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:36,322 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:36,397 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:36,481 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:36,541 [BacktestEngine] Backtest complete: BacktestReport:
+  Bars: 2184
+  Trades: 29 (W:12 L:17)
+  Win Rate: 41.4%
+  PnL: $113.47
+  Return: 1.10%
+  Max Drawdown: 1.08%
+  Sharpe: 0.32
+  Avg PnL/Trade: $3.91
+  Avg Duration: 156910s
+  Fees: $31.26
+  Equity: $10,000.00 → $10,110.23
+2026-04-08 23:50:36,541 [SegmentedRunner]   Return: 1.10% | Trades: 29 | Sharpe: 0.32 | MaxDD: 1.08%
+2026-04-08 23:50:36,541 [SegmentedRunner] ════════════════════════════════════════════════════════════
+2026-04-08 23:50:36,541 [SegmentedRunner] Regime: consolidation_2024_q2q3 — BTC consolidation $56k-$72k range
+2026-04-08 23:50:36,541 [SegmentedRunner] Period: 2024-04-01 to 2024-09-30
+2026-04-08 23:50:36,556 [SmaCrossoverStrategy] Insufficient data: 1 < 52
+2026-04-08 23:50:36,556 [SmaCrossoverStrategy] Insufficient data: 2 < 52
+2026-04-08 23:50:36,556 [SmaCrossoverStrategy] Insufficient data: 3 < 52
+2026-04-08 23:50:36,556 [SmaCrossoverStrategy] Insufficient data: 4 < 52
+2026-04-08 23:50:36,556 [SmaCrossoverStrategy] Insufficient data: 5 < 52
+2026-04-08 23:50:36,556 [SmaCrossoverStrategy] Insufficient data: 6 < 52
+2026-04-08 23:50:36,556 [SmaCrossoverStrategy] Insufficient data: 7 < 52
+2026-04-08 23:50:36,557 [SmaCrossoverStrategy] Insufficient data: 8 < 52
+2026-04-08 23:50:36,557 [SmaCrossoverStrategy] Insufficient data: 9 < 52
+2026-04-08 23:50:36,557 [SmaCrossoverStrategy] Insufficient data: 10 < 52
+2026-04-08 23:50:36,557 [SmaCrossoverStrategy] Insufficient data: 11 < 52
+2026-04-08 23:50:36,557 [SmaCrossoverStrategy] Insufficient data: 12 < 52
+2026-04-08 23:50:36,557 [SmaCrossoverStrategy] Insufficient data: 13 < 52
+2026-04-08 23:50:36,557 [SmaCrossoverStrategy] Insufficient data: 14 < 52
+2026-04-08 23:50:36,557 [SmaCrossoverStrategy] Insufficient data: 15 < 52
+2026-04-08 23:50:36,558 [SmaCrossoverStrategy] Insufficient data: 16 < 52
+2026-04-08 23:50:36,558 [SmaCrossoverStrategy] Insufficient data: 17 < 52
+2026-04-08 23:50:36,558 [SmaCrossoverStrategy] Insufficient data: 18 < 52
+2026-04-08 23:50:36,558 [SmaCrossoverStrategy] Insufficient data: 19 < 52
+2026-04-08 23:50:36,558 [SmaCrossoverStrategy] Insufficient data: 20 < 52
+2026-04-08 23:50:36,558 [SmaCrossoverStrategy] Insufficient data: 21 < 52
+2026-04-08 23:50:36,558 [SmaCrossoverStrategy] Insufficient data: 22 < 52
+2026-04-08 23:50:36,559 [SmaCrossoverStrategy] Insufficient data: 23 < 52
+2026-04-08 23:50:36,559 [SmaCrossoverStrategy] Insufficient data: 24 < 52
+2026-04-08 23:50:36,559 [SmaCrossoverStrategy] Insufficient data: 25 < 52
+2026-04-08 23:50:36,559 [SmaCrossoverStrategy] Insufficient data: 26 < 52
+2026-04-08 23:50:36,559 [SmaCrossoverStrategy] Insufficient data: 27 < 52
+2026-04-08 23:50:36,559 [SmaCrossoverStrategy] Insufficient data: 28 < 52
+2026-04-08 23:50:36,559 [SmaCrossoverStrategy] Insufficient data: 29 < 52
+2026-04-08 23:50:36,560 [SmaCrossoverStrategy] Insufficient data: 30 < 52
+2026-04-08 23:50:36,560 [SmaCrossoverStrategy] Insufficient data: 31 < 52
+2026-04-08 23:50:36,560 [SmaCrossoverStrategy] Insufficient data: 32 < 52
+2026-04-08 23:50:36,560 [SmaCrossoverStrategy] Insufficient data: 33 < 52
+2026-04-08 23:50:36,560 [SmaCrossoverStrategy] Insufficient data: 34 < 52
+2026-04-08 23:50:36,560 [SmaCrossoverStrategy] Insufficient data: 35 < 52
+2026-04-08 23:50:36,560 [SmaCrossoverStrategy] Insufficient data: 36 < 52
+2026-04-08 23:50:36,561 [SmaCrossoverStrategy] Insufficient data: 37 < 52
+2026-04-08 23:50:36,561 [SmaCrossoverStrategy] Insufficient data: 38 < 52
+2026-04-08 23:50:36,561 [SmaCrossoverStrategy] Insufficient data: 39 < 52
+2026-04-08 23:50:36,561 [SmaCrossoverStrategy] Insufficient data: 40 < 52
+2026-04-08 23:50:36,561 [SmaCrossoverStrategy] Insufficient data: 41 < 52
+2026-04-08 23:50:36,561 [SmaCrossoverStrategy] Insufficient data: 42 < 52
+2026-04-08 23:50:36,562 [SmaCrossoverStrategy] Insufficient data: 43 < 52
+2026-04-08 23:50:36,562 [SmaCrossoverStrategy] Insufficient data: 44 < 52
+2026-04-08 23:50:36,562 [SmaCrossoverStrategy] Insufficient data: 45 < 52
+2026-04-08 23:50:36,562 [SmaCrossoverStrategy] Insufficient data: 46 < 52
+2026-04-08 23:50:36,562 [SmaCrossoverStrategy] Insufficient data: 47 < 52
+2026-04-08 23:50:36,562 [SmaCrossoverStrategy] Insufficient data: 48 < 52
+2026-04-08 23:50:36,563 [SmaCrossoverStrategy] Insufficient data: 49 < 52
+2026-04-08 23:50:36,563 [SmaCrossoverStrategy] Insufficient data: 50 < 52
+2026-04-08 23:50:36,563 [SmaCrossoverStrategy] Insufficient data: 51 < 52
+2026-04-08 23:50:36,571 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:36,572 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:36,572 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:36,627 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:36,645 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:36,666 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:36,706 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:36,717 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:36,741 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:36,744 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:36,766 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:36,880 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:36,923 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:36,932 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:36,970 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:36,991 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:37,018 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:37,022 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:37,089 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:37,210 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:37,309 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:37,337 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:37,390 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:37,468 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:37,500 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:37,658 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:37,693 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:37,766 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:37,875 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:37,952 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:37,989 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:38,019 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:38,125 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:38,175 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:38,248 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:38,481 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:38,626 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:38,706 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:38,793 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:38,843 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:39,002 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:39,061 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:39,227 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:39,272 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:39,375 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:39,437 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:39,570 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:39,634 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:39,703 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:39,754 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:39,846 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:40,007 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:40,269 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:40,371 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:40,464 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:40,603 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:40,746 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:41,148 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:41,258 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:41,543 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:41,781 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:41,966 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:42,022 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:42,115 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:42,785 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:42,947 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:42,985 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:43,199 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:43,222 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:43,301 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:43,462 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:43,597 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:43,771 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:43,998 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:44,099 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:44,205 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:44,267 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:44,661 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:44,669 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:44,678 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:44,686 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:44,703 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:45,059 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:45,128 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:45,502 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:45,629 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:45,776 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:45,808 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:46,131 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:46,494 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:46,546 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:46,987 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:47,197 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:47,634 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:47,748 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:47,793 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:47,873 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:48,033 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:48,083 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:48,214 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:48,301 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-08 23:50:48,593 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-08 23:50:48,834 [BacktestEngine] Backtest complete: BacktestReport:
+  Bars: 4392
+  Trades: 51 (W:19 L:32)
+  Win Rate: 37.3%
+  PnL: $-127.28
+  Return: -1.60%
+  Max Drawdown: 2.59%
+  Sharpe: -0.26
+  Avg PnL/Trade: $-2.50
+  Avg Duration: 155718s
+  Fees: $64.44
+  Equity: $10,000.00 → $9,840.46
+2026-04-08 23:50:48,835 [SegmentedRunner]   Return: -1.60% | Trades: 51 | Sharpe: -0.26 | MaxDD: 2.59%
+
+==========================================================================================
+SEGMENTED BACKTEST REPORT — Comparative Results
+==========================================================================================
+Regime                         Return  Trades  WinRate  Sharpe   MaxDD        PnL     Fees
+------------------------------------------------------------------------------------------
+bull_2020_q4                   1.21%      21   47.6%    0.79  0.31%     114.51     7.18
+bull_2021_q1                   1.49%      25   48.0%    0.29  1.01%     131.96    23.67
+crash_may_2021                -2.25%      26   26.9%   -0.64  2.59%    -213.68    22.13
+recovery_2021_q3               1.33%      27   51.9%    0.31  1.11%     146.88    26.94
+bear_2022_h1                  -1.94%      49   22.4%   -0.43  2.16%    -175.84    36.68
+sideways_2022_h2              -0.10%      53   24.5%   -0.04  0.70%       1.14    20.59
+recovery_2023                  0.66%      50   34.0%    0.23  0.72%      80.43    26.38
+pre_etf_2023_h2                0.06%      61   26.2%    0.02  0.85%      25.66    38.76
+etf_bull_2024_q1               1.10%      29   41.4%    0.32  1.08%     113.47    31.26
+consolidation_2024_q2q3       -1.60%      51   37.3%   -0.26  2.59%    -127.28    64.44
+------------------------------------------------------------------------------------------
+AGGREGATE                                 392    33.4%                      97.25
+==========================================================================================

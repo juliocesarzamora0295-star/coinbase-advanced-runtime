@@ -1,0 +1,39 @@
+# READ-ONLY REFERENCE — DO NOT IMPORT INTO RUNTIME
+# Origin: crypto-bot - dev/Bot Híbrido v2.2 Centinela/config.py
+
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+EXCHANGE = 'coinbase'
+API_KEY = os.getenv('API_KEY')
+API_SECRET = os.getenv('API_SECRET')
+SANDBOX_MODE = False
+
+if not API_KEY or not API_SECRET:
+    raise ValueError("Error: API_KEY o API_SECRET no se encontraron.")
+
+API_MAX_RETRIES = 5
+
+TRADING_SYMBOL = 'BTC/USDT'
+TIMEFRAME = '1h'
+DATA_FETCH_LIMIT = 500
+LOOP_INTERVAL_SECONDS = 300
+
+# Risk
+INITIAL_CAPITAL = 4000.0
+RISK_PER_TRADE = 0.01
+MAX_DRAWDOWN_LIMIT = 0.20
+MAX_CONSECUTIVE_LOSSES = 3
+
+# Grid Strategy
+GRID_LEVELS = 5
+GRID_ATR_MULTIPLIER = 1.5
+GRID_RECENTER_THRESHOLD = 0.8
+AI_RETRAIN_INTERVAL_SECONDS = 3600 * 6
+
+# TWAP
+TWAP_THRESHOLD_USD = 1000.0
+TWAP_SPLITS = 5
+TWAP_INTERVAL_SECONDS = 15

@@ -98,6 +98,9 @@ class TradingConfig:
     notional_pct: float = 0.01  # fracción del equity como notional por trade
     initial_cash: float = 10000.0  # capital inicial en quote currency
     sizing_mode: str = "NOTIONAL"  # NOTIONAL or RISK_BASED
+    strategy_mode: str = "fixed"  # "fixed" | "selector" | "full_adaptive"
+    mtf_enabled: bool = False
+    adaptive_sizing: bool = False
 
 
 @dataclass
@@ -255,6 +258,9 @@ class Config:
                 ),
                 initial_cash=trading_cfg.get("initial_cash", 10000.0),
                 sizing_mode=_validate_sizing_mode(trading_cfg.get("sizing_mode", "NOTIONAL")),
+                strategy_mode=trading_cfg.get("strategy_mode", "fixed"),
+                mtf_enabled=trading_cfg.get("mtf_enabled", False),
+                adaptive_sizing=trading_cfg.get("adaptive_sizing", False),
             )
 
             # P0 FIX: Cargar risk config

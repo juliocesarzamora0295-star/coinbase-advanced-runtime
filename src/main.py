@@ -413,16 +413,41 @@ class TradingBot:
             # Registrar símbolo con timeframe en MarketDataService
             self.market_data.register_symbol(symbol, timeframe)
 
-            # Crear StrategyManager por símbolo desde config
-            try:
-                sm = StrategyManager.load_from_config(
-                    symbol=symbol,
-                    symbol_config={"strategies": symbol_cfg.strategies},
-                )
-                self.strategy_managers[symbol] = sm
-                logger.info(f"[{symbol}] StrategyManager loaded: {sm.strategy_count} strategy(s)")
-            except ValueError as exc:
-                logger.warning(f"[{symbol}] StrategyManager not loaded: {exc}")
+            # Crear strategy handler por símbolo desde config
+            strategy_mode = self.config.trading.strategy_mode
+
+            if strategy_mode in ("selector", "full_adaptive"):
+                try:
+                    from src.strategy.selector import StrategySelector
+
+                    mtf_filter = None
+                    if self.config.trading.mtf_enabled:
+                        from src.strategy.mtf_filter import MultiTimeframeFilter
+                        mtf_filter = MultiTimeframeFilter()
+
+                    selector = StrategySelector.from_config(
+                        symbol=symbol,
+                        config={"strategies": symbol_cfg.strategies},
+                        mtf_filter=mtf_filter,
+                    )
+                    self.strategy_managers[symbol] = selector
+                    logger.info(
+                        "[%s] StrategySelector loaded (mode=%s, mtf=%s)",
+                        symbol, strategy_mode, self.config.trading.mtf_enabled,
+                    )
+                except (ValueError, ImportError) as exc:
+                    logger.warning(f"[{symbol}] StrategySelector not loaded: {exc}")
+            else:
+                # Default "fixed" path — unchanged
+                try:
+                    sm = StrategyManager.load_from_config(
+                        symbol=symbol,
+                        symbol_config={"strategies": symbol_cfg.strategies},
+                    )
+                    self.strategy_managers[symbol] = sm
+                    logger.info(f"[{symbol}] StrategyManager loaded: {sm.strategy_count} strategy(s)")
+                except ValueError as exc:
+                    logger.warning(f"[{symbol}] StrategyManager not loaded: {exc}")
 
             # Suscribir callback a CandleClosed events
             self.market_data.subscribe(

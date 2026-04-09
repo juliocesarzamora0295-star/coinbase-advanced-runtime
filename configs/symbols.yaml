@@ -8,6 +8,9 @@ trading:
   max_orders_per_minute: 2
   risk_per_trade_pct: 0.001
   sizing_mode: NOTIONAL
+  strategy_mode: "fixed"
+  mtf_enabled: false
+  adaptive_sizing: false
 
 risk:
   max_daily_loss: 0.01

@@ -19,7 +19,7 @@ Lo que NO hace:
 import logging
 from datetime import datetime
 from decimal import Decimal
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Type
 
 import pandas as pd
 
@@ -28,11 +28,14 @@ from src.strategy.sma_crossover import SmaCrossoverStrategy
 
 logger = logging.getLogger("StrategyManager")
 
-# Registro de estrategias disponibles por nombre de config.
+# Registro de estrategias por nombre de config.
+# Valor None = nombre reconocido pero estrategia aún no implementada.
 # Extender aquí para agregar nuevas estrategias.
-_STRATEGY_REGISTRY: Dict[str, type] = {
+_STRATEGY_REGISTRY: Dict[str, Optional[Type[Strategy]]] = {
     "ma_crossover": SmaCrossoverStrategy,
     "sma_crossover": SmaCrossoverStrategy,
+    "breakout": None,  # pendiente de implementación
+    "mean_reversion": None,  # pendiente de implementación
 }
 
 
@@ -89,9 +92,22 @@ class StrategyManager:
                 name = entry.get("name", "")
                 cfg = entry
 
-            strategy_cls = _STRATEGY_REGISTRY.get(name)
+            if name not in _STRATEGY_REGISTRY:
+                logger.warning(
+                    "Strategy '%s' for %s is not in registry — skipping. "
+                    "Add it to _STRATEGY_REGISTRY in src/strategy/manager.py",
+                    name,
+                    symbol,
+                )
+                continue
+
+            strategy_cls = _STRATEGY_REGISTRY[name]
             if strategy_cls is None:
-                logger.warning("Unknown strategy '%s' for %s — skipping", name, symbol)
+                logger.warning(
+                    "Strategy '%s' for %s is registered but not yet implemented — skipping",
+                    name,
+                    symbol,
+                )
                 continue
 
             try:

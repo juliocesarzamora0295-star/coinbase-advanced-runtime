@@ -297,3 +297,55 @@ class AdaptiveAdapter:
         })
 
         return BacktestSignal(side=signal.side, qty=adaptive_qty)
+
+
+class FullAdaptiveAdapter:
+    """
+    Combines SelectorAdapter (regime-aware strategy) with AdaptiveAdapter
+    (dynamic position sizing) into a single backtest callback.
+    """
+
+    def __init__(
+        self,
+        symbol: str,
+        config: Dict[str, Any],
+        equity: Decimal = Decimal("10000"),
+        base_pct: Decimal = Decimal("0.005"),
+        adaptive_config: Optional[Dict[str, Any]] = None,
+        ledger: Any = None,
+    ) -> None:
+        self._selector = SelectorAdapter(symbol=symbol, config=config, qty=Decimal("0.01"))
+        self._adaptive = AdaptiveAdapter(
+            inner=self._selector,
+            equity=equity,
+            base_pct=base_pct,
+            adaptive_config=adaptive_config,
+        )
+        if ledger is not None:
+            self._adaptive.set_ledger(ledger)
+
+    def set_ledger(self, ledger: Any) -> None:
+        self._adaptive.set_ledger(ledger)
+
+    def __call__(
+        self,
+        bar: Bar,
+        history: List[Bar],
+    ) -> Optional[BacktestSignal]:
+        return self._adaptive(bar, history)
+
+    @property
+    def regime_history(self) -> list:
+        return self._selector.regime_history
+
+    @property
+    def sizing_log(self) -> List[Dict[str, Any]]:
+        return self._adaptive.sizing_log
+
+    @property
+    def current_regime(self) -> str:
+        return self._selector.current_regime
+
+    @property
+    def current_strategy(self) -> str:
+        return self._selector.current_strategy

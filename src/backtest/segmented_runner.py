@@ -26,7 +26,7 @@ from src.backtest.ledger import BacktestLedger
 from src.backtest.paper_executor import PaperExecutor
 from src.backtest.report import BacktestReport
 from src.backtest.risk_adapter import BacktestRiskAdapter
-from src.backtest.strategy_adapter import SelectorAdapter, StrategyAdapter
+from src.backtest.strategy_adapter import FullAdaptiveAdapter, SelectorAdapter, StrategyAdapter
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(name)s] %(message)s")
 logger = logging.getLogger("SegmentedRunner")
@@ -42,6 +42,7 @@ def run_single_regime(
     qty: Decimal,
     use_risk: bool = False,
     use_selector: bool = False,
+    use_full_adaptive: bool = False,
 ) -> Optional[BacktestReport]:
     """
     Run backtest on a single CSV file (one market regime).
@@ -64,7 +65,11 @@ def run_single_regime(
         fee_rate=fee_rate,
     )
 
-    if use_selector:
+    if use_full_adaptive:
+        adapter = FullAdaptiveAdapter(
+            symbol=symbol, config=strategy_config, equity=cash, ledger=ledger,
+        )
+    elif use_selector:
         adapter = SelectorAdapter(symbol=symbol, config=strategy_config, qty=qty)
     else:
         adapter = StrategyAdapter.from_config(
@@ -101,6 +106,7 @@ def run_all_regimes(
     qty: Decimal,
     use_risk: bool = False,
     use_selector: bool = False,
+    use_full_adaptive: bool = False,
     regimes: Optional[List] = None,
 ) -> Dict[str, BacktestReport]:
     """
@@ -136,6 +142,7 @@ def run_all_regimes(
             qty=qty,
             use_risk=use_risk,
             use_selector=use_selector,
+            use_full_adaptive=use_full_adaptive,
         )
 
         if report is not None:
@@ -213,6 +220,7 @@ def main() -> None:
     parser.add_argument("--sma-slow", type=int, default=50, help="Slow SMA period")
     parser.add_argument("--use-risk", action="store_true", help="Enable RiskGate in backtest")
     parser.add_argument("--use-selector", action="store_true", help="Use regime-aware SelectorAdapter instead of SMA crossover")
+    parser.add_argument("--use-full-adaptive", action="store_true", help="Use regime selector + adaptive position sizing")
     parser.add_argument("--download", action="store_true", help="Download data from Coinbase")
     parser.add_argument("--data-dir", default="data/regimes", help="Directory for CSV files")
     args = parser.parse_args()
@@ -255,6 +263,7 @@ def main() -> None:
         qty=Decimal(str(args.qty)),
         use_risk=args.use_risk,
         use_selector=args.use_selector,
+        use_full_adaptive=args.use_full_adaptive,
     )
 
     print_comparative_report(results)

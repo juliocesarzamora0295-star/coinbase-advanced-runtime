@@ -72,6 +72,7 @@ class StrategySelector:
         regime_map: Optional[Dict[MarketRegime, str]] = None,
         re_eval_interval: int = 1,  # re-evaluate regime every N bars
         min_regime_bars: int = 3,  # minimum bars before allowing regime switch
+        mtf_filter: Optional[object] = None,
     ) -> None:
         if not strategies:
             raise ValueError(f"StrategySelector for {symbol}: strategies dict is empty")
@@ -89,12 +90,14 @@ class StrategySelector:
         self._current_strategy_name: str = self._regime_map[MarketRegime.UNKNOWN]
         self._bars_in_current_regime: int = 0
         self._regime_history: List[tuple[int, MarketRegime, str]] = []
+        self._mtf_filter = mtf_filter
 
     @classmethod
     def from_config(
         cls,
         symbol: str,
         config: Dict[str, Any],
+        mtf_filter: Optional[object] = None,
     ) -> "StrategySelector":
         """
         Build StrategySelector from config dict.
@@ -134,6 +137,7 @@ class StrategySelector:
             detector=detector,
             re_eval_interval=int(config.get("re_eval_interval", 1)),
             min_regime_bars=int(config.get("min_regime_bars", 3)),
+            mtf_filter=mtf_filter,
         )
 
     def on_candle_closed(
@@ -206,7 +210,29 @@ class StrategySelector:
         try:
             strategy.update_market_data(self._candles)
             signals = strategy.generate_signals(mid=price, bar_timestamp=bar_timestamp)
-            return signals[0] if signals else None
+            signal = signals[0] if signals else None
+
+            # MTF confidence filter
+            if signal is not None and self._mtf_filter is not None:
+                try:
+                    df_with_ts = self._candles.copy()
+                    if "timestamp" in df_with_ts.columns:
+                        ts = df_with_ts["timestamp"]
+                        if ts.dtype in ("int64", "float64") and ts.iloc[0] > 1e12:
+                            df_with_ts.index = pd.to_datetime(ts, unit="ms", utc=True)
+                        elif ts.dtype in ("int64", "float64"):
+                            df_with_ts.index = pd.to_datetime(ts, unit="s", utc=True)
+                    confidence = self._mtf_filter.get_confidence(df_with_ts, signal.direction)
+                    if confidence < 0.3:
+                        logger.info(
+                            "MTF filter dropped %s signal (confidence=%.2f)",
+                            signal.direction, confidence,
+                        )
+                        return None
+                except Exception as mtf_exc:
+                    logger.debug("MTF filter error: %s — passing signal through", mtf_exc)
+
+            return signal
         except Exception as exc:
             logger.error(
                 "Strategy %s raised: %s — no signal",

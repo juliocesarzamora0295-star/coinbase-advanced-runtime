@@ -313,6 +313,7 @@ class FullAdaptiveAdapter:
         base_pct: Decimal = Decimal("0.005"),
         adaptive_config: Optional[Dict[str, Any]] = None,
         ledger: Any = None,
+        mtf_filter: Optional[Any] = None,
     ) -> None:
         self._selector = SelectorAdapter(symbol=symbol, config=config, qty=Decimal("0.01"))
         self._adaptive = AdaptiveAdapter(
@@ -321,6 +322,7 @@ class FullAdaptiveAdapter:
             base_pct=base_pct,
             adaptive_config=adaptive_config,
         )
+        self._mtf_filter = mtf_filter
         if ledger is not None:
             self._adaptive.set_ledger(ledger)
 
@@ -332,7 +334,36 @@ class FullAdaptiveAdapter:
         bar: Bar,
         history: List[Bar],
     ) -> Optional[BacktestSignal]:
-        return self._adaptive(bar, history)
+        signal = self._adaptive(bar, history)
+
+        if signal is None or self._mtf_filter is None:
+            return signal
+
+        # Build DataFrame with DatetimeIndex for MTF resampling
+        all_bars = history + [bar]
+        if len(all_bars) < self._mtf_filter.MIN_BARS_1H:
+            return signal
+
+        rows = [
+            {
+                "timestamp": b.timestamp_ms,
+                "close": float(b.close),
+            }
+            for b in all_bars
+        ]
+        df = pd.DataFrame(rows)
+        confidence = self._mtf_filter.get_confidence(df, signal.side)
+
+        # Log MTF confidence
+        if self._adaptive.sizing_log:
+            self._adaptive.sizing_log[-1]["mtf_confidence"] = confidence
+
+        if confidence < 0.3:
+            return None
+
+        # Scale qty by confidence
+        adjusted_qty = signal.qty * Decimal(str(confidence))
+        return BacktestSignal(side=signal.side, qty=adjusted_qty)
 
     @property
     def regime_history(self) -> list:

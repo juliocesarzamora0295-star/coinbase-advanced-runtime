@@ -20,7 +20,7 @@ class TestConfigFailClosed:
         """Missing config file → symbols list is empty (fail-closed)."""
         with tempfile.TemporaryDirectory() as tmpdir:
             # Point Config to a dir without symbols.yaml
-            with patch.dict(os.environ, {"FORTRESS_REPO": tmpdir}):
+            with patch.dict(os.environ, {"FORTRESS_REPO": tmpdir, "FORTRESS_CONFIG": ""}):
                 from src.config import reset_config
                 reset_config()
                 # Create necessary dirs
@@ -35,7 +35,7 @@ class TestConfigFailClosed:
     def test_broken_yaml_no_symbols(self):
         """Unparseable YAML → symbols list is empty (fail-closed)."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            with patch.dict(os.environ, {"FORTRESS_REPO": tmpdir}):
+            with patch.dict(os.environ, {"FORTRESS_REPO": tmpdir, "FORTRESS_CONFIG": ""}):
                 from src.config import reset_config
                 reset_config()
                 config_dir = os.path.join(tmpdir, "configs")

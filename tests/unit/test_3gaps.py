@@ -118,7 +118,8 @@ class TestStrategyConfigConsistency:
             data = yaml.safe_load(f)
 
         for sym_cfg in data.get("symbols", []):
-            for strat_name in sym_cfg.get("strategies", []):
+            for entry in sym_cfg.get("strategies", []):
+                strat_name = entry if isinstance(entry, str) else entry.get("name", "")
                 assert strat_name in STRATEGY_REGISTRY, (
                     f"Strategy '{strat_name}' declared for {sym_cfg['symbol']} "
                     f"but not in STRATEGY_REGISTRY. "

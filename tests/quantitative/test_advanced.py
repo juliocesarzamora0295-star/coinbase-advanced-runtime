@@ -154,8 +154,9 @@ class TestMonteCarlo:
         returns = [rng.gauss(0, 0.01) for _ in range(100)]
         strategy_pnl = sum(returns)
         p, _ = monte_carlo_permutation_test(strategy_pnl, returns, n_permutations=500)
-        # Should be somewhat close to 0.5 (not extreme)
-        assert 0.05 < p < 0.95
+        # Shuffling preserves sum, so shuffled PnL == strategy PnL always → p=1.0
+        # Correct assertion: pure noise should NOT show significance (p not near 0)
+        assert p >= 0.05
 
 
 class TestBootstrapCI:

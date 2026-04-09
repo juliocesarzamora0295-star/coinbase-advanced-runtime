@@ -7,6 +7,7 @@ trading:
   max_notional_per_symbol: 25.0
   max_orders_per_minute: 2
   risk_per_trade_pct: 0.001
+  sizing_mode: NOTIONAL
 
 risk:
   max_daily_loss: 0.01

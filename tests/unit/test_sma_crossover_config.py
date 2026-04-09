@@ -206,3 +206,179 @@ class TestSignalGeneration:
         signals = feed_and_generate(strategy, prices)
         sell_signals = [s for s in signals if s.direction == "SELL"]
         assert len(sell_signals) >= 1
+
+    def test_signal_metadata_contains_reason(self):
+        """Señal generada tiene metadata con clave 'reason'."""
+        strategy = make_strategy(fast=3, slow=5)
+        prices = self._make_bullish_crossover_prices(3, 5)
+        signals = feed_and_generate(strategy, prices)
+        buy_signals = [s for s in signals if s.direction == "BUY"]
+        assert len(buy_signals) >= 1
+        assert "reason" in buy_signals[0].metadata
+        assert (
+            "3" in buy_signals[0].metadata["reason"]
+            or "fast" in buy_signals[0].metadata["reason"].lower()
+            or "/" in buy_signals[0].metadata["reason"]
+        )
+
+    def test_bar_timestamp_propagated_to_signal(self):
+        """bar_timestamp pasado a generate_signals aparece en la señal emitida."""
+        from datetime import datetime, timezone
+
+        strategy = make_strategy(fast=3, slow=5)
+        expected_ts = datetime(2024, 6, 1, 12, 0, 0, tzinfo=timezone.utc)
+        prices = self._make_bullish_crossover_prices(3, 5)
+        df = pd.DataFrame({"close": prices})
+        strategy.update_market_data(df)
+        signals = strategy.generate_signals(mid=MID, bar_timestamp=expected_ts)
+        buy_signals = [s for s in signals if s.direction == "BUY"]
+        assert len(buy_signals) >= 1
+        assert buy_signals[0].bar_timestamp == expected_ts
+
+
+# ──────────────────────────────────────────────
+# update_positions / get_position
+# ──────────────────────────────────────────────
+
+
+class TestUpdatePositions:
+
+    def test_buy_fill_increases_long_position(self):
+        """Fill BUY LONG aumenta la posición LONG."""
+        strategy = make_strategy()
+        strategy.update_positions(
+            {"symbol": "BTC-USD", "position_side": "LONG", "amount": "0.5", "reduce_only": False}
+        )
+        assert strategy.get_position("BTC-USD", "LONG") == Decimal("0.5")
+
+    def test_buy_fill_accumulates(self):
+        """Múltiples fills BUY LONG acumulan la posición."""
+        strategy = make_strategy()
+        strategy.update_positions(
+            {"symbol": "BTC-USD", "position_side": "LONG", "amount": "0.3", "reduce_only": False}
+        )
+        strategy.update_positions(
+            {"symbol": "BTC-USD", "position_side": "LONG", "amount": "0.2", "reduce_only": False}
+        )
+        assert strategy.get_position("BTC-USD", "LONG") == Decimal("0.5")
+
+    def test_reduce_only_decreases_position(self):
+        """Fill reduce_only=True reduce la posición existente."""
+        strategy = make_strategy()
+        strategy.update_positions(
+            {"symbol": "BTC-USD", "position_side": "LONG", "amount": "1.0", "reduce_only": False}
+        )
+        strategy.update_positions(
+            {"symbol": "BTC-USD", "position_side": "LONG", "amount": "0.4", "reduce_only": True}
+        )
+        assert strategy.get_position("BTC-USD", "LONG") == Decimal("0.6")
+
+    def test_reduce_only_does_not_go_negative(self):
+        """reduce_only=True no puede llevar la posición a negativo."""
+        strategy = make_strategy()
+        strategy.update_positions(
+            {"symbol": "BTC-USD", "position_side": "LONG", "amount": "0.1", "reduce_only": False}
+        )
+        strategy.update_positions(
+            {"symbol": "BTC-USD", "position_side": "LONG", "amount": "9.0", "reduce_only": True}
+        )
+        assert strategy.get_position("BTC-USD", "LONG") == Decimal("0")
+
+    def test_get_position_returns_zero_for_unknown_symbol(self):
+        """get_position() retorna 0 para símbolo sin posición registrada."""
+        strategy = make_strategy()
+        assert strategy.get_position("ETH-USD", "LONG") == Decimal("0")
+
+    def test_positions_isolated_per_symbol(self):
+        """Posiciones de BTC-USD y ETH-USD no se contaminan."""
+        strategy = make_strategy()
+        strategy.update_positions(
+            {"symbol": "BTC-USD", "position_side": "LONG", "amount": "1.0", "reduce_only": False}
+        )
+        strategy.update_positions(
+            {"symbol": "ETH-USD", "position_side": "LONG", "amount": "5.0", "reduce_only": False}
+        )
+        assert strategy.get_position("BTC-USD", "LONG") == Decimal("1.0")
+        assert strategy.get_position("ETH-USD", "LONG") == Decimal("5.0")
+
+    def test_fill_with_zero_amount_ignored(self):
+        """Fill con amount=0 no modifica la posición."""
+        strategy = make_strategy()
+        strategy.update_positions(
+            {"symbol": "BTC-USD", "position_side": "LONG", "amount": "1.0", "reduce_only": False}
+        )
+        strategy.update_positions(
+            {"symbol": "BTC-USD", "position_side": "LONG", "amount": "0", "reduce_only": False}
+        )
+        assert strategy.get_position("BTC-USD", "LONG") == Decimal("1.0")
+
+    def test_fill_with_invalid_position_side_ignored(self):
+        """Fill con position_side inválido no modifica nada."""
+        strategy = make_strategy()
+        strategy.update_positions(
+            {"symbol": "BTC-USD", "position_side": "INVALID", "amount": "1.0", "reduce_only": False}
+        )
+        assert strategy.get_position("BTC-USD", "LONG") == Decimal("0")
+        assert strategy.get_position("BTC-USD", "SHORT") == Decimal("0")
+
+
+# ──────────────────────────────────────────────
+# StrategyManager.load_from_config con sma_crossover real
+# ──────────────────────────────────────────────
+
+
+class TestLoadFromConfigWithRealStrategy:
+
+    def test_load_sma_crossover_by_name(self):
+        """load_from_config con nombre 'sma_crossover' carga SmaCrossoverStrategy."""
+        from src.strategy.manager import StrategyManager
+        from src.strategy.sma_crossover import SmaCrossoverStrategy
+
+        mgr = StrategyManager.load_from_config(
+            symbol="BTC-USD",
+            symbol_config={
+                "strategies": ["sma_crossover"],
+                "sma_crossover": {"sma_fast": 5, "sma_slow": 10},
+            },
+        )
+        assert mgr.strategy_count == 1
+        assert isinstance(mgr._strategies[0], SmaCrossoverStrategy)
+
+    def test_load_ma_crossover_alias(self):
+        """'ma_crossover' es alias de SmaCrossoverStrategy."""
+        from src.strategy.manager import StrategyManager
+        from src.strategy.sma_crossover import SmaCrossoverStrategy
+
+        mgr = StrategyManager.load_from_config(
+            symbol="ETH-USD",
+            symbol_config={"strategies": ["ma_crossover"]},
+        )
+        assert isinstance(mgr._strategies[0], SmaCrossoverStrategy)
+
+    def test_loaded_strategy_respects_config_params(self):
+        """Estrategia cargada tiene fast/slow del config."""
+        from src.strategy.manager import StrategyManager
+        from src.strategy.sma_crossover import SmaCrossoverStrategy
+
+        mgr = StrategyManager.load_from_config(
+            symbol="BTC-USD",
+            symbol_config={
+                "strategies": [{"name": "sma_crossover", "sma_fast": 7, "sma_slow": 21}],
+            },
+        )
+        strat = mgr._strategies[0]
+        assert isinstance(strat, SmaCrossoverStrategy)
+        assert strat.fast == 7
+        assert strat.slow == 21
+
+    def test_unknown_strategy_name_raises_if_only_one(self):
+        """load_from_config con solo estrategia desconocida → ValueError."""
+        import pytest
+
+        from src.strategy.manager import StrategyManager
+
+        with pytest.raises(ValueError):
+            StrategyManager.load_from_config(
+                symbol="BTC-USD",
+                symbol_config={"strategies": ["nonexistent_strategy"]},
+            )

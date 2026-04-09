@@ -214,6 +214,26 @@ class Config:
         self.paths.ensure_directories()
         self._load_yaml_config()
 
+    def validate_config(self) -> None:
+        """Validación cruzada de invariantes entre secciones de config.
+
+        Raises:
+            ValueError: si algún invariante crítico de riesgo o trading es inválido.
+        """
+        if not (0 < self.risk.max_position_pct <= 1.0):
+            raise ValueError(
+                f"risk.max_position_pct={self.risk.max_position_pct} fuera de rango (0, 1]"
+            )
+        if not (0 < self.trading.max_position_pct <= 1.0):
+            raise ValueError(
+                f"trading.max_position_pct={self.trading.max_position_pct} fuera de rango (0, 1]"
+            )
+        if self.risk.max_daily_loss > self.risk.max_drawdown:
+            raise ValueError(
+                f"risk.max_daily_loss={self.risk.max_daily_loss} no puede exceder "
+                f"risk.max_drawdown={self.risk.max_drawdown}"
+            )
+
     def _load_yaml_config(self) -> None:
         """Cargar configuración completa desde YAML.
 

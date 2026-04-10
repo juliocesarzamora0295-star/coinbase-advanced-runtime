@@ -1,0 +1,42 @@
+# Dry-run validation configuration
+# Use with: python scripts/dry_run_runner.py --config config/dry_run.yaml
+#
+# Purpose: Validate full signal-to-order pipeline against live Coinbase WS data.
+# Signals are generated and evaluated through RiskGate.
+# Orders are simulated via PaperEngine — never sent to exchange.
+
+trading:
+  observe_only: false      # Signals ARE generated
+  dry_run: true             # Orders simulated, not sent to exchange
+  smoke_test_mode: false
+  max_cycles: 0             # Controlled by runner --duration, not config
+  initial_cash: 10000
+  max_position_pct: 0.20
+  max_notional_per_symbol: 10000
+  max_orders_per_minute: 10
+  sizing_mode: "NOTIONAL"
+  notional_pct: 0.01
+  strategy_mode: "fixed"
+  mtf_enabled: false
+  adaptive_sizing: false
+
+risk:
+  max_daily_loss: 0.05
+  max_drawdown: 0.15
+  max_consecutive_losses: 3
+
+monitoring:
+  log_level: "DEBUG"
+  latency_p95_threshold_ms: 500.0
+  reject_rate_threshold: 0.03
+  slippage_drift_threshold_bps: 10.0
+  alert_webhook_url: ""
+  health_check_interval_s: 30
+  heartbeat_interval_s: 60
+
+symbols:
+  - symbol: "BTC-USD"
+    enabled: true
+    timeframe: "5m"
+    strategies:
+      - "ma_crossover"

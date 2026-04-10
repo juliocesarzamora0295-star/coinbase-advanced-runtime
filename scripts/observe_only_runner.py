@@ -255,8 +255,10 @@ def run(args: argparse.Namespace) -> int:
     os.environ["FORTRESS_CONFIG"] = str(Path(config_path).resolve())
 
     # Reset global config singleton so it reloads from our YAML
-    from src.config import reset_config
+    from src.config import reset_config, get_config
     reset_config()
+
+    fresh = getattr(args, "fresh", False)
 
     # Set up structured log
     ts_tag = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
@@ -264,10 +266,19 @@ def run(args: argparse.Namespace) -> int:
     log_dir.mkdir(parents=True, exist_ok=True)
     log_path = log_dir / f"observe_only_{ts_tag}.json"
 
+    # Fresh mode: isolated state directory
+    state_dir = None
+    if fresh:
+        state_dir = log_dir / f"observe_state_{ts_tag}"
+        cfg = get_config()
+        cfg.paths.override_state_dir(state_dir)
+        print(f"FRESH MODE: state_dir={state_dir}")
+
     slog = StructuredLogger(log_path)
     slog.event("session", "start",
                config=config_path,
                duration_s=duration_s,
+               fresh=fresh,
                log_file=str(log_path))
 
     print(f"Observe-only session: duration={duration_s}s, log={log_path}")
@@ -284,7 +295,7 @@ def run(args: argparse.Namespace) -> int:
 
     # Import and create bot
     from src.main import TradingBot
-    bot = TradingBot()
+    bot = TradingBot(skip_exchange_bootstrap=fresh)
 
     # Initialize (connects to exchange, bootstraps equity, sets up WS subscriptions)
     slog.event("session", "initializing")
@@ -425,6 +436,10 @@ def main():
     parser.add_argument(
         "--dry-check", action="store_true",
         help="Validate config and exit without connecting (no credentials needed)"
+    )
+    parser.add_argument(
+        "--fresh", action="store_true",
+        help="Start with clean state (isolated SQLite dir, skip exchange bootstrap)"
     )
     args = parser.parse_args()
     sys.exit(run(args))

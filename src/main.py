@@ -72,8 +72,9 @@ def setup_file_logging(logs_path: PathsConfig) -> None:
 class TradingBot:
     """Bot de trading principal."""
 
-    def __init__(self):
+    def __init__(self, *, skip_exchange_bootstrap: bool = False):
         self.config = get_config()
+        self._skip_exchange_bootstrap = skip_exchange_bootstrap
         self.client: CoinbaseRESTClient = None
         self.jwt_auth: JWTAuth = None
         self.ws: CoinbaseWSFeed = None
@@ -300,31 +301,39 @@ class TradingBot:
                 self.ledgers[symbol] = ledger
 
                 # Bootstrap equity from exchange if possible (C)
-                try:
-                    accounts = self.client.list_accounts()
-                    parts = symbol.split("-")
-                    base_cur, quote_cur = parts[0], parts[1] if len(parts) > 1 else ""
-                    quote_bal = Decimal("0")
-                    base_bal = Decimal("0")
-                    for acct in accounts:
-                        cur = acct.get("currency", "")
-                        bal = Decimal(str(acct.get("available_balance", {}).get("value", "0")))
-                        if cur == quote_cur:
-                            quote_bal = bal
-                        elif cur == base_cur:
-                            base_bal = bal
-                    mid_price = Decimal(str(product.get("price", "0") or "0"))
-                    if mid_price <= Decimal("0"):
-                        mid_price = ledger.avg_entry or Decimal("1")
-                    ledger.bootstrap_from_exchange(quote_bal, base_bal, mid_price)
-                    self._bootstrap_source = "exchange"
-                    logger.info("[%s] Bootstrap from EXCHANGE: quote=%s base=%s", symbol, quote_bal, base_bal)
-                except Exception as e:
-                    logger.warning(
-                        f"[{symbol}] Bootstrap from exchange failed: {e}. "
-                        f"Using config initial_cash={initial_cash}"
+                if self._skip_exchange_bootstrap:
+                    # Fresh mode: use config initial_cash, 0 position
+                    self._bootstrap_source = "fresh"
+                    logger.info(
+                        "[%s] Fresh mode: skipping exchange bootstrap (cash=%s, position=0)",
+                        symbol, initial_cash,
                     )
-                    self._bootstrap_source = "config_fallback"
+                else:
+                    try:
+                        accounts = self.client.list_accounts()
+                        parts = symbol.split("-")
+                        base_cur, quote_cur = parts[0], parts[1] if len(parts) > 1 else ""
+                        quote_bal = Decimal("0")
+                        base_bal = Decimal("0")
+                        for acct in accounts:
+                            cur = acct.get("currency", "")
+                            bal = Decimal(str(acct.get("available_balance", {}).get("value", "0")))
+                            if cur == quote_cur:
+                                quote_bal = bal
+                            elif cur == base_cur:
+                                base_bal = bal
+                        mid_price = Decimal(str(product.get("price", "0") or "0"))
+                        if mid_price <= Decimal("0"):
+                            mid_price = ledger.avg_entry or Decimal("1")
+                        ledger.bootstrap_from_exchange(quote_bal, base_bal, mid_price)
+                        self._bootstrap_source = "exchange"
+                        logger.info("[%s] Bootstrap from EXCHANGE: quote=%s base=%s", symbol, quote_bal, base_bal)
+                    except Exception as e:
+                        logger.warning(
+                            f"[{symbol}] Bootstrap from exchange failed: {e}. "
+                            f"Using config initial_cash={initial_cash}"
+                        )
+                        self._bootstrap_source = "config_fallback"
 
                 # Inicializar circuit breaker con equity real
                 current_price = ledger.avg_entry if ledger.position_qty > Decimal("0") else Decimal("1")

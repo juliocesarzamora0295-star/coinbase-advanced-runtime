@@ -157,6 +157,7 @@ class PathsConfig:
     repo: Path = field(default_factory=get_repo_path)
     runtime: Path = field(default_factory=get_runtime_path)
     secrets: Path = field(default_factory=get_secrets_path)
+    _state_override: Optional[Path] = field(default=None, repr=False)
 
     @property
     def data_raw(self) -> Path:
@@ -185,7 +186,14 @@ class PathsConfig:
     @property
     def state(self) -> Path:
         """Directorio para estado persistente (ledgers, idempotencia)."""
+        if self._state_override is not None:
+            return self._state_override
         return self.runtime / "state"
+
+    def override_state_dir(self, path: Path) -> None:
+        """Override state directory for isolated runs (e.g. --fresh dry_run)."""
+        self._state_override = path
+        path.mkdir(parents=True, exist_ok=True)
 
     def ensure_directories(self) -> None:
         """Crear directorios si no existen."""

@@ -112,7 +112,9 @@ class TestStrategyConfigConsistency:
 
     def test_yaml_strategies_all_in_registry(self):
         """Every strategy in symbols.yaml must exist in STRATEGY_REGISTRY."""
-        from src.strategy.manager import _STRATEGY_REGISTRY as STRATEGY_REGISTRY
+        from src.strategy.registry import list_strategies
+
+        registry = list_strategies()
 
         with open("configs/symbols.yaml") as f:
             data = yaml.safe_load(f)
@@ -120,10 +122,10 @@ class TestStrategyConfigConsistency:
         for sym_cfg in data.get("symbols", []):
             for entry in sym_cfg.get("strategies", []):
                 strat_name = entry if isinstance(entry, str) else entry.get("name", "")
-                assert strat_name in STRATEGY_REGISTRY, (
+                assert strat_name in registry, (
                     f"Strategy '{strat_name}' declared for {sym_cfg['symbol']} "
-                    f"but not in STRATEGY_REGISTRY. "
-                    f"Available: {list(STRATEGY_REGISTRY.keys())}"
+                    f"but not in registry. "
+                    f"Available: {list(registry.keys())}"
                 )
 
     def test_no_ghost_strategies(self):
@@ -137,9 +139,10 @@ class TestStrategyConfigConsistency:
         """SymbolConfig defaults and fallbacks don't reference unregistered strategies."""
         from src.config import SymbolConfig
         sc = SymbolConfig(symbol="TEST-USD")
-        from src.strategy.manager import _STRATEGY_REGISTRY as REG
+        from src.strategy.registry import list_strategies
+        reg = list_strategies()
         for s in sc.strategies:
-            assert s in REG, f"Default strategy '{s}' not in registry"
+            assert s in reg, f"Default strategy '{s}' not in registry"
 
 
 # ── Exposure fail-closed on missing prices ──

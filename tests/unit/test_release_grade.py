@@ -66,9 +66,10 @@ class TestSymbolConfigDefaults:
 
     def test_default_strategies_registered(self):
         sc = SymbolConfig(symbol="TEST-USD")
-        from src.strategy.manager import _STRATEGY_REGISTRY
+        from src.strategy.registry import list_strategies
+        reg = list_strategies()
         for s in sc.strategies:
-            assert s in _STRATEGY_REGISTRY, (
+            assert s in reg, (
                 f"Default strategy '{s}' not in registry"
             )
 

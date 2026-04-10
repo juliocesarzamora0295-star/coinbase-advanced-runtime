@@ -213,6 +213,8 @@ def run_cycle(
     duration_s: int,
     config_path: str,
     python_exe: str,
+    fresh: bool = False,
+    initial_cash: float | None = None,
 ) -> dict:
     """
     Run one dry_run cycle and verify state after shutdown.
@@ -238,6 +240,10 @@ def run_cycle(
         "--config", config_path,
         "--duration", str(duration_s),
     ]
+    if fresh:
+        runner_cmd.append("--fresh")
+        if initial_cash is not None:
+            runner_cmd.extend(["--initial-cash", str(initial_cash)])
 
     print(f"  Command: {' '.join(runner_cmd)}")
     print(f"  Starting at {result['start_ts']}")
@@ -284,7 +290,22 @@ def run_cycle(
     print(f"  Log saved: {log_path}")
 
     # --- Post-shutdown checks ---
-    state_dir = find_state_dir()
+    # In --fresh mode, dry_run_runner prints the isolated state dir path
+    state_dir = None
+    if fresh:
+        log_text_scan = stdout or ""
+        for line in log_text_scan.splitlines():
+            if "FRESH MODE: state_dir=" in line:
+                # Parse: "FRESH MODE: state_dir=<path>, initial_cash=..."
+                part = line.split("state_dir=", 1)[1]
+                path_str = part.split(",")[0].strip()
+                candidate = Path(path_str)
+                if candidate.exists():
+                    state_dir = candidate
+                break
+
+    if state_dir is None:
+        state_dir = find_state_dir()
     print(f"  State dir: {state_dir}")
 
     # Check 1: Exit code
@@ -388,6 +409,14 @@ def main():
         "--report", type=str, default="",
         help="Path to save JSON report (default: logs/stability_report.json)"
     )
+    parser.add_argument(
+        "--fresh", action="store_true",
+        help="Pass --fresh to each dry_run cycle (isolated state per cycle)"
+    )
+    parser.add_argument(
+        "--initial-cash", type=float, default=None,
+        help="Simulated starting cash for --fresh mode (forwarded to dry_run_runner)"
+    )
     args = parser.parse_args()
 
     report_path = args.report or str(
@@ -401,6 +430,7 @@ def main():
     print(f"  Duration: {args.duration}s per cycle")
     print(f"  Config:   {args.config}")
     print(f"  Python:   {args.python}")
+    print(f"  Fresh:    {args.fresh}")
     print(f"  Report:   {report_path}")
 
     results = []
@@ -411,6 +441,8 @@ def main():
             duration_s=args.duration,
             config_path=args.config,
             python_exe=args.python,
+            fresh=args.fresh,
+            initial_cash=args.initial_cash,
         )
         results.append(result)
 

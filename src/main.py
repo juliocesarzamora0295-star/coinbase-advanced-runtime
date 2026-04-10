@@ -265,7 +265,11 @@ class TradingBot:
             max_total_exposure_pct=Decimal(str(self.config.risk.max_total_exposure_pct)),
         )
         self.risk_gate = RiskGate(risk_limits)
-        logger.info("Risk Gate initialized: max_position=%s%%", risk_limits.max_position_pct)
+        logger.info(
+            "Risk Gate initialized: max_position=%.1f%%, max_exposure=%.1f%%",
+            float(risk_limits.max_position_pct) * 100,
+            float(risk_limits.max_total_exposure_pct) * 100,
+        )
 
         # Inicializar Paper Engine para simulación
         if self.config.trading.dry_run or self.config.trading.observe_only:

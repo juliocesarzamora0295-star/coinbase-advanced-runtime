@@ -146,6 +146,10 @@ class TradingBot:
         # Day change detection for daily PnL reset (R4)
         self._last_date = datetime.now(timezone.utc).date()
 
+        # OMS bootstrap timeout: force-complete if no snapshot after N seconds
+        self._oms_bootstrap_timeout_s: float = 10.0
+        self._oms_bootstrap_checked: bool = False
+
     def initialize(self) -> bool:
         """Inicializar el bot."""
         logger.info("=" * 60)
@@ -1485,6 +1489,15 @@ class TradingBot:
                     logger.info(f"🏁 Smoke test completado: {max_cycles} ciclos ejecutados")
                     self._running = False
                     break
+
+                # OMS bootstrap timeout: force-complete if no snapshot arrived
+                if not self._oms_bootstrap_checked:
+                    ws_uptime = time.time() - self.ws._connected_at if self.ws._connected_at else 0
+                    if ws_uptime >= self._oms_bootstrap_timeout_s:
+                        self._oms_bootstrap_checked = True
+                        for sym, oms in self.oms_services.items():
+                            if oms.complete_bootstrap_if_no_snapshot():
+                                logger.info("[%s] OMS bootstrap force-completed (no snapshot after %.0fs)", sym, ws_uptime)
 
                 # Log status periódico
                 self._log_status()

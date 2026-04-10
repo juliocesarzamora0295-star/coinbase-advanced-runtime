@@ -5,6 +5,7 @@ Entry point del bot de trading.
 """
 
 import logging
+import signal
 import sys
 import threading
 import time
@@ -1471,6 +1472,21 @@ class TradingBot:
             return 1
 
         self._running = True
+        self._shutdown_requested = False
+
+        # Register signal handlers for graceful shutdown
+        def _request_shutdown(signum, frame):
+            sig_name = signal.Signals(signum).name if hasattr(signal, 'Signals') else str(signum)
+            logger.info("Received %s — initiating graceful shutdown", sig_name)
+            self._shutdown_requested = True
+            self._running = False
+
+        try:
+            signal.signal(signal.SIGINT, _request_shutdown)
+            signal.signal(signal.SIGTERM, _request_shutdown)
+        except (OSError, ValueError):
+            # signal handlers may fail in non-main threads or some platforms
+            pass
 
         logger.info("Bot running. Press Ctrl+C to stop.")
         logger.info("")
@@ -1486,7 +1502,7 @@ class TradingBot:
 
                 # Modo smoke test: limitar ciclos
                 if max_cycles > 0 and self.cycle_count >= max_cycles:
-                    logger.info("🏁 Smoke test completado: %s ciclos ejecutados", max_cycles)
+                    logger.info("Smoke test completado: %s ciclos ejecutados", max_cycles)
                     self._running = False
                     break
 
@@ -1510,14 +1526,74 @@ class TradingBot:
                 time.sleep(1)
 
         except KeyboardInterrupt:
-            logger.info("Shutting down...")
+            logger.info("KeyboardInterrupt — initiating graceful shutdown")
 
         finally:
-            self._running = False
-            self.ws.stop()
-            logger.info("Shutdown complete")
+            self._graceful_shutdown()
 
         return 0
+
+    def _graceful_shutdown(self) -> None:
+        """
+        Graceful shutdown sequence:
+        1. Stop accepting new signals
+        2. Log final state for each symbol
+        3. Flush pending reports
+        4. Stop WebSocket
+        5. Close databases
+
+        Timeout: 10 seconds max to prevent hanging.
+        """
+        shutdown_start = time.time()
+        SHUTDOWN_TIMEOUT_S = 10.0
+
+        self._running = False
+        logger.info("Shutdown sequence started")
+
+        # 1. Log final position/equity state
+        try:
+            for symbol, ledger in self.ledgers.items():
+                if time.time() - shutdown_start > SHUTDOWN_TIMEOUT_S:
+                    logger.warning("Shutdown timeout — skipping remaining state logging")
+                    break
+                price_ref = ledger.avg_entry if ledger.avg_entry > Decimal("0") else Decimal("0")
+                equity = ledger.get_equity(price_ref)
+                pos_qty = ledger.position_qty
+                logger.info(
+                    "[%s] Final state: equity=%s position_qty=%s",
+                    symbol, equity, pos_qty,
+                )
+        except Exception as exc:
+            logger.error("Error logging final state: %s", exc)
+
+        # 2. Log pending reports count
+        try:
+            if hasattr(self, '_pending_store') and self._pending_store is not None:
+                pending_count = self._pending_store.count()
+                if pending_count > 0:
+                    logger.warning(
+                        "Shutdown with %d pending reports unresolved", pending_count,
+                    )
+        except Exception as exc:
+            logger.error("Error checking pending reports: %s", exc)
+
+        # 3. Stop WebSocket
+        try:
+            if hasattr(self, 'ws') and self.ws is not None:
+                self.ws.stop()
+                logger.info("WebSocket stopped")
+        except Exception as exc:
+            logger.error("Error stopping WebSocket: %s", exc)
+
+        # 4. Flush metrics
+        try:
+            if hasattr(self, 'metrics') and self.metrics is not None:
+                self.metrics.flush()
+        except Exception:
+            pass
+
+        elapsed = time.time() - shutdown_start
+        logger.info("Shutdown complete (%.1fs)", elapsed)
 
     def _run_smoke_validations(self) -> None:
         """

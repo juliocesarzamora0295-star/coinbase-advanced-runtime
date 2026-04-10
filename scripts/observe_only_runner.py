@@ -221,12 +221,13 @@ def capture_periodic_snapshot(bot, slog: StructuredLogger) -> None:
         if price > Decimal("0"):
             stats["equity"] = str(ledger.get_equity(price))
             stats["unrealized_pnl"] = str(ledger.get_unrealized_pnl(price))
-        slog.event("snapshot", "ledger", symbol=sym, **stats)
+        slog.event("snapshot", "ledger", **stats)
 
     # OMS state per symbol
     for sym, oms in bot.oms_services.items():
         oms_stats = oms.get_stats()
-        slog.event("snapshot", "oms", symbol=sym, **oms_stats)
+        oms_stats["symbol"] = sym
+        slog.event("snapshot", "oms", **oms_stats)
 
     # Metrics
     metrics_snap = bot.metrics.generic_snapshot()

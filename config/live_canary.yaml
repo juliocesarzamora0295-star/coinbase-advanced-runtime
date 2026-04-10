@@ -1,0 +1,55 @@
+# Live canary configuration — smallest possible real orders
+# DO NOT RUN until dry_run validation is fully complete and reviewed.
+#
+# Purpose: First live trading test with minimal risk exposure.
+# Uses real Coinbase orders with the tightest possible constraints.
+#
+# Risk budget: ~$1 per trade, $5 max daily loss, $10 max drawdown.
+# At BTC ~$70k this means ~0.000014 BTC per order (~$1).
+#
+# Requires manual review of:
+#   1. 24h dry_run stability report
+#   2. Aggressive dry_run report
+#   3. Restart resilience report
+#   4. Ledger consistency audit
+#
+# Launch with (after all validations pass):
+#   python -m src.main --config config/live_canary.yaml
+
+trading:
+  observe_only: false      # Signals ARE generated
+  dry_run: false            # REAL ORDERS — this is live trading
+  smoke_test_mode: false
+  max_cycles: 0
+  initial_cash: 25          # Match actual portfolio (~$25)
+  max_position_pct: 0.10    # Max 10% of equity in one position
+  max_notional_per_symbol: 5.0  # Hard cap: $5 per symbol
+  max_orders_per_minute: 2   # Conservative rate limit
+  sizing_mode: "NOTIONAL"
+  notional_pct: 0.04         # 4% of $25 = ~$1 per trade
+  strategy_mode: "fixed"
+  mtf_enabled: false
+  adaptive_sizing: false
+
+risk:
+  max_daily_loss: 0.20       # 20% of $25 = $5 max daily loss
+  max_drawdown: 0.40         # 40% of $25 = $10 max drawdown
+  max_consecutive_losses: 2  # Trip breaker after 2 consecutive losses
+
+monitoring:
+  log_level: "INFO"          # Less verbose for live
+  latency_p95_threshold_ms: 500.0
+  reject_rate_threshold: 0.03
+  slippage_drift_threshold_bps: 20.0  # Wider for small orders (higher spread impact)
+  alert_webhook_url: ""
+  health_check_interval_s: 30
+  heartbeat_interval_s: 60
+
+symbols:
+  - symbol: "BTC-USD"
+    enabled: true
+    timeframe: "5m"
+    strategies:
+      - name: "ma_crossover"
+        sma_fast: 20
+        sma_slow: 50

@@ -1,0 +1,50 @@
+# Aggressive dry-run configuration for RiskGate stress testing
+# Use with: python scripts/dry_run_runner.py --config config/dry_run_aggressive.yaml --duration 14400
+#
+# Purpose: Generate maximum signal density to stress-test RiskGate, CircuitBreaker,
+# and the full order pipeline under rapid crossover conditions.
+#
+# Changes vs baseline dry_run.yaml:
+#   - SMA 5/13 (warmup ~65 min vs ~260 min with 20/50)
+#   - Higher notional_pct (2% vs 1%)
+#   - Tighter risk limits (1 consecutive loss triggers breaker)
+#   - Lower max_drawdown (5% vs 15%) to force breaker trips
+#   - Higher max_orders_per_minute (30 vs 10) to allow burst
+
+trading:
+  observe_only: false      # Signals ARE generated
+  dry_run: true             # Orders simulated, not sent to exchange
+  smoke_test_mode: false
+  max_cycles: 0             # Controlled by runner --duration
+  initial_cash: 10000
+  max_position_pct: 0.30    # Larger positions to hit risk limits faster
+  max_notional_per_symbol: 10000
+  max_orders_per_minute: 30  # Allow bursts
+  sizing_mode: "NOTIONAL"
+  notional_pct: 0.02         # 2% per trade (2x baseline)
+  strategy_mode: "fixed"
+  mtf_enabled: false
+  adaptive_sizing: false
+
+risk:
+  max_daily_loss: 0.02       # 2% daily loss cap (tighter than baseline 5%)
+  max_drawdown: 0.05         # 5% drawdown cap (tighter than baseline 15%)
+  max_consecutive_losses: 1  # Trip breaker on first consecutive loss
+
+monitoring:
+  log_level: "DEBUG"
+  latency_p95_threshold_ms: 500.0
+  reject_rate_threshold: 0.03
+  slippage_drift_threshold_bps: 10.0
+  alert_webhook_url: ""
+  health_check_interval_s: 15   # More frequent snapshots
+  heartbeat_interval_s: 30      # More frequent heartbeats
+
+symbols:
+  - symbol: "BTC-USD"
+    enabled: true
+    timeframe: "5m"
+    strategies:
+      - name: "ma_crossover"
+        sma_fast: 5
+        sma_slow: 13

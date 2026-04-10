@@ -6,17 +6,20 @@ Runtime de trading para Coinbase Advanced Trade con foco en seguridad operativa,
 - Infraestructura de exchange: madura
 - OMS Reconciliation: validado (27+ tests — fills, orphans, dedup, degradation)
 - Risk Gate: implementado con exposure check, circuit breaker, kill switch
-- Circuit Breaker: CLOSED→OPEN→HALF_OPEN→CLOSED lifecycle validado
-- Market data runtime: estable, multi-timeframe nativo
+- Circuit Breaker: CLOSED->OPEN->HALF_OPEN->CLOSED lifecycle validado
+- Market data runtime: estable, multi-timeframe nativo, 40+ horas de streaming sin desconexiones
 - Strategy Layer: base ABC, registry config-driven, SMA crossover, selector regime-aware
 - Backtest framework: engine, synthetic data, risk adapter, strategy adapter, segmented runner
 - Health check: HealthChecker + HealthFileWriter (Docker HEALTHCHECK)
 - Graceful shutdown: SIGINT/SIGTERM handlers, state logging, 10s timeout
-- Trading live: no certificado — observe_only y dry_run validados
+- Dry-run PaperEngine: validado con `--fresh` mode (estado aislado, cash simulado)
+- Restart resilience: 3/3 ciclos pasados (SQLite integrity, ledger consistency, kill switch, idempotency)
+- Trading live: no certificado — observe_only y dry_run validados, live canary config lista
 
 ## Test coverage
 - 1136+ tests passing, 14 skipped (Coinbase API integration tests)
 - Unit, integration, quantitative, property-based tests
+- Stability report: [`docs/stability_report.md`](docs/stability_report.md)
 
 ## Objetivo inmediato
 1. risk live validation (RiskGate + CircuitBreaker en entorno real)
@@ -52,6 +55,28 @@ Signal → OMS readiness → KillSwitch → CircuitBreaker → PositionSizer →
 
 Default config is safe: `observe_only=true`, `dry_run=true`.
 
+## Live validation scripts
+
+```bash
+# Observe-only (no orders, just log signals)
+python scripts/observe_only_runner.py --duration 300
+
+# Dry-run with PaperEngine simulation
+python scripts/dry_run_runner.py --config config/dry_run.yaml --duration 600
+
+# Dry-run with isolated state (no exchange bootstrap)
+python scripts/dry_run_runner.py --config config/dry_run.yaml --duration 600 --fresh --initial-cash 1000
+
+# Aggressive dry-run (SMA 5/13, tight risk limits)
+python scripts/dry_run_runner.py --config config/dry_run_aggressive.yaml --duration 3600 --fresh
+
+# Restart resilience test (3 cycles)
+python scripts/stability_test.py --cycles 3 --duration 120 --fresh
+
+# Analyze log output
+python scripts/analyze_dry_run.py logs/dry_run_*.json --format markdown
+```
+
 ## Reglas del runtime
 - Fail-closed siempre
 - Ningún submit puede bypass-ear `RiskGate`
@@ -74,6 +99,16 @@ python -m compileall -q src tests
 pytest -q
 ```
 
+## Configs disponibles
+
+| Config | Modo | Descripcion |
+|--------|------|-------------|
+| `config/observe_only.yaml` | observe_only | Solo observa, no ejecuta |
+| `config/dry_run.yaml` | dry_run | PaperEngine, SMA 20/50 |
+| `config/dry_run_aggressive.yaml` | dry_run | SMA 5/13, limites estrictos |
+| `config/live_canary.yaml` | live | $1/trade, $5 daily cap |
+
 ## Estado honesto
-Este repo no es todavía un bot de trading operativo para producción.
-Es una base madura de infraestructura y runtime controlado con validación extensiva.
+Este repo no es todavia un bot de trading operativo para produccion.
+Es una base madura de infraestructura y runtime controlado con validacion extensiva.
+Dry-run con PaperEngine validado. Live canary config lista para primer test real.

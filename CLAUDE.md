@@ -30,11 +30,15 @@ Asume esto como verdad operativa:
 - RiskGate está implementado con exposure check, circuit breaker integration, y kill switch.
 - Strategy Layer tiene: base ABC, registry config-driven, SMA crossover, selector regime-aware.
 - Backtest framework completo: engine, data_feed, data_downloader, synthetic data, risk_adapter, strategy_adapter, segmented runner, profit_factor, equity curve export, data replay bridge.
-- Signal pipeline validado: Signal → OMS → KillSwitch → CB → Sizer → RiskGate → Exposure → Planner → Executor.
+- Signal pipeline validado end-to-end: Signal -> OMS -> KillSwitch -> CB -> Sizer -> RiskGate -> Exposure -> Planner -> Executor.
 - MarketDataService soporta multi-timeframe nativo.
 - Health check: HealthChecker + HealthFileWriter (Docker HEALTHCHECK).
 - Graceful shutdown con signal handlers (SIGINT/SIGTERM) y state logging.
-- Logging: %-style en módulos críticos (main.py, service.py, order_planner.py).
+- Logging: %-style en modulos criticos (main.py, service.py, order_planner.py).
+- Dry-run PaperEngine validado con `--fresh` mode (estado aislado, paper fills confirmados).
+- Restart resilience: 3/3 ciclos pasados con verificacion de SQLite, ledger, kill switch, idempotency.
+- Scripts de validacion: observe_only_runner, dry_run_runner, stability_test, analyze_dry_run.
+- Configs de validacion: observe_only.yaml, dry_run.yaml, dry_run_aggressive.yaml, live_canary.yaml.
 - `main` debe tratarse como base estable, no como sandbox.
 
 No declares "production-ready", "fully complete", "done" o equivalentes sin evidencia explícita.
@@ -174,13 +178,20 @@ No uses marketing.
 No uses frases blandas.
 
 ## Prioridades actuales del repo
-1. risk live validation (RiskGate + CircuitBreaker en entorno real)
+1. live canary validation (config/live_canary.yaml con ordenes reales de ~$1)
 2. runtime correctness (mantener invariantes existentes)
-3. config-driven behavior (YAML → runtime sin hardcode)
-4. strategy iteration (nuevas estrategias vía registry, backtest validation)
+3. config-driven behavior (YAML -> runtime sin hardcode)
+4. strategy iteration (nuevas estrategias via registry, backtest validation)
 5. deployment / CI polish (Docker, health checks, monitoring)
 6. multi-symbol live operation
 7. performance tuning (latency, memory)
+
+## Validacion live
+- `--fresh` flag: estado aislado (SQLite separado, skip exchange bootstrap, cash simulado)
+- `--initial-cash`: cash inicial configurable para `--fresh` mode
+- `analyze_dry_run.py`: analisis post-run de logs JSON estructurados
+- `stability_test.py --fresh`: restart resilience con estado aislado por ciclo
+- Stability report: `docs/stability_report.md`
 
 ## Norma final
 Cada cambio debe dejar el repo en mejor estado del que lo encontró.

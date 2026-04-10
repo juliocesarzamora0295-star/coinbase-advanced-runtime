@@ -44,6 +44,14 @@ class SmaCrossoverStrategy(Strategy):
         self._last_signal_side: Optional[str] = None
         self.positions: Dict[str, Dict[str, Decimal]] = {}
 
+    @property
+    def name(self) -> str:
+        return f"sma_crossover_{self.fast}_{self.slow}"
+
+    @property
+    def warmup_bars(self) -> int:
+        return self.slow + 2
+
     def update_market_data(self, market_data: pd.DataFrame) -> None:
         """Actualizar datos de mercado."""
         if market_data is None or len(market_data) < (self.slow + 2):

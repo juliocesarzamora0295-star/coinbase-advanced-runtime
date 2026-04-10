@@ -34,17 +34,25 @@ STATE_DIR = REPO_ROOT / "runtime" / "state"
 
 
 def find_state_dir() -> Path:
-    """Locate the state directory. Check common locations."""
-    candidates = [
-        REPO_ROOT / "runtime" / "state",
-        REPO_ROOT / "state",
-        Path.home() / ".fortress" / "state",
-    ]
-    for p in candidates:
+    """Locate the state directory using the same logic as src/config.py."""
+    # Match PathsConfig: runtime = FORTRESS_RUNTIME or repo_parent/fortress_runtime
+    env_runtime = os.environ.get("FORTRESS_RUNTIME")
+    if env_runtime:
+        state = Path(env_runtime) / "state"
+        if state.exists():
+            return state
+
+    # Default: sibling of repo root
+    default = REPO_ROOT.parent / "fortress_runtime" / "state"
+    if default.exists():
+        return default
+
+    # Fallback candidates
+    for p in [REPO_ROOT / "runtime" / "state", REPO_ROOT / "state"]:
         if p.exists():
             return p
-    # Default — will be created by the bot
-    return REPO_ROOT / "runtime" / "state"
+
+    return default
 
 
 def check_sqlite_readable(db_path: Path) -> tuple[bool, str]:
@@ -65,7 +73,13 @@ def check_sqlite_readable(db_path: Path) -> tuple[bool, str]:
 
 
 def check_ledger_consistency(state_dir: Path) -> list[str]:
-    """Check all ledger DBs for consistency issues."""
+    """Check all ledger DBs for consistency issues.
+
+    Ledger schema (state table):
+        symbol, position_qty, avg_entry, cost_basis_quote, realized_pnl_quote,
+        last_trade_ts_ms, last_trade_id, initial_cash, cash, fees_paid_quote,
+        equity_day_start, equity_peak
+    """
     issues = []
     for db_file in state_dir.glob("ledger_*.db"):
         symbol = db_file.stem.replace("ledger_", "")
@@ -77,37 +91,45 @@ def check_ledger_consistency(state_dir: Path) -> list[str]:
             table_names = [r[0] for r in rows]
 
             if "state" in table_names:
-                state_rows = conn.execute("SELECT key, value FROM state").fetchall()
-                state = {k: v for k, v in state_rows}
+                # Read column names dynamically
+                cols = conn.execute("PRAGMA table_info(state)").fetchall()
+                col_names = [c[1] for c in cols]
+                row = conn.execute("SELECT * FROM state LIMIT 1").fetchone()
 
-                # Check position_qty is non-negative
-                pos_raw = state.get("position_qty", "0")
-                try:
-                    pos = Decimal(pos_raw)
-                    if pos < 0:
-                        issues.append(f"[{symbol}] negative position_qty: {pos}")
-                except InvalidOperation:
-                    issues.append(f"[{symbol}] invalid position_qty: {pos_raw}")
+                if row:
+                    state = dict(zip(col_names, row))
 
-                # Check equity-related values are not NaN
-                for key in ["cash", "realized_pnl"]:
-                    val = state.get(key, "0")
+                    # Check position_qty is non-negative
+                    pos_raw = state.get("position_qty", "0")
                     try:
-                        d = Decimal(val)
-                        if d != d:  # NaN check
-                            issues.append(f"[{symbol}] NaN in {key}")
+                        pos = Decimal(str(pos_raw))
+                        if pos < 0:
+                            issues.append(f"[{symbol}] negative position_qty: {pos}")
                     except InvalidOperation:
-                        issues.append(f"[{symbol}] invalid {key}: {val}")
+                        issues.append(f"[{symbol}] invalid position_qty: {pos_raw}")
 
-            if "trades" in table_names:
+                    # Check numeric fields are not NaN/invalid
+                    for key in ["cash", "realized_pnl_quote", "avg_entry",
+                                "equity_day_start", "equity_peak"]:
+                        val = state.get(key)
+                        if val is None:
+                            continue
+                        try:
+                            d = Decimal(str(val))
+                            if d != d:  # NaN check
+                                issues.append(f"[{symbol}] NaN in {key}")
+                        except InvalidOperation:
+                            issues.append(f"[{symbol}] invalid {key}: {val}")
+
+            if "fills" in table_names:
                 # Check for duplicate trade_ids
                 dupes = conn.execute(
-                    "SELECT trade_id, COUNT(*) c FROM trades "
+                    "SELECT trade_id, COUNT(*) c FROM fills "
                     "GROUP BY trade_id HAVING c > 1"
                 ).fetchall()
                 if dupes:
                     issues.append(
-                        f"[{symbol}] duplicate trade_ids: "
+                        f"[{symbol}] duplicate trade_ids in fills: "
                         f"{[d[0] for d in dupes[:5]]}"
                     )
 
@@ -154,7 +176,12 @@ def check_idempotency_dupes(state_dir: Path) -> list[str]:
 
 
 def check_kill_switch(state_dir: Path) -> tuple[bool, str]:
-    """Check kill switch is not stuck active."""
+    """Check kill switch is not stuck active.
+
+    Kill switch schema (kill_switch table):
+        id, mode, reason, activated_at, activated_by
+    Mode 'OFF' means inactive; anything else means active.
+    """
     ks_db = state_dir / "kill_switch.db"
     if not ks_db.exists():
         return True, "no kill_switch.db (fresh state)"
@@ -165,13 +192,15 @@ def check_kill_switch(state_dir: Path) -> tuple[bool, str]:
         ).fetchall()
         table_names = [r[0] for r in tables]
 
-        if "state" in table_names:
-            rows = conn.execute("SELECT key, value FROM state").fetchall()
-            state = {k: v for k, v in rows}
-            active = state.get("active", "false")
-            if active.lower() in ("true", "1"):
-                mode = state.get("mode", "unknown")
-                return False, f"kill switch ACTIVE (mode={mode})"
+        if "kill_switch" in table_names:
+            row = conn.execute(
+                "SELECT mode, reason FROM kill_switch ORDER BY id DESC LIMIT 1"
+            ).fetchone()
+            if row:
+                mode, reason = row
+                if mode and mode.upper() != "OFF":
+                    conn.close()
+                    return False, f"kill switch ACTIVE (mode={mode}, reason={reason})"
         conn.close()
         return True, "inactive"
     except Exception as e:
@@ -312,12 +341,18 @@ def run_cycle(
     print(f"  [{'OK' if idemp_ok else 'FAIL'}] Idempotency dedup"
           f"{': ' + '; '.join(idemp_issues) if idemp_issues else ''}")
 
-    # Check 6: Graceful shutdown detected in log
-    shutdown_ok = "Shutdown sequence started" in (stdout or "")
+    # Check 6: Clean session completion detected in log
+    # dry_run_runner prints "Dry-run session complete" on normal exit;
+    # TradingBot.run() prints "Shutdown sequence started" on SIGINT path.
+    log_text = stdout or ""
+    shutdown_ok = (
+        "Dry-run session complete" in log_text
+        or "Shutdown sequence started" in log_text
+    )
     result["checks"]["graceful_shutdown"] = {"passed": shutdown_ok}
     if not shutdown_ok:
-        result["issues"].append("no graceful shutdown detected in log")
-    print(f"  [{'OK' if shutdown_ok else 'FAIL'}] Graceful shutdown in log")
+        result["issues"].append("no clean shutdown detected in log")
+    print(f"  [{'OK' if shutdown_ok else 'FAIL'}] Clean shutdown in log")
 
     # Overall
     result["passed"] = all(

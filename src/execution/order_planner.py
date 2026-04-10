@@ -15,11 +15,14 @@ Invariantes:
 """
 
 import hashlib
+import logging
 from dataclasses import dataclass
 from decimal import Decimal
 from typing import Any, Dict, Literal, Optional
 
 from src.risk.position_sizer import SizingDecision, SymbolConstraints
+
+logger = logging.getLogger("OrderPlanner")
 
 PLANNER_VERSION = "1.0"
 
@@ -132,6 +135,10 @@ class OrderPlanner:
             OrderNotAllowedError: Si risk.allowed=False.
         """
         if not risk.allowed:
+            logger.info(
+                "[%s] OrderPlanner blocked: %s %s — %s",
+                symbol, side, signal_id, risk.reason,
+            )
             raise OrderNotAllowedError(
                 f"RiskVerdict.allowed=False for {symbol} {side}: {risk.reason}"
             )
@@ -156,6 +163,17 @@ class OrderPlanner:
 
         # Determinar viabilidad
         viable = final_qty >= constraints.min_qty
+
+        if not viable:
+            logger.info(
+                "[%s] OrderIntent not viable: final_qty=%s < min_qty=%s",
+                symbol, final_qty, constraints.min_qty,
+            )
+        else:
+            logger.debug(
+                "[%s] OrderIntent: %s %s qty=%s signal=%s",
+                symbol, side, order_type, final_qty, signal_id,
+            )
 
         return OrderIntent(
             client_order_id=_make_client_order_id(signal_id, symbol),

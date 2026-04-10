@@ -333,6 +333,7 @@ def run(args: argparse.Namespace) -> int:
     snapshot_interval_s = 30
     last_snapshot = 0.0
     candle_count_at_start = 0
+    bootstrap_checked = False
 
     print(f"Streaming live data for {duration_s}s... (Ctrl+C to stop early)")
 
@@ -342,6 +343,15 @@ def run(args: argparse.Namespace) -> int:
             if elapsed >= duration_s:
                 slog.event("session", "duration_reached", elapsed_s=round(elapsed, 1))
                 break
+
+            # OMS bootstrap timeout: force-complete if no snapshot after 10s
+            if not bootstrap_checked and elapsed >= bot._oms_bootstrap_timeout_s:
+                bootstrap_checked = True
+                for sym, oms in bot.oms_services.items():
+                    if oms.complete_bootstrap_if_no_snapshot():
+                        slog.event("oms", "bootstrap_force_completed", symbol=sym,
+                                   elapsed_s=round(elapsed, 1))
+                        print(f"  OMS [{sym}] bootstrap force-completed (no snapshot after {elapsed:.0f}s)")
 
             # Periodic snapshots
             now = time.time()

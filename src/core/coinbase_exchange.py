@@ -83,20 +83,17 @@ class CoinbaseRESTClient:
         if elapsed < self._min_interval:
             time.sleep(self._min_interval - elapsed)
 
-        # Build query string once (sorted + doseq) and use it for both
-        # JWT signing and the actual request URL.  Previously, the JWT was
-        # signed with sorted params but requests serialised in insertion
-        # order, causing an auth mismatch on endpoints with >1 param.
+        # Build query string for the HTTP request URL.
+        # JWT signing uses path-only (no query string) — Coinbase CDP
+        # rejects tokens whose URI includes query parameters.
         if params:
             qs = urlencode(sorted(params.items()), doseq=True)
-            signed_path = f"{path}?{qs}"
             full_url = f"{url}?{qs}"
         else:
-            signed_path = path
             full_url = url
 
-        # Generar JWT para esta llamada
-        token = self.jwt_auth.generate_rest_jwt(method, signed_path)
+        # Generar JWT para esta llamada (path-only, sin query string)
+        token = self.jwt_auth.generate_rest_jwt(method, path)
 
         headers = {
             "Authorization": f"Bearer {token}",

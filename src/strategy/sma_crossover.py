@@ -47,7 +47,7 @@ class SmaCrossoverStrategy(Strategy):
     def update_market_data(self, market_data: pd.DataFrame) -> None:
         """Actualizar datos de mercado."""
         if market_data is None or len(market_data) < (self.slow + 2):
-            logger.warning(
+            logger.debug(
                 f"Insufficient data: {len(market_data) if market_data is not None else 0} < {self.slow + 2}"
             )
             return

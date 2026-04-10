@@ -532,7 +532,7 @@ class TradingBot:
             for sym, oms_svc in self.oms_services.items():
                 try:
                     exchange_orders = self.client.list_orders(
-                        product_id=sym, order_status=["OPEN", "PENDING"]
+                        product_id=sym, order_status=["OPEN"]
                     ) if hasattr(self.client, "list_orders") else []
                     # Fetch recent fills from exchange for drift detection
                     exchange_fills = self.client.list_fills(

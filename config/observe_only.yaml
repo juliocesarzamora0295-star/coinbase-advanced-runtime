@@ -1,0 +1,41 @@
+# Observe-only validation configuration
+# Use with: python scripts/observe_only_runner.py --config config/observe_only.yaml
+#
+# Purpose: Validate runtime against live Coinbase WS data without placing any orders.
+# All trading is disabled. All risk gates are active (to verify they evaluate correctly).
+
+trading:
+  observe_only: true       # LOCKED: no order execution
+  dry_run: false            # Real exchange connection, not simulation
+  smoke_test_mode: false
+  max_cycles: 0             # Controlled by runner --duration, not config
+  initial_cash: 10000
+  max_position_pct: 0.20
+  max_notional_per_symbol: 10000
+  max_orders_per_minute: 10
+  sizing_mode: "NOTIONAL"
+  notional_pct: 0.01
+  strategy_mode: "fixed"
+  mtf_enabled: false
+  adaptive_sizing: false
+
+risk:
+  max_daily_loss: 0.05
+  max_drawdown: 0.15
+  max_consecutive_losses: 3
+
+monitoring:
+  log_level: "DEBUG"        # Verbose for validation
+  latency_p95_threshold_ms: 500.0
+  reject_rate_threshold: 0.03
+  slippage_drift_threshold_bps: 10.0
+  alert_webhook_url: ""
+  health_check_interval_s: 30    # More frequent for validation
+  heartbeat_interval_s: 60       # More frequent for validation
+
+symbols:
+  - symbol: "BTC-USD"
+    enabled: true
+    timeframe: "5m"           # Shortest timeframe for fastest candle closes
+    strategies:
+      - "ma_crossover"

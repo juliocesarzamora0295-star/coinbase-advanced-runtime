@@ -24,6 +24,7 @@ class BacktestReport:
     total_pnl: Decimal
     max_drawdown: Decimal  # 0-1
     sharpe_ratio: float  # annualized
+    profit_factor: Decimal  # gross_profit / gross_loss (inf if no losses)
     avg_trade_pnl: Decimal
     avg_trade_duration_ms: int
     initial_equity: Decimal
@@ -32,6 +33,7 @@ class BacktestReport:
     fees_paid: Decimal
 
     def __str__(self) -> str:
+        pf_str = f"{self.profit_factor:.2f}" if self.profit_factor < Decimal("1000") else "∞"
         return (
             f"BacktestReport:\n"
             f"  Bars: {self.total_bars}\n"
@@ -41,6 +43,7 @@ class BacktestReport:
             f"  Return: {self.return_pct:.2%}\n"
             f"  Max Drawdown: {self.max_drawdown:.2%}\n"
             f"  Sharpe: {self.sharpe_ratio:.2f}\n"
+            f"  Profit Factor: {pf_str}\n"
             f"  Avg PnL/Trade: ${self.avg_trade_pnl:,.2f}\n"
             f"  Avg Duration: {self.avg_trade_duration_ms / 1000:.0f}s\n"
             f"  Fees: ${self.fees_paid:,.2f}\n"
@@ -84,6 +87,7 @@ def build_report(
 
     max_dd = _compute_max_drawdown(ledger.equity_curve)
     sharpe = _compute_sharpe(ledger.equity_curve)
+    profit_factor = _compute_profit_factor(trades)
 
     return BacktestReport(
         total_bars=total_bars,
@@ -94,6 +98,7 @@ def build_report(
         total_pnl=total_pnl,
         max_drawdown=max_dd,
         sharpe_ratio=sharpe,
+        profit_factor=profit_factor,
         avg_trade_pnl=avg_pnl,
         avg_trade_duration_ms=avg_duration,
         initial_equity=ledger.initial_cash,
@@ -101,6 +106,43 @@ def build_report(
         return_pct=return_pct,
         fees_paid=ledger.fees_paid,
     )
+
+
+def _compute_profit_factor(trades: List[BacktestTrade]) -> Decimal:
+    """
+    Profit factor = gross_profit / gross_loss.
+
+    Returns Decimal("Infinity") if no losing trades.
+    Returns ZERO if no trades.
+    """
+    if not trades:
+        return ZERO
+
+    gross_profit = sum((t.pnl for t in trades if t.pnl > ZERO), ZERO)
+    gross_loss = abs(sum((t.pnl for t in trades if t.pnl < ZERO), ZERO))
+
+    if gross_loss == ZERO:
+        return Decimal("Infinity") if gross_profit > ZERO else ZERO
+
+    return gross_profit / gross_loss
+
+
+def equity_curve_to_csv(
+    equity_curve: List[tuple[int, Decimal]],
+    path: str,
+) -> None:
+    """
+    Export equity curve to CSV for visualization.
+
+    Columns: timestamp_ms, equity
+    """
+    import csv as csv_mod
+
+    with open(path, "w", newline="") as f:
+        writer = csv_mod.writer(f)
+        writer.writerow(["timestamp_ms", "equity"])
+        for ts_ms, equity in equity_curve:
+            writer.writerow([ts_ms, str(equity)])
 
 
 def _compute_max_drawdown(equity_curve: List[tuple[int, Decimal]]) -> Decimal:

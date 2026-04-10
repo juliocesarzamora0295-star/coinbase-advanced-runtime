@@ -125,6 +125,32 @@ class OMSReconcileService:
         """Verificar si el bootstrap está completo."""
         return self._bootstrap_complete
 
+    def complete_bootstrap_if_no_snapshot(self) -> bool:
+        """
+        Force-complete bootstrap when no snapshot event arrived.
+
+        Coinbase user channel may not send a snapshot event when the account
+        has 0 open orders. Call this after a timeout (e.g. 10s post-WS connect)
+        to unblock OMS readiness.
+
+        Returns True if bootstrap was force-completed, False if already done.
+        """
+        if self._bootstrap_complete:
+            return False
+
+        if self._snapshot_batches > 0:
+            # We received at least one snapshot batch — let normal path handle it
+            return False
+
+        self._bootstrap_complete = True
+        logger.info(
+            "OMS: Bootstrap force-completed (no snapshot received — "
+            "assuming 0 open orders)"
+        )
+        if self.on_bootstrap_complete:
+            self.on_bootstrap_complete()
+        return True
+
     def is_degraded(self) -> bool:
         """Verificar si el OMS está degradado."""
         return self._degraded

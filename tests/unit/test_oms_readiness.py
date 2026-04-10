@@ -349,3 +349,60 @@ class TestDivergenceReporting:
         assert stats["degraded"] is True
         assert stats["incidents"] == 1
         assert "test" in stats["degraded_reason"]
+
+
+class TestBootstrapForceComplete:
+    """complete_bootstrap_if_no_snapshot() for accounts with 0 open orders."""
+
+    def setup_method(self):
+        self.temp_dir = tempfile.mkdtemp()
+
+    def teardown_method(self):
+        import shutil
+        shutil.rmtree(self.temp_dir, ignore_errors=True)
+
+    def test_force_complete_when_no_snapshot(self):
+        """Force-completes bootstrap when no snapshot received."""
+        oms, _, _ = _make_oms(self.temp_dir)
+        assert not oms.is_bootstrap_complete()
+
+        result = oms.complete_bootstrap_if_no_snapshot()
+        assert result is True
+        assert oms.is_bootstrap_complete()
+        assert oms.is_ready()
+
+    def test_force_complete_invokes_callback(self):
+        """on_bootstrap_complete callback fires on force-complete."""
+        callback = MagicMock()
+        oms, _, _ = _make_oms(self.temp_dir, on_bootstrap_complete=callback)
+
+        oms.complete_bootstrap_if_no_snapshot()
+        callback.assert_called_once()
+
+    def test_noop_if_already_bootstrapped(self):
+        """Returns False if bootstrap already complete."""
+        oms, _, _ = _make_oms(self.temp_dir)
+        _complete_bootstrap(oms)
+
+        result = oms.complete_bootstrap_if_no_snapshot()
+        assert result is False
+
+    def test_noop_if_snapshot_received(self):
+        """Does not force-complete if a snapshot batch was already received."""
+        oms, _, _ = _make_oms(self.temp_dir)
+        # Simulate a partial snapshot (batch with 50+ orders, bootstrap not yet done)
+        oms._snapshot_batches = 1
+        oms._orders_in_snapshot = 60
+
+        result = oms.complete_bootstrap_if_no_snapshot()
+        assert result is False
+        assert not oms.is_bootstrap_complete()
+
+    def test_force_complete_idempotent(self):
+        """Calling twice returns False the second time."""
+        callback = MagicMock()
+        oms, _, _ = _make_oms(self.temp_dir, on_bootstrap_complete=callback)
+
+        assert oms.complete_bootstrap_if_no_snapshot() is True
+        assert oms.complete_bootstrap_if_no_snapshot() is False
+        callback.assert_called_once()

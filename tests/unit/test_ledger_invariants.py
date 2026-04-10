@@ -338,3 +338,69 @@ class TestLedgerRestart:
         assert snap2.position_qty == snap1.position_qty
         assert snap2.avg_entry == snap1.avg_entry
         assert snap2.realized_pnl_quote == snap1.realized_pnl_quote
+
+
+class TestLedgerSchemaMigration:
+    """Schema migration: old DBs without new columns survive upgrade."""
+
+    def test_old_schema_migrates_on_open(self, tmp_path):
+        """Ledger created with old 7-column schema migrates to 12-column."""
+        import sqlite3
+
+        db_path = str(tmp_path / "old_ledger.db")
+
+        # Create old schema (7 columns, no initial_cash/cash/fees/equity)
+        with sqlite3.connect(db_path) as conn:
+            conn.execute("""
+                CREATE TABLE fills (
+                    trade_id TEXT PRIMARY KEY,
+                    symbol TEXT NOT NULL,
+                    side TEXT NOT NULL,
+                    amount TEXT NOT NULL,
+                    price TEXT NOT NULL,
+                    cost TEXT NOT NULL,
+                    fee_cost TEXT NOT NULL,
+                    fee_currency TEXT NOT NULL,
+                    ts_ms INTEGER NOT NULL,
+                    order_id TEXT NOT NULL
+                )
+            """)
+            conn.execute("""
+                CREATE TABLE state (
+                    symbol TEXT PRIMARY KEY,
+                    position_qty TEXT NOT NULL,
+                    avg_entry TEXT NOT NULL,
+                    cost_basis_quote TEXT NOT NULL,
+                    realized_pnl_quote TEXT NOT NULL,
+                    last_trade_ts_ms INTEGER NOT NULL,
+                    last_trade_id TEXT NOT NULL
+                )
+            """)
+            conn.execute(
+                "INSERT INTO state VALUES (?, ?, ?, ?, ?, ?, ?)",
+                ("BTC-USD", "0.001", "50000", "50", "0", 0, ""),
+            )
+            conn.commit()
+
+        # Open with new TradeLedger — should migrate, not crash
+        ledger = TradeLedger("BTC-USD", db_path=db_path)
+
+        assert ledger.position_qty == Decimal("0.001")
+        assert ledger.avg_entry == Decimal("50000")
+
+        # Save should work with all 12 columns
+        ledger.save()
+
+        # Reopen and verify
+        ledger2 = TradeLedger("BTC-USD", db_path=db_path)
+        assert ledger2.position_qty == Decimal("0.001")
+
+    def test_new_schema_no_error(self, tmp_path):
+        """Fresh DB with full schema does not error on migration attempt."""
+        db_path = str(tmp_path / "new_ledger.db")
+        ledger = TradeLedger("BTC-USD", db_path=db_path, initial_cash=Decimal("5000"))
+        ledger.save()
+
+        # Reopen — migration code runs but columns already exist
+        ledger2 = TradeLedger("BTC-USD", db_path=db_path, initial_cash=Decimal("5000"))
+        assert ledger2.initial_cash == Decimal("5000")

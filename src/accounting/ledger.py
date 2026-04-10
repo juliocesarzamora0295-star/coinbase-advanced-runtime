@@ -162,6 +162,20 @@ class TradeLedger:
                 )
             """)
 
+            # Schema migration: add columns that may be missing in old DBs
+            _migration_columns = [
+                ("initial_cash", "TEXT NOT NULL DEFAULT '0'"),
+                ("cash", "TEXT NOT NULL DEFAULT '0'"),
+                ("fees_paid_quote", "TEXT NOT NULL DEFAULT '0'"),
+                ("equity_day_start", "TEXT NOT NULL DEFAULT '0'"),
+                ("equity_peak", "TEXT NOT NULL DEFAULT '0'"),
+            ]
+            for col_name, col_def in _migration_columns:
+                try:
+                    conn.execute(f"ALTER TABLE state ADD COLUMN {col_name} {col_def}")
+                except sqlite3.OperationalError:
+                    pass  # Column already exists
+
             conn.commit()
 
     def load(self) -> None:

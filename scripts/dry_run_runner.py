@@ -221,19 +221,34 @@ def run(args: argparse.Namespace) -> int:
 
     os.environ["FORTRESS_CONFIG"] = str(Path(config_path).resolve())
 
-    from src.config import reset_config
+    from src.config import reset_config, get_config
     reset_config()
+
+    fresh = getattr(args, "fresh", False)
+    initial_cash = getattr(args, "initial_cash", None)
 
     ts_tag = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     log_dir = REPO_ROOT / "logs"
     log_dir.mkdir(parents=True, exist_ok=True)
     log_path = log_dir / f"dry_run_{ts_tag}.json"
 
+    # Fresh mode: isolated state directory
+    state_dir = None
+    if fresh:
+        state_dir = log_dir / f"dry_run_state_{ts_tag}"
+        cfg = get_config()
+        cfg.paths.override_state_dir(state_dir)
+        if initial_cash is not None:
+            cfg.trading.initial_cash = initial_cash
+        print(f"FRESH MODE: state_dir={state_dir}, initial_cash={cfg.trading.initial_cash}")
+
     slog = StructuredLogger(log_path)
     slog.event("session", "start",
                config=config_path,
                duration_s=duration_s,
                mode="dry_run",
+               fresh=fresh,
+               state_dir=str(state_dir) if state_dir else None,
                log_file=str(log_path))
 
     print(f"Dry-run session: duration={duration_s}s, log={log_path}")
@@ -246,7 +261,7 @@ def run(args: argparse.Namespace) -> int:
     )
 
     from src.main import TradingBot
-    bot = TradingBot()
+    bot = TradingBot(skip_exchange_bootstrap=fresh)
 
     slog.event("session", "initializing")
     if not bot.initialize():
@@ -366,6 +381,8 @@ def run(args: argparse.Namespace) -> int:
     print(f"  Final prices: {prices_final}")
     print(f"  Circuit breaker: {bot.circuit_breaker.state.value}")
     print(f"  Log file: {log_path}")
+    if state_dir:
+        print(f"  State dir: {state_dir} (preserved for analysis)")
 
     return 0
 
@@ -385,6 +402,14 @@ def main():
     parser.add_argument(
         "--dry-check", action="store_true",
         help="Validate config and exit without connecting"
+    )
+    parser.add_argument(
+        "--fresh", action="store_true",
+        help="Start with clean state (0 position, isolated SQLite dir)"
+    )
+    parser.add_argument(
+        "--initial-cash", type=float, default=None,
+        help="Simulated starting cash for --fresh mode (default: from config)"
     )
     args = parser.parse_args()
     sys.exit(run(args))

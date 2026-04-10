@@ -3,12 +3,18 @@ Health check — verifies state of all system components.
 
 Returns structured JSON with component status.
 Detects stale data (no updates for N seconds).
+
+Health file output:
+  HealthFileWriter writes SystemHealth to a JSON file on disk.
+  Docker/k8s can probe this file for container health:
+    HEALTHCHECK CMD python -c "import json,sys,time; h=json.load(open('/tmp/health.json')); sys.exit(0 if h['overall']!='UNHEALTHY' and time.time()*1000-h['timestamp_ms']<180000 else 1)"
 """
 
 import json
 import logging
 import time
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Dict, Optional
 
 logger = logging.getLogger("HealthCheck")
@@ -163,3 +169,51 @@ class HealthChecker:
             timestamp_ms=int(now * 1000),
             uptime_seconds=round(now - self._start_time, 1),
         )
+
+
+class HealthFileWriter:
+    """
+    Writes SystemHealth to a JSON file on disk for external probing.
+
+    Docker/k8s HEALTHCHECK can read this file to determine container health.
+    Writes atomically (write to temp, rename) to prevent partial reads.
+    """
+
+    def __init__(self, path: str = "/tmp/health.json") -> None:
+        self._path = Path(path)
+        self._path.parent.mkdir(parents=True, exist_ok=True)
+
+    def write(self, health: SystemHealth) -> None:
+        """Write health status to file atomically."""
+        data = health.to_dict()
+        tmp_path = self._path.with_suffix(".tmp")
+        try:
+            with open(tmp_path, "w") as f:
+                json.dump(data, f, default=str)
+            tmp_path.replace(self._path)
+        except Exception as exc:
+            logger.error("Failed to write health file: %s", exc)
+
+    @staticmethod
+    def check_file(path: str = "/tmp/health.json", max_age_ms: int = 180_000) -> bool:
+        """
+        Read health file and return True if healthy and fresh.
+
+        Used by Docker HEALTHCHECK or monitoring probes.
+
+        Args:
+            path: Path to health JSON file
+            max_age_ms: Maximum age in milliseconds before considering stale
+
+        Returns:
+            True if file exists, overall != UNHEALTHY, and timestamp is fresh.
+        """
+        try:
+            with open(path) as f:
+                data = json.load(f)
+            if data.get("overall") == "UNHEALTHY":
+                return False
+            age_ms = time.time() * 1000 - data.get("timestamp_ms", 0)
+            return age_ms < max_age_ms
+        except Exception:
+            return False

@@ -30,7 +30,7 @@ from src.execution.orders import OrderExecutor
 from src.marketdata.orderbook import OrderBook
 from src.marketdata.service import MarketDataService
 from src.monitoring.alert_manager import AlertLevel, AlertManager, ConsoleBackend, FileBackend
-from src.monitoring.health_check import HealthChecker
+from src.monitoring.health_check import HealthChecker, HealthFileWriter
 from src.observability import get_collector
 from src.observability.json_sink import JSONLineSink
 from src.oms.reconcile import OMSReconcileService
@@ -121,6 +121,7 @@ class TradingBot:
             cooldown_seconds=300.0,
         )
         self.health_checker = HealthChecker(stale_threshold_s=120.0)
+        self._health_file_writer = HealthFileWriter()
         self._last_health_check: float = 0.0
         self._health_check_interval_s: float = 60.0
 
@@ -564,6 +565,7 @@ class TradingBot:
                 pending_reports_count=self._pending_store.count(),
             )
             health.log_json()
+            self._health_file_writer.write(health)
 
             if health.overall == "UNHEALTHY":
                 self.alert_manager.alert(

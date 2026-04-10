@@ -21,5 +21,9 @@ print('All imports OK')"
 
 RUN python -m src.config_validator configs/symbols.yaml
 
+# Health check: verify health file is fresh and not UNHEALTHY
+HEALTHCHECK --interval=60s --timeout=5s --retries=3 \
+  CMD python -c "from src.monitoring.health_check import HealthFileWriter; import sys; sys.exit(0 if HealthFileWriter.check_file() else 1)"
+
 # Default: run full test suite
 CMD ["python", "-m", "pytest", "tests/", "-q", "--tb=short", "-x"]

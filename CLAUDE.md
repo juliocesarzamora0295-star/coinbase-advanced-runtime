@@ -26,9 +26,15 @@ Asume esto como verdad operativa:
 
 - El repo tiene infraestructura madura de exchange.
 - El runtime aún no es un bot de trading certificado.
-- OMS está parcialmente validado.
-- RiskGate está implementado pero su integración live aún debe tratarse con cuidado.
-- No hay Strategy Layer formal completa.
+- OMS está validado con 27+ tests de reconciliación (fills, orphans, dedup, degradation).
+- RiskGate está implementado con exposure check, circuit breaker integration, y kill switch.
+- Strategy Layer tiene: base ABC, registry config-driven, SMA crossover, selector regime-aware.
+- Backtest framework completo: engine, data_feed, data_downloader, synthetic data, risk_adapter, strategy_adapter, segmented runner, profit_factor, equity curve export, data replay bridge.
+- Signal pipeline validado: Signal → OMS → KillSwitch → CB → Sizer → RiskGate → Exposure → Planner → Executor.
+- MarketDataService soporta multi-timeframe nativo.
+- Health check: HealthChecker + HealthFileWriter (Docker HEALTHCHECK).
+- Graceful shutdown con signal handlers (SIGINT/SIGTERM) y state logging.
+- Logging: %-style en módulos críticos (main.py, service.py, order_planner.py).
 - `main` debe tratarse como base estable, no como sandbox.
 
 No declares "production-ready", "fully complete", "done" o equivalentes sin evidencia explícita.
@@ -168,13 +174,13 @@ No uses marketing.
 No uses frases blandas.
 
 ## Prioridades actuales del repo
-1. runtime correctness
-2. config-driven behavior
-3. OMS certification
-4. risk live validation
-5. strategy layer
-6. backtesting rigor
-7. deployment / CI polish
+1. risk live validation (RiskGate + CircuitBreaker en entorno real)
+2. runtime correctness (mantener invariantes existentes)
+3. config-driven behavior (YAML → runtime sin hardcode)
+4. strategy iteration (nuevas estrategias vía registry, backtest validation)
+5. deployment / CI polish (Docker, health checks, monitoring)
+6. multi-symbol live operation
+7. performance tuning (latency, memory)
 
 ## Norma final
 Cada cambio debe dejar el repo en mejor estado del que lo encontró.

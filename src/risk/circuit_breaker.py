@@ -237,6 +237,7 @@ class CircuitBreaker:
                 self.recovery_success_count = 0
                 # Limpiar métricas de ejecución: HALF_OPEN comienza con ventana limpia.
                 # El cooldown period es para que la condición subyacente se resuelva.
+                self.consecutive_losses = 0
                 self.execution = ExecutionMetrics()
                 self.latency.clear()
                 logger.info("Circuit breaker -> HALF_OPEN (testing recovery)")

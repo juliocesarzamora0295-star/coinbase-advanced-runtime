@@ -24,20 +24,9 @@ from typing import Any, Dict, List, Optional
 import pandas as pd
 
 from src.strategy.base import Strategy
-from src.strategy.mean_reversion import MeanReversionStrategy
-from src.strategy.momentum_breakout import MomentumBreakoutStrategy
-from src.strategy.sma_crossover import SmaCrossoverStrategy
+from src.strategy.registry import get_strategy_class
 
 logger = logging.getLogger("StrategyManager")
-
-# Registro de estrategias disponibles por nombre de config.
-# Extender aquí para agregar nuevas estrategias.
-_STRATEGY_REGISTRY: Dict[str, type] = {
-    "ma_crossover": SmaCrossoverStrategy,
-    "sma_crossover": SmaCrossoverStrategy,
-    "mean_reversion": MeanReversionStrategy,
-    "momentum_breakout": MomentumBreakoutStrategy,
-}
 
 
 class StrategyManager:
@@ -93,7 +82,7 @@ class StrategyManager:
                 name = entry.get("name", "")
                 cfg = entry
 
-            strategy_cls = _STRATEGY_REGISTRY.get(name)
+            strategy_cls = get_strategy_class(name)
             if strategy_cls is None:
                 logger.warning("Unknown strategy '%s' for %s — skipping", name, symbol)
                 continue

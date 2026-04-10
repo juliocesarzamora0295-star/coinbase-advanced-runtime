@@ -184,8 +184,8 @@ class TradingBot:
         # H9: Mask credential logging
         key_name = self.config.coinbase.key_name
         masked = f"{key_name[:8]}...{key_name[-4:]}" if len(key_name) > 12 else "***"
-        logger.info(f"Key Name: {masked}")
-        logger.info(f"JWT Issuer: {self.config.coinbase.issuer}")
+        logger.info("Key Name: %s", masked)
+        logger.info("JWT Issuer: %s", self.config.coinbase.issuer)
 
         # H3: Use credential manager with multi-source loading
         try:
@@ -202,7 +202,7 @@ class TradingBot:
                 return False
             logger.info("JWT Auth initialized (credentials from: %s)", creds.source)
         except Exception as e:
-            logger.error(f"Failed to initialize JWT Auth: {e}")
+            logger.error("Failed to initialize JWT Auth: %s", e)
             return False
 
         # Crear cliente REST
@@ -214,20 +214,20 @@ class TradingBot:
             )
             logger.info("REST Client initialized")
         except Exception as e:
-            logger.error(f"Failed to initialize REST Client: {e}")
+            logger.error("Failed to initialize REST Client: %s", e)
             return False
 
         # Verificar conexión
         try:
             accounts = self.client.list_accounts()
-            logger.info(f"Connected to Coinbase. Accounts: {len(accounts)}")
+            logger.info("Connected to Coinbase. Accounts: %d", len(accounts))
 
             for account in accounts[:3]:
                 currency = account.get("currency", "")
                 balance = account.get("available_balance", {}).get("value", "0")
-                logger.info(f"   {currency}: {balance}")
+                logger.info("   %s: %s", currency, balance)
         except Exception as e:
-            logger.error(f"Failed to connect to Coinbase: {e}")
+            logger.error("Failed to connect to Coinbase: %s", e)
             return False
 
         # Obtener fees
@@ -236,9 +236,9 @@ class TradingBot:
             fee_tier = fees.get("fee_tier", {})
             maker = fee_tier.get("maker_fee_rate", "N/A")
             taker = fee_tier.get("taker_fee_rate", "N/A")
-            logger.info(f"Fee Tier: Maker={maker}, Taker={taker}")
+            logger.info("Fee Tier: Maker=%s, Taker=%s", maker, taker)
         except Exception as e:
-            logger.warning(f"Could not fetch fees: {e}")
+            logger.warning("Could not fetch fees: %s", e)
 
         # Inicializar circuit breaker
         breaker_cfg = BreakerConfig(
@@ -262,7 +262,7 @@ class TradingBot:
             max_total_exposure_pct=Decimal(str(self.config.risk.max_total_exposure_pct)),
         )
         self.risk_gate = RiskGate(risk_limits)
-        logger.info(f"Risk Gate initialized: max_position={risk_limits.max_position_pct}%")
+        logger.info("Risk Gate initialized: max_position=%s%", risk_limits.max_position_pct)
 
         # Inicializar Paper Engine para simulación
         if self.config.trading.dry_run or self.config.trading.observe_only:
@@ -278,7 +278,7 @@ class TradingBot:
                 continue
 
             symbol = symbol_cfg.symbol
-            logger.info(f"Initializing {symbol}...")
+            logger.info("Initializing %s...", symbol)
 
             try:
                 # Obtener info del producto
@@ -316,7 +316,7 @@ class TradingBot:
                         mid_price = ledger.avg_entry or Decimal("1")
                     ledger.bootstrap_from_exchange(quote_bal, base_bal, mid_price)
                     self._bootstrap_source = "exchange"
-                    logger.info(f"[{symbol}] Bootstrap from EXCHANGE: quote={quote_bal} base={base_bal}")
+                    logger.info("[%s] Bootstrap from EXCHANGE: quote=%s base=%s", symbol, quote_bal, base_bal)
                 except Exception as e:
                     logger.warning(
                         f"[{symbol}] Bootstrap from exchange failed: {e}. "
@@ -385,7 +385,7 @@ class TradingBot:
                 self.order_books[symbol] = OrderBook(symbol)
 
             except Exception as e:
-                logger.error(f"Failed to initialize {symbol}: {e}")
+                logger.error("Failed to initialize %s: %s", symbol, e)
                 continue
 
         if not self.executors:
@@ -440,7 +440,7 @@ class TradingBot:
                         symbol, strategy_mode, self.config.trading.mtf_enabled,
                     )
                 except (ValueError, ImportError) as exc:
-                    logger.warning(f"[{symbol}] StrategySelector not loaded: {exc}")
+                    logger.warning("[%s] StrategySelector not loaded: %s", symbol, exc)
             else:
                 # Default "fixed" path — unchanged
                 try:
@@ -449,9 +449,9 @@ class TradingBot:
                         symbol_config={"strategies": symbol_cfg.strategies},
                     )
                     self.strategy_managers[symbol] = sm
-                    logger.info(f"[{symbol}] StrategyManager loaded: {sm.strategy_count} strategy(s)")
+                    logger.info("[%s] StrategyManager loaded: %s strategy(s)", symbol, sm.strategy_count)
                 except ValueError as exc:
-                    logger.warning(f"[{symbol}] StrategyManager not loaded: {exc}")
+                    logger.warning("[%s] StrategyManager not loaded: %s", symbol, exc)
 
             # Suscribir callback a CandleClosed events
             self.market_data.subscribe(
@@ -655,7 +655,7 @@ class TradingBot:
         # Obtener ledger (fail-closed si no existe)
         ledger = self.ledgers.get(symbol)
         if not ledger:
-            logger.error(f"[{symbol}] No ledger found — blocking trading")
+            logger.error("[%s] No ledger found — blocking trading", symbol)
             return
 
         current_price = self.current_prices.get(symbol, candle.close)
@@ -694,7 +694,7 @@ class TradingBot:
         # PositionSizer — computa target_qty con constraints del símbolo
         quantizer = self.quantizers.get(symbol)
         if quantizer is None:
-            logger.error(f"[{symbol}] No quantizer found — blocking trading")
+            logger.error("[%s] No quantizer found — blocking trading", symbol)
             return
 
         constraints = SymbolConstraints(
@@ -728,7 +728,7 @@ class TradingBot:
                 preferred_mode=preferred_mode,
             )
         except FailClosedError as exc:
-            logger.error(f"[{symbol}] PositionSizer fail-closed: {exc}")
+            logger.error("[%s] PositionSizer fail-closed: %s", symbol, exc)
             return
 
         # RiskGate — snapshot-based deterministic evaluation
@@ -826,7 +826,7 @@ class TradingBot:
                 constraints=constraints,
             )
         except OrderNotAllowedError as exc:
-            logger.warning(f"[{symbol}] OrderPlanner blocked: {exc}")
+            logger.warning("[%s] OrderPlanner blocked: %s", symbol, exc)
             return
 
         if not order_intent.viable:
@@ -873,7 +873,7 @@ class TradingBot:
         # Verificar que tenemos executor para el símbolo
         executor = self.executors.get(symbol)
         if executor is None:
-            logger.error(f"[{symbol}] No executor found")
+            logger.error("[%s] No executor found", symbol)
             return
 
         # Modo dry run: simular con PaperEngine, no enviar al exchange
@@ -934,7 +934,7 @@ class TradingBot:
             self.circuit_breaker.record_execution_result(False)
             self.circuit_breaker.record_latency(latency_ms)
             self.metrics.inc("orders.error", labels={"symbol": symbol})
-            logger.error(f"[{symbol}] ORDER FAILED: {e}")
+            logger.error("[%s] ORDER FAILED: %s", symbol, e)
 
     def _execute_paper(self, intent: OrderIntent, current_price: Decimal) -> None:
         """Ejecutar via PaperEngine (dry_run mode)."""
@@ -944,7 +944,7 @@ class TradingBot:
 
         if not self.paper_engine:
             self.metrics.inc("orders.dry_run", labels={"symbol": symbol})
-            logger.info(f"[{symbol}] DRY RUN: {side} {qty} (signal={intent.signal_id})")
+            logger.info("[%s] DRY RUN: %s %s (signal=%s)", symbol, side, qty, intent.signal_id)
             return
 
         paper_intent = {
@@ -1252,7 +1252,7 @@ class TradingBot:
                             oms.handle_user_event(event_type, bucket)
 
             except Exception as e:
-                logger.error(f"Error processing user channel: {e}")
+                logger.error("Error processing user channel: %s", e)
 
         if symbols:
             self.ws.subscribe("user", symbols, on_user)
@@ -1299,7 +1299,7 @@ class TradingBot:
                                 volume=volume,
                             )
             except Exception as e:
-                logger.error(f"Error processing candles for {sym}: {e}")
+                logger.error("Error processing candles for %s: %s", sym, e)
 
         def on_ticker(msg: WSMessage, sym=symbol):
             """Procesar ticker (solo para precio actual)."""
@@ -1314,7 +1314,7 @@ class TradingBot:
                             with self._lock:
                                 self.current_prices[sym] = price
             except Exception as e:
-                logger.error(f"Error processing ticker for {sym}: {e}")
+                logger.error("Error processing ticker for %s: %s", sym, e)
 
         def on_level2(msg: WSMessage, sym=symbol):
             """Procesar order book L2 — normaliza eventos Coinbase y actualiza OrderBook."""
@@ -1341,7 +1341,7 @@ class TradingBot:
                 if normalized:
                     book.update(normalized)
             except Exception as exc:
-                logger.error(f"[{sym}] Error processing L2: {exc}")
+                logger.error("[%s] Error processing L2: %s", sym, exc)
 
         # Subscribirse a canales públicos
         self.ws.subscribe_candles(symbol, on_candles)
@@ -1467,7 +1467,7 @@ class TradingBot:
             self.ws.start()
             logger.info("WebSocket started")
         except Exception as e:
-            logger.error(f"Failed to start WebSocket: {e}")
+            logger.error("Failed to start WebSocket: %s", e)
             return 1
 
         self._running = True
@@ -1486,7 +1486,7 @@ class TradingBot:
 
                 # Modo smoke test: limitar ciclos
                 if max_cycles > 0 and self.cycle_count >= max_cycles:
-                    logger.info(f"🏁 Smoke test completado: {max_cycles} ciclos ejecutados")
+                    logger.info("🏁 Smoke test completado: %s ciclos ejecutados", max_cycles)
                     self._running = False
                     break
 
@@ -1534,7 +1534,7 @@ class TradingBot:
             # Validar equity invariant
             ok, msg = ledger.validate_equity_invariant(current_price)
             if not ok:
-                logger.critical(f"❌ [{symbol}] {msg}")
+                logger.critical("❌ [%s] %s", symbol, msg)
                 if self.smoke_test_mode:
                     raise RuntimeError(f"Equity invariant violation: {msg}")
 
@@ -1556,13 +1556,13 @@ class TradingBot:
         allowed, reason = self.circuit_breaker.check_before_trade()
         if not allowed:
             if reason:
-                logger.warning(f"Trading blocked: {reason}")
+                logger.warning("Trading blocked: %s", reason)
             return
 
         # Obtener datos OHLCV
         df = self._get_ohlcv_df(symbol)
         if len(df) < 50:
-            logger.debug(f"Insufficient data for {symbol}: {len(df)} candles")
+            logger.debug("Insufficient data for %s: %s candles", symbol, len(df))
             return
 
         # MODO OBSERVACIÓN: Trading triggers vienen de CandleClosed callbacks (_on_candle_closed).

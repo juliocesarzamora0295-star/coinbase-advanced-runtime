@@ -236,7 +236,7 @@ class MarketDataService:
         with self._lock:
             if key not in self._builders:
                 self._builders[key] = SymbolBarBuilder(symbol, target_timeframe)
-                logger.info(f"Registered {symbol} with timeframe {target_timeframe}")
+                logger.info("Registered %s with timeframe %s", symbol, target_timeframe)
 
     def subscribe(self, symbol: str, callback: Callable[[CandleClosed], None]) -> None:
         """Suscribirse a eventos CandleClosed para un símbolo."""
@@ -244,7 +244,7 @@ class MarketDataService:
             if symbol not in self._callbacks:
                 self._callbacks[symbol] = []
             self._callbacks[symbol].append(callback)
-        logger.info(f"Subscribed to CandleClosed for {symbol}")
+        logger.info("Subscribed to CandleClosed for %s", symbol)
 
     def ingest_5m_candle(
         self,
@@ -276,7 +276,7 @@ class MarketDataService:
         with self._lock:
             builder = self._builders.get(key)
             if not builder:
-                logger.warning(f"Symbol {symbol} with timeframe {target_timeframe} not registered")
+                logger.warning("Symbol %s with timeframe %s not registered", symbol, target_timeframe)
                 return []
 
         candle_5m = {
@@ -298,7 +298,7 @@ class MarketDataService:
                 try:
                     cb(event)
                 except Exception as e:
-                    logger.error(f"Error in CandleClosed callback: {e}")
+                    logger.error("Error in CandleClosed callback: %s", e)
 
         return events
 
@@ -344,10 +344,10 @@ class SignalEngine:
                 if signal:
                     signals.append(signal)
             except Exception as e:
-                logger.error(f"[{self.symbol}] Error in strategy: {e}")
+                logger.error("[%s] Error in strategy: %s", self.symbol, e)
 
         if signals:
-            logger.info(f"[{self.symbol}] Generated {len(signals)} signals")
+            logger.info("[%s] Generated %s signals", self.symbol, len(signals))
 
         return signals
 

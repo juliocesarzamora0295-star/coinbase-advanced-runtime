@@ -9,6 +9,7 @@ not a simplified copy.
 """
 
 import logging
+import math
 from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Any, Dict, List, Optional
@@ -17,10 +18,34 @@ import pandas as pd
 
 from src.backtest.data_feed import Bar
 from src.backtest.engine import Signal as BacktestSignal
+from src.quantitative.indicators import atr as atr_fn
 from src.strategy.base import Strategy
 from src.strategy.sma_crossover import SmaCrossoverStrategy
 
 logger = logging.getLogger("StrategyAdapter")
+
+
+def _compute_entry_atr(df: pd.DataFrame, period: int = 14) -> Optional[float]:
+    """
+    Compute ATR from a DataFrame for the adapter's internal partial-exit logic.
+    Falls back to close-only pseudo-ATR when high/low are missing, clamps the
+    period to available bars, and returns None on NaN/inf.
+    """
+    if df is None or len(df) < 3:
+        return None
+    effective = max(2, min(period, len(df) - 1))
+    close_s = df["close"].astype(float)
+    if "high" in df.columns and "low" in df.columns:
+        high_s = df["high"].astype(float)
+        low_s = df["low"].astype(float)
+    else:
+        high_s = close_s
+        low_s = close_s
+    series = atr_fn(high_s, low_s, close_s, period=effective)
+    value = float(series.iloc[-1])
+    if math.isnan(value) or math.isinf(value):
+        return None
+    return value
 
 
 class StrategyAdapter:
@@ -37,12 +62,25 @@ class StrategyAdapter:
         self,
         strategy: Strategy,
         qty: Decimal = Decimal("0.01"),
+        partial_exits: bool = False,
+        atr_period: int = 14,
     ) -> None:
         self._strategy = strategy
         self._qty = qty
         self._in_position = False
         self._position_qty: Decimal = Decimal("0")
         self._df = pd.DataFrame()
+
+        # Partial exits (Fase 4B'): off by default. When enabled, the adapter
+        # takes a 50% profit at `entry_price + entry_atr` (TP1) before the
+        # strategy's full exit signal. Stays off in the default backtest path
+        # so existing baselines are unchanged.
+        self._partial_exits = partial_exits
+        self._atr_period = atr_period
+        self._tp1_hit: bool = False
+        self._remaining_qty: Decimal = Decimal("0")
+        self._entry_price: Optional[float] = None
+        self._entry_atr: Optional[float] = None
 
     @classmethod
     def from_config(
@@ -87,6 +125,27 @@ class StrategyAdapter:
         ]
         df = pd.DataFrame(rows)
 
+        # Partial exit (TP1) check — opt-in. Fires BEFORE consulting the
+        # strategy so the entry bar isn't double-signaled. Strategy state
+        # is still advanced below so trailing stops stay coherent on live
+        # re-use.
+        if (
+            self._partial_exits
+            and self._in_position
+            and not self._tp1_hit
+            and self._entry_price is not None
+            and self._entry_atr is not None
+        ):
+            if float(bar.close) >= self._entry_price + self._entry_atr:
+                half = self._remaining_qty / Decimal("2")
+                if half >= Decimal("0.0001"):
+                    self._tp1_hit = True
+                    self._remaining_qty -= half
+                    self._position_qty = self._remaining_qty
+                    # Feed strategy so it stays in sync with the bar timeline.
+                    self._strategy.update_market_data(df)
+                    return BacktestSignal(side="SELL", qty=half)
+
         # Feed to strategy
         self._strategy.update_market_data(df)
 
@@ -118,12 +177,24 @@ class StrategyAdapter:
                 return None
             self._in_position = True
             self._position_qty = effective_qty
+            self._remaining_qty = effective_qty
+            self._tp1_hit = False
+            self._entry_price = float(bar.close) if self._partial_exits else None
+            self._entry_atr = (
+                _compute_entry_atr(df, period=self._atr_period)
+                if self._partial_exits
+                else None
+            )
             return BacktestSignal(side="BUY", qty=effective_qty)
 
         if direction == "SELL" and self._in_position:
-            sell_qty = self._position_qty
+            sell_qty = self._remaining_qty
             self._in_position = False
             self._position_qty = Decimal("0")
+            self._remaining_qty = Decimal("0")
+            self._tp1_hit = False
+            self._entry_price = None
+            self._entry_atr = None
             return BacktestSignal(side="SELL", qty=sell_qty)
 
         return None

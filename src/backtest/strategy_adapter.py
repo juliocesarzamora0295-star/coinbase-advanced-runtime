@@ -41,6 +41,7 @@ class StrategyAdapter:
         self._strategy = strategy
         self._qty = qty
         self._in_position = False
+        self._position_qty: Decimal = Decimal("0")
         self._df = pd.DataFrame()
 
     @classmethod
@@ -103,14 +104,27 @@ class StrategyAdapter:
         sig = signals[0]
         direction = sig.direction  # "BUY" or "SELL"
 
-        # Position tracking to avoid double-entry
+        # Asymmetric sizing (Fase 1B'):
+        # - BUY qty = base_qty * signal.strength (variable, by confidence).
+        # - SELL qty = self._position_qty (full close).
+        # Symmetric strength on both legs breaks ledger matching because
+        # strength(BUY) != strength(SELL) in general.
         if direction == "BUY" and not self._in_position:
+            strength = getattr(sig, "strength", Decimal("1"))
+            if not isinstance(strength, Decimal):
+                strength = Decimal(str(strength))
+            effective_qty = self._qty * strength
+            if effective_qty < Decimal("0.0001"):
+                return None
             self._in_position = True
-            return BacktestSignal(side="BUY", qty=self._qty)
+            self._position_qty = effective_qty
+            return BacktestSignal(side="BUY", qty=effective_qty)
 
         if direction == "SELL" and self._in_position:
+            sell_qty = self._position_qty
             self._in_position = False
-            return BacktestSignal(side="SELL", qty=self._qty)
+            self._position_qty = Decimal("0")
+            return BacktestSignal(side="SELL", qty=sell_qty)
 
         return None
 
@@ -138,6 +152,7 @@ class SelectorAdapter:
         self._selector = StrategySelector.from_config(symbol=symbol, config=config)
         self._qty = qty
         self._in_position = False
+        self._position_qty: Decimal = Decimal("0")
 
     def __call__(
         self,
@@ -167,13 +182,23 @@ class SelectorAdapter:
 
         direction = signal.direction  # "BUY" or "SELL"
 
+        # Asymmetric sizing (Fase 1B'): BUY by strength, SELL full close.
         if direction == "BUY" and not self._in_position:
+            strength = getattr(signal, "strength", Decimal("1"))
+            if not isinstance(strength, Decimal):
+                strength = Decimal(str(strength))
+            effective_qty = self._qty * strength
+            if effective_qty < Decimal("0.0001"):
+                return None
             self._in_position = True
-            return BacktestSignal(side="BUY", qty=self._qty)
+            self._position_qty = effective_qty
+            return BacktestSignal(side="BUY", qty=effective_qty)
 
         if direction == "SELL" and self._in_position:
+            sell_qty = self._position_qty
             self._in_position = False
-            return BacktestSignal(side="SELL", qty=self._qty)
+            self._position_qty = Decimal("0")
+            return BacktestSignal(side="SELL", qty=sell_qty)
 
         return None
 

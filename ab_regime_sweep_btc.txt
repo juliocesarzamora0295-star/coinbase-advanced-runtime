@@ -1,0 +1,142 @@
+RiskGate blocked: daily loss -0.03038683668603 symbol=BTC-USD
+RiskGate blocked: daily loss -0.03151081668603 symbol=BTC-USD
+RiskGate blocked: daily loss -0.03329880668603 symbol=BTC-USD
+RiskGate blocked: daily loss -0.03112491668603 symbol=BTC-USD
+RiskGate blocked: daily loss -0.03007547010324 symbol=BTC-USD
+RiskGate blocked: daily loss -0.03007547010324 symbol=BTC-USD
+RiskGate blocked: daily loss -0.03007547010324 symbol=BTC-USD
+RiskGate blocked: daily loss -0.03007547010324 symbol=BTC-USD
+RiskGate blocked: daily loss -0.03007547010324 symbol=BTC-USD
+RiskGate blocked: daily loss -0.03007547010324 symbol=BTC-USD
+RiskGate blocked: daily loss -0.03007547010324 symbol=BTC-USD
+RiskGate blocked: daily loss -0.03007547010324 symbol=BTC-USD
+RiskGate blocked: daily loss -0.03007547010324 symbol=BTC-USD
+RiskGate blocked: daily loss -0.03007547010324 symbol=BTC-USD
+RiskGate blocked: daily loss -0.03007547010324 symbol=BTC-USD
+RiskGate blocked: daily loss -0.03007547010324 symbol=BTC-USD
+RiskGate blocked: daily loss -0.03007547010324 symbol=BTC-USD
+RiskGate blocked: daily loss -0.03007547010324 symbol=BTC-USD
+RiskGate blocked: daily loss -0.03007547010324 symbol=BTC-USD
+RiskGate blocked: daily loss -0.03007547010324 symbol=BTC-USD
+RiskGate blocked: daily loss -0.03007547010324 symbol=BTC-USD
+RiskGate blocked: daily loss -0.03007547010324 symbol=BTC-USD
+RiskGate blocked: daily loss -0.03007547010324 symbol=BTC-USD
+RiskGate blocked: daily loss -0.03007547010324 symbol=BTC-USD
+RiskGate blocked: daily loss -0.03007547010324 symbol=BTC-USD
+RiskGate blocked: daily loss -0.03007547010324 symbol=BTC-USD
+RiskGate blocked: daily loss -0.03007547010324 symbol=BTC-USD
+RiskGate blocked: daily loss -0.03007547010324 symbol=BTC-USD
+  macd                 bull_2020_q4                 sharpe=+0.55 pnl=  +51.49 trades=59
+  mean_reversion       bull_2020_q4                 sharpe=+0.39 pnl=   +4.07 trades=9
+  momentum_breakout    bull_2020_q4                 sharpe=+0.50 pnl=  +68.32 trades=35
+  rsi_divergence       bull_2020_q4                 sharpe=+0.41 pnl=  +11.35 trades=1
+  sma_crossover        bull_2020_q4                 sharpe=+0.58 pnl=  +60.85 trades=22
+  vwap                 bull_2020_q4                 sharpe=+0.52 pnl=   +3.95 trades=3
+  macd                 bull_2021_q1                 sharpe=+0.23 pnl=  +74.55 trades=60
+  mean_reversion       bull_2021_q1                 sharpe=+0.29 pnl=  +31.64 trades=12
+  momentum_breakout    bull_2021_q1                 sharpe=-0.01 pnl=  +13.19 trades=35
+  rsi_divergence       bull_2021_q1                 sharpe=+0.73 pnl=  +77.75 trades=2
+  sma_crossover        bull_2021_q1                 sharpe=+0.23 pnl=  +92.45 trades=26
+  vwap                 bull_2021_q1                 sharpe=-0.02 pnl=   +0.18 trades=22
+  macd                 crash_may_2021               sharpe=-0.37 pnl=  -44.28 trades=27
+  mean_reversion       crash_may_2021               sharpe=-0.36 pnl=  -44.85 trades=19
+  momentum_breakout    crash_may_2021               sharpe=-0.26 pnl=  -56.67 trades=24
+  rsi_divergence       crash_may_2021               sharpe=+0.10 pnl=  +20.75 trades=10
+  sma_crossover        crash_may_2021               sharpe=-0.35 pnl=  -89.08 trades=26
+  vwap                 crash_may_2021               sharpe=-0.41 pnl= -178.84 trades=97
+  macd                 recovery_2021_q3             sharpe=-0.05 pnl=  +13.27 trades=64
+  mean_reversion       recovery_2021_q3             sharpe=-0.10 pnl=   -4.45 trades=14
+  momentum_breakout    recovery_2021_q3             sharpe=+0.18 pnl=  +86.25 trades=38
+  rsi_divergence       recovery_2021_q3             sharpe=+0.14 pnl=  +23.39 trades=10
+  sma_crossover        recovery_2021_q3             sharpe=+0.27 pnl= +100.29 trades=27
+  vwap                 recovery_2021_q3             sharpe=-0.13 pnl=  -15.50 trades=13
+  macd                 bear_2022_h1                 sharpe=-0.71 pnl= -133.30 trades=89
+  mean_reversion       bear_2022_h1                 sharpe=-0.35 pnl=  -36.30 trades=43
+  momentum_breakout    bear_2022_h1                 sharpe=-0.29 pnl=  -83.02 trades=49
+  rsi_divergence       bear_2022_h1                 sharpe=-0.52 pnl=  -95.15 trades=16
+  sma_crossover        bear_2022_h1                 sharpe=-0.06 pnl=   -2.49 trades=49
+  vwap                 bear_2022_h1                 sharpe=-0.44 pnl= -201.00 trades=144
+  macd                 sideways_2022_h2             sharpe=-0.45 pnl=  -40.16 trades=77
+  mean_reversion       sideways_2022_h2             sharpe=-0.08 pnl=   -1.87 trades=31
+  momentum_breakout    sideways_2022_h2             sharpe=-0.14 pnl=  -16.98 trades=54
+  rsi_divergence       sideways_2022_h2             sharpe=-0.54 pnl=  -43.79 trades=19
+  sma_crossover        sideways_2022_h2             sharpe=-0.13 pnl=  -10.70 trades=54
+  vwap                 sideways_2022_h2             sharpe=-0.29 pnl=  -39.63 trades=115
+  macd                 recovery_2023                sharpe=+0.09 pnl=  +26.63 trades=83
+  mean_reversion       recovery_2023                sharpe=-0.17 pnl=   -7.01 trades=29
+  momentum_breakout    recovery_2023                sharpe=+0.05 pnl=  +27.37 trades=64
+  rsi_divergence       recovery_2023                sharpe=+0.30 pnl=  +22.58 trades=11
+  sma_crossover        recovery_2023                sharpe=+0.21 pnl=  +59.30 trades=51
+  vwap                 recovery_2023                sharpe=-0.24 pnl=  -11.34 trades=5
+  macd                 pre_etf_2023_h2              sharpe=-0.13 pnl=   +2.02 trades=102
+  mean_reversion       pre_etf_2023_h2              sharpe=-0.05 pnl=   -0.90 trades=30
+  momentum_breakout    pre_etf_2023_h2              sharpe=-0.05 pnl=  +12.35 trades=61
+  rsi_divergence       pre_etf_2023_h2              sharpe=+0.01 pnl=   -0.18 trades=6
+  sma_crossover        pre_etf_2023_h2              sharpe=-0.61 pnl=  -76.96 trades=61
+  vwap                 pre_etf_2023_h2              sharpe=-0.31 pnl=  -26.42 trades=77
+  macd                 etf_bull_2024_q1             sharpe=+0.36 pnl=  +74.40 trades=56
+  mean_reversion       etf_bull_2024_q1             sharpe=+0.27 pnl=  +10.03 trades=11
+  momentum_breakout    etf_bull_2024_q1             sharpe=+0.36 pnl= +102.90 trades=27
+  rsi_divergence       etf_bull_2024_q1             sharpe=+0.23 pnl=   +8.31 trades=2
+  sma_crossover        etf_bull_2024_q1             sharpe=+0.31 pnl=  +78.16 trades=29
+  vwap                 etf_bull_2024_q1             sharpe=-0.49 pnl=  -46.10 trades=27
+  macd                 consolidation_2024_q2q3      sharpe=-0.33 pnl=  -54.30 trades=78
+  mean_reversion       consolidation_2024_q2q3      sharpe=-0.18 pnl=  -15.41 trades=38
+  momentum_breakout    consolidation_2024_q2q3      sharpe=-0.25 pnl=  -85.36 trades=62
+  rsi_divergence       consolidation_2024_q2q3      sharpe=-0.26 pnl=  -46.97 trades=11
+  sma_crossover        consolidation_2024_q2q3      sharpe=-0.37 pnl= -122.68 trades=51
+  vwap                 consolidation_2024_q2q3      sharpe=-0.45 pnl= -239.10 trades=101
+
+Wrote ab_regime_sweep.csv
+
+============================================================================================
+A/B MATCHUPS BY REGIME FAMILY
+============================================================================================
+
+TRENDING_CALM (SMA vs MACD)  (family: trending)
+  regime                          sma_crossover              macd  winner
+  --------------------------------------------------------------------------------
+  bull_2020_q4                            +0.58             +0.55  sma_crossover  
+  bull_2021_q1                            +0.23             +0.23  macd ◄
+  crash_may_2021                          -0.35             -0.37  sma_crossover  
+  recovery_2021_q3                        +0.27             -0.05  sma_crossover  
+  bear_2022_h1                            -0.06             -0.71  sma_crossover  
+  recovery_2023                           +0.21             +0.09  sma_crossover  
+  pre_etf_2023_h2                         -0.61             -0.13  macd ◄
+  etf_bull_2024_q1                        +0.31             +0.36  macd ◄
+  TALLY: sma_crossover=5  macd=3  →  USE: sma_crossover
+
+TRENDING_VOLATILE (momentum vs MACD)  (family: trending)
+  regime                       momentum_breakout              macd  winner
+  --------------------------------------------------------------------------------
+  bull_2020_q4                            +0.50             +0.55  macd ◄
+  bull_2021_q1                            -0.01             +0.23  macd ◄
+  crash_may_2021                          -0.26             -0.37  momentum_breakout  
+  recovery_2021_q3                        +0.18             -0.05  momentum_breakout  
+  bear_2022_h1                            -0.29             -0.71  momentum_breakout  
+  recovery_2023                           +0.05             +0.09  macd ◄
+  pre_etf_2023_h2                         -0.05             -0.13  momentum_breakout  
+  etf_bull_2024_q1                        +0.36             +0.36  macd ◄
+  TALLY: momentum_breakout=4  macd=4  →  USE: momentum_breakout
+
+RANGING_CALM (MR vs VWAP)  (family: ranging)
+  regime                         mean_reversion              vwap  winner
+  --------------------------------------------------------------------------------
+  sideways_2022_h2                        -0.08             -0.29  mean_reversion  
+  consolidation_2024_q2q3                 -0.18             -0.45  mean_reversion  
+  TALLY: mean_reversion=2  vwap=0  →  USE: mean_reversion
+
+RANGING_VOLATILE (MR vs RSI-div)  (family: ranging)
+  regime                         mean_reversion    rsi_divergence  winner
+  --------------------------------------------------------------------------------
+  sideways_2022_h2                        -0.08             -0.54  mean_reversion  
+  consolidation_2024_q2q3                 -0.18             -0.26  mean_reversion  
+  TALLY: mean_reversion=2  rsi_divergence=0  →  USE: mean_reversion
+
+============================================================================================
+SWAP DECISIONS
+============================================================================================
+  TRENDING_CALM (SMA vs MACD): sma_crossover
+  TRENDING_VOLATILE (momentum vs MACD): momentum_breakout
+  RANGING_CALM (MR vs VWAP): mean_reversion
+  RANGING_VOLATILE (MR vs RSI-div): mean_reversion

@@ -263,3 +263,66 @@ losses but didn't unlock new winning regimes.
 swap into `_DEFAULT_REGIME_MAP` where it beats the incumbent, then re-run segmented
 backtests. This is the validation loop Fase 3A/3B/3C explicitly deferred. Until that's
 done, the new strategies are latent capability, not realized PnL.
+
+---
+
+## Fase follow-up — A/B regime map sweep (`feat/regime-map-optimization`)
+
+Direct comparison of incumbent vs candidate strategies, each run as a fixed
+single-strategy adapter (bypassing the selector) across the 10 BTC 1h regimes.
+Backtest harness: `scripts/ab_regime_sweep.py`. Full per-regime Sharpe grid in
+`ab_regime_sweep.csv` and `ab_regime_sweep_btc.txt`.
+
+### Matchup tallies (Sharpe-wins, by regime family)
+
+| Matchup                              | Incumbent         | Candidate       | Winner (majority) |
+|--------------------------------------|-------------------|-----------------|-------------------|
+| TRENDING_CALM (SMA vs MACD)          | sma_crossover 5  | macd 3          | **sma_crossover** |
+| TRENDING_VOLATILE (momentum vs MACD) | momentum_breakout 4 | macd 4       | **momentum_breakout** (tie → incumbent) |
+| RANGING_CALM (MR vs VWAP)            | mean_reversion 2 | vwap 0          | **mean_reversion** |
+| RANGING_VOLATILE (MR vs RSI-div)     | mean_reversion 2 | rsi_divergence 0| **mean_reversion** |
+
+### Decision: NO swaps in `_DEFAULT_REGIME_MAP`
+
+None of the three new strategies beats its incumbent on a majority of regimes.
+The closest challenger (MACD in TRENDING_VOLATILE) ties at 4–4, and ties go to
+the incumbent to avoid unnecessary churn. VWAP and RSI-divergence are strictly
+worse than mean-reversion on the two ranging regimes available (sideways_2022_h2
+and consolidation_2024_q2q3).
+
+**`src/strategy/selector.py` unchanged.** MACD / RSI-div / VWAP remain registered
+in `src/strategy/registry.py` and usable via direct `StrategyAdapter`, but the
+Selector still routes traffic to the pre-plan trio. This is the correct
+fail-closed outcome: swap only when the data supports it.
+
+### Interesting standalone results (sanity)
+
+Some strategies did outperform the selector on specific regimes even though they
+don't beat the *matched* incumbent on a majority:
+
+- `rsi_divergence` on `recovery_2023`: sharpe=+0.30, pnl=+$22.58 on just 11 trades
+  (best of any strategy on that regime). Low trade count suggests divergence
+  detection is selective rather than broken. Candidate for future **ensemble**
+  consideration (Fase 3D, still deferred).
+- `macd` on `etf_bull_2024_q1`: sharpe=+0.36, pnl=+$74.40 — matches momentum_breakout
+  on Sharpe but on very different trade counts (56 vs 27). Different behavior
+  profile, potentially useful for averaging.
+- `momentum_breakout` on `etf_bull_2024_q1`: pnl=+$102.90 — best single-regime PnL
+  across all strategies and regimes. The existing map is already exploiting this.
+
+### What this means for the plan targets
+
+Per-regime A/B shows that the new strategies are **not obviously worse** (several
+individual wins) but are not systematically better at the cycle-family level.
+The Sharpe<0.4 gap vs plan targets is therefore not closable just by swapping
+labels in the regime map. Closing it would require one or more of:
+
+1. **Ensemble (Fase 3D)** — deferred pending design approval per plan.
+2. **Retune regime detector thresholds** — the 4-4 MACD/momentum tie suggests the
+   TRENDING_VOLATILE bucket may be over-inclusive and a finer split could let
+   MACD win cleanly.
+3. **Per-strategy parameter sweeps** — defaults were chosen without per-regime
+   tuning. Out of scope for this plan.
+
+A/B tooling (`scripts/ab_regime_sweep.py`) and raw CSV are committed so future
+work can re-run the comparison after any of the above.

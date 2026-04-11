@@ -83,7 +83,57 @@ Tests: 4 new (`tests/unit/test_paper_executor_fee_cap.py`), full suite 1140 pass
   for SMA). The optimization target (< 5% per regime) is already satisfied on
   baselines — so the bar is to **preserve** MaxDD while lifting Sharpe/PnL.
 
-### Technical debt documented (not fixed in this plan)
+---
+
+## Fase 1C' — feat/sizing-sweep (config-only phase, NO code changes)
+
+Sweep over `--qty ∈ {0.005, 0.01, 0.015, 0.02, 0.03}`, `--use-selector`, gate active default.
+
+| qty    | Agg PnL   | Max regime DD | Trades | WinRate | Per-regime Sharpe |
+|--------|-----------|---------------|--------|---------|-------------------|
+| 0.005  |  $176.10  |    0.81%      |   132  |  51.5%  | identical         |
+| 0.01   |  $352.21  |    1.60%      |   132  |  51.5%  | identical (baseline) |
+| 0.015  |  $528.31  |    2.37%      |   132  |  51.5%  | identical         |
+| 0.02   |  $704.41  |    3.12%      |   132  |  51.5%  | identical         |
+| 0.03   | $1056.62  |    4.59%      |   132  |  51.5%  | identical         |
+
+### Critical findings (non-obvious, falsify plan premise)
+
+1. **Gate never binds across the full sweep.** At qty=0.03 and BTC ~$60k, notional is ~$1800 —
+   well under the $5000 `max_notional_per_symbol` cap. Trade count, win rate, and per-regime
+   Sharpe are **identical** across all qty values. The RiskGate is not a bottleneck at these
+   sizing levels.
+2. **Sharpe is scale-invariant.** Multiplying qty by k multiplies all per-trade returns by k,
+   leaving Sharpe (ratio of mean to stdev) unchanged. PnL and MaxDD scale linearly with qty;
+   Sharpe does not. There is no qty that "maximizes Sharpe" — the Fase 1C' objective as
+   originally written is malformed.
+3. **The only binding constraint is MaxDD<5% per regime.** Since MaxDD scales linearly,
+   the decision reduces to picking the largest qty still under the ceiling. qty=0.03 at 4.59%
+   is technically compliant but has zero headroom. qty=0.02 at 3.12% is the last safe step.
+
+### Decision: NO config change this phase
+
+- The sweep used `--qty` (fixed BTC), but `config/dry_run.yaml` and `configs/prod_symbols.yaml`
+  use `notional_pct` (cash-relative). These sizing models are not interchangeable: backtest
+  used constant BTC regardless of equity; live uses constant % of cash. Any mapping would be
+  approximate and would shift meaning as equity drifts.
+- The plan's escape hatch applies: "Si 0.01 sigue siendo mejor, no cambiar y documentar."
+  Reframing: since Sharpe is invariant, "better" is only PnL/DD scaling — a risk-tolerance
+  decision, not a strategy-level improvement. Should not be bundled into a strategy-optimization
+  plan. Any `notional_pct` change must go through a separate risk-budget review with the user.
+- Keeping current live sizing untouched: `prod_symbols.yaml notional_pct=0.005`,
+  `dry_run.yaml notional_pct=0.01`.
+
+### Output of this phase
+
+Empirical confirmation that sizing is not a strategy-level lever at the current scale,
+and falsification of the original plan premise that a qty sweep would reveal a clean winner.
+Fases 4A/1A (stop-loss) and 1B' (strength-aware sizing) remain the right levers. Files
+`results_qty_*.txt` committed for audit trail. No code or config modified.
+
+---
+
+## Technical debt documented (not fixed in this plan)
 
 - **Intra-bar stop accuracy:** stops evaluated on `close`, not `low`/`high`. A bar
   that pierces the stop intra-bar but closes above it doesn't trigger. Preexisting

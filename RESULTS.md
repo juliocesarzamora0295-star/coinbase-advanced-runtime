@@ -140,3 +140,126 @@ Fases 4A/1A (stop-loss) and 1B' (strength-aware sizing) remain the right levers.
   in `momentum_breakout`. Fix requires extending `BacktestSignal` with `limit_price`.
 - **Fee bug fix is backtest-only:** live fills use real exchange fees, no equivalent
   bug in execution path.
+
+---
+
+## Fase 1A — Stop-loss on SMA and Mean Reversion (`feat/strategy-stoploss`, merged #82)
+
+Integrated `TrailingStop` into `SmaCrossoverStrategy` (trailing) and `MeanReversionStrategy`
+(fixed — MR needs fixed stop or rebound exits prematurely). Both strategies fail-closed on
+ATR NaN/0/negative per invariant I6. Added `tests/unit/test_sma_stoploss.py` and
+`test_mean_reversion_stoploss.py`. All pre-existing tests green.
+
+## Fase 1B' — Strength-aware asymmetric sizing (`feat/strength-sizing`, merged #83)
+
+`StrategyAdapter` and `SelectorAdapter` now size BUY by `signal.strength` (variable) and
+SELL with the full remembered position qty. Prevents ledger matching bugs that would
+happen with symmetric `qty*strength` on both legs (strength BUY ≠ strength SELL in general).
+Added 6 tests in `test_strategy_adapter_strength.py`.
+
+## Fase 3A — MACD Histogram Strategy (`feat/strategy-macd`, merged #84)
+
+New `MacdStrategy` (`src/strategy/macd_strategy.py`) with histogram crossover + trend SMA
+filter + bullish divergence detection. Integrates `TrailingStop` with fail-closed ATR.
+Registered in `registry.py` as `"macd"` / `"macd_histogram"`. **Selector regime map NOT
+updated** per plan — isolated validation first. 7 tests.
+
+## Fase 3B — RSI Divergence Strategy (`feat/strategy-rsi-div`, merged #85)
+
+New `RsiDivergenceStrategy` with scipy-free local-extrema divergence detection
+(±`order` window). Bullish div + RSI<40 → BUY, bearish div + RSI>60 → SELL. Registered
+as `"rsi_divergence"`. Selector map untouched. 6 tests.
+
+## Fase 3C — VWAP Reversion Strategy (`feat/strategy-vwap`, merged #86)
+
+Added `vwap()` pure function to `quantitative/indicators.py` (typical-price cumulative,
+NaN where cumulative volume is 0). New `VwapStrategy` with VWAP reversion + RSI
+confirmation + tighter `stop_loss_atr_mult=1.5`. Registered as `"vwap"` / `"vwap_reversion"`.
+4 + 5 tests.
+
+## Fase 4B' — Partial exits opt-in (`feat/partial-exits`, merged #87)
+
+`StrategyAdapter` gains `partial_exits: bool = False` (off by default so existing
+baselines unchanged). When enabled, adapter takes a 50% close at `entry_price + entry_atr`
+(TP1) before strategy's full exit. Adapter recalculates ATR locally from history so it
+stays decoupled from strategy internals. Engine and PaperExecutor untouched — verified
+they already support any partial qty. 4 tests in `test_partial_exits.py`.
+
+## Fase 2 — Multi-asset infrastructure (`feat/multi-asset`, merged #88)
+
+- `BTC_MARKET_REGIMES` → `MARKET_REGIMES` (backward-compat alias preserved), since
+  cycle dates apply cross-asset.
+- `_fetch_json` exponential backoff (5 attempts, max 30s per retry).
+- `resample_1h_to_4h()` helper: fail-closed drop of incomplete trailing groups.
+- `scripts/compare_assets.py`: parses `results_*.txt`, flags qualifying pairs
+  (Sharpe>0.3 AND PnL>$100).
+- ETH/SOL data downloaded from Coinbase public API across the 10-regime table
+  (SOL missing 2 early regimes — pre-listing).
+
+### Multi-asset selector results (1h, --use-selector, RiskGate active)
+
+| Symbol | Trades | WinRate | Avg Sharpe | MaxDD  | Total PnL | Qualified? |
+|--------|-------:|--------:|-----------:|-------:|----------:|-----------:|
+| BTC-USD (qty 0.01) |  187 |  39.6% |  -0.07 | 1.07% |  -52.30 | ❌ |
+| ETH-USD (qty 0.01) |  192 |  46.9% |  -0.06 | 0.16% |   -5.27 | ❌ |
+| SOL-USD (qty 0.10) |  170 |  40.0% |  -0.18 | 0.07% |    2.96 | ❌ |
+
+None pass the prod_symbols.yaml gate (Sharpe>0.3 AND PnL>$100). Reason: the selector
+still uses the default regime map (`_DEFAULT_REGIME_MAP`), which only knows about SMA,
+mean reversion, and momentum breakout. MACD/RSI-div/VWAP are registered in the registry
+but NOT wired into the regime map — per plan, their map integration is conditional on
+isolated validation against the historically-mapped strategy. That validation work was
+out of scope for the multi-asset phase (would change strategy-per-regime assignments).
+
+**No new entries added to `configs/prod_symbols.yaml`.**
+
+## Fase 3D — Ensemble (**DEFERRED — design approval required**)
+
+Plan criterion: "only if Sharpe < 0.5 after all prior phases". Aggregate Sharpe across
+regimes is < 0.5, so 3D is technically triggered.
+
+However, the plan also says: *"Antes de arrancar esta fase, pausar y pedir aprobación
+del diseño."* The 3 known blockers documented in the plan require non-trivial contract
+changes outside this plan's autonomy:
+
+1. `BacktestEngine` does not notify adapter of fills → no way to impute per-strategy PnL.
+2. `BacktestSignal` has no `strategy_id` field → no trade-level attribution.
+3. In-memory `_weights` violate fail-closed on restart → need JSON persistence with
+   fail-closed load.
+
+Addressing these touches `src/backtest/engine.py` contract (not prohibited, but a signal
+pipeline change that should be explicitly reviewed). **Status: deferred pending user
+approval of the design for engine fill notification + BacktestSignal extension +
+persisted weights.**
+
+---
+
+## Final state vs. plan targets
+
+| Metric                       | Target      | Actual (BTC 1h selector) | Pass? |
+|------------------------------|------------:|-------------------------:|------:|
+| Sharpe (selector, BTC 1h)    | > 0.4       |  ~-0.07 (regime avg)     | ❌ |
+| PnL aggregate 10 regimes     | > $500      |                  -$52.30 | ❌ |
+| Win rate                     | > 48%       |                    39.6% | ❌ |
+| MaxDD per regime             | < 5%        |                 1.07% (max) | ✅ |
+| Regimes w/ negative PnL      | ≤ 4/10      |                     7/10 | ❌ |
+| Tests passing                | 100%        |  1198 pass / 14 skip     | ✅ |
+| New strategies registered    | ≥ 1         |    3 (MACD, RSI-div, VWAP) | ✅ |
+| Non-BTC assets validated     | ≥ 1         |    2 (ETH, SOL data)     | ⚠ (neither qualified) |
+
+### Honest read-out
+
+Infrastructure work (Fases 1A, 1B', 3A, 3B, 3C, 4B', 2) is **complete and shippable**.
+All phases merged, tests green, RiskGate active in all backtests, fail-closed in all new
+code paths, prohibited files untouched.
+
+Strategy-level **profitability targets are not met**. The core reason: the new strategies
+(MACD, RSI divergence, VWAP) are registered and individually validated but NOT wired into
+the selector's regime map. The selector is still running the pre-plan strategy set
+(SMA / mean reversion / momentum breakout), and the added stop-losses reduced false-signal
+losses but didn't unlock new winning regimes.
+
+**Next lever (outside this plan's scope):** A/B backtest each new strategy per regime,
+swap into `_DEFAULT_REGIME_MAP` where it beats the incumbent, then re-run segmented
+backtests. This is the validation loop Fase 3A/3B/3C explicitly deferred. Until that's
+done, the new strategies are latent capability, not realized PnL.

@@ -249,6 +249,30 @@ def adx(
     return ADXResult(adx=adx_line, plus_di=plus_di, minus_di=minus_di)
 
 
+# ── VWAP ───────────────────────────────────────────────────────────────────
+
+
+def vwap(
+    high: pd.Series,
+    low: pd.Series,
+    close: pd.Series,
+    volume: pd.Series,
+) -> pd.Series:
+    """
+    Volume-Weighted Average Price.
+
+        typical  = (high + low + close) / 3
+        vwap[i]  = cumsum(typical * volume)[i] / cumsum(volume)[i]
+
+    Pure cumulative form (no session reset). Returns NaN where
+    cumulative volume is zero.
+    """
+    typical = (high + low + close) / 3.0
+    cum_pv = (typical * volume).cumsum()
+    cum_v = volume.cumsum()
+    return cum_pv / cum_v.replace(0, np.nan)
+
+
 # ── Donchian Channel ───────────────────────────────────────────────────────
 
 

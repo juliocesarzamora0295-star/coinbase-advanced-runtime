@@ -218,7 +218,11 @@ def main() -> None:
     parser.add_argument("--qty", type=float, default=0.01, help="Trade qty in BTC")
     parser.add_argument("--sma-fast", type=int, default=20, help="Fast SMA period")
     parser.add_argument("--sma-slow", type=int, default=50, help="Slow SMA period")
-    parser.add_argument("--use-risk", action="store_true", help="Enable RiskGate in backtest")
+    parser.add_argument(
+        "--no-risk",
+        action="store_true",
+        help="Disable RiskGate (debug only — default is gate active)",
+    )
     parser.add_argument("--use-selector", action="store_true", help="Use regime-aware SelectorAdapter instead of SMA crossover")
     parser.add_argument("--use-full-adaptive", action="store_true", help="Use regime selector + adaptive position sizing")
     parser.add_argument("--download", action="store_true", help="Download data from Coinbase")
@@ -261,7 +265,7 @@ def main() -> None:
         fee_rate=Decimal(str(args.fee)),
         slippage_bps=Decimal(str(args.slippage)),
         qty=Decimal(str(args.qty)),
-        use_risk=args.use_risk,
+        use_risk=not args.no_risk,
         use_selector=args.use_selector,
         use_full_adaptive=args.use_full_adaptive,
     )

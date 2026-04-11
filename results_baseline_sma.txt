@@ -1,0 +1,985 @@
+2026-04-11 01:06:56,152 [SegmentedRunner] ════════════════════════════════════════════════════════════
+2026-04-11 01:06:56,152 [SegmentedRunner] Regime: bull_2020_q4 — BTC rally from $10k to $29k
+2026-04-11 01:06:56,152 [SegmentedRunner] Period: 2020-10-01 to 2020-12-31
+2026-04-11 01:06:56,176 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:06:56,203 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:06:56,219 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:06:56,290 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:06:56,321 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:06:56,335 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:06:56,359 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:06:56,471 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:06:56,488 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:06:56,519 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:06:56,531 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:06:56,542 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:06:56,546 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:06:56,591 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:06:56,620 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:06:56,705 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:06:56,750 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:06:56,864 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:06:56,903 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:06:56,944 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:06:56,979 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:06:57,085 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:06:57,152 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:06:57,276 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:06:57,300 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:06:57,390 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:06:57,448 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:06:57,550 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:06:57,651 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:06:57,819 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:06:57,877 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:06:57,944 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:06:58,007 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:06:58,109 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:06:58,331 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:06:58,729 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:06:58,741 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:06:58,874 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:06:58,970 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:06:59,050 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:06:59,109 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:06:59,357 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:06:59,439 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:06:59,575 [BacktestEngine] Backtest complete: BacktestReport:
+  Bars: 2207
+  Trades: 21 (W:10 L:11)
+  Win Rate: 47.6%
+  PnL: $114.51
+  Return: 1.21%
+  Max Drawdown: 0.31%
+  Sharpe: 0.79
+  Profit Factor: 4.07
+  Avg PnL/Trade: $5.45
+  Avg Duration: 243257s
+  Fees: $7.18
+  Equity: $10,000.00 → $10,120.73
+2026-04-11 01:06:59,576 [SegmentedRunner]   Return: 1.21% | Trades: 21 | Sharpe: 0.79 | MaxDD: 0.31%
+2026-04-11 01:06:59,576 [SegmentedRunner] ════════════════════════════════════════════════════════════
+2026-04-11 01:06:59,576 [SegmentedRunner] Regime: bull_2021_q1 — BTC rally to $64k ATH
+2026-04-11 01:06:59,576 [SegmentedRunner] Period: 2021-01-01 to 2021-04-14
+2026-04-11 01:06:59,608 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:06:59,622 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:06:59,677 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:06:59,706 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:06:59,710 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:06:59,722 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:06:59,752 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:06:59,804 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:06:59,835 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:06:59,895 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:06:59,919 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:06:59,945 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:06:59,974 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:00,034 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:00,081 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:00,145 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:00,303 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:00,306 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:00,386 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:00,422 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:00,497 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:00,533 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:00,597 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:00,627 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:00,675 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:00,701 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:00,830 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:00,832 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:00,962 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:01,065 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:01,118 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:01,198 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:01,213 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:01,279 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:01,459 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:01,536 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:02,026 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:02,154 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:02,296 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:02,304 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:02,392 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:02,599 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:02,636 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:02,733 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:02,897 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:02,908 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:03,292 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:03,437 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:03,535 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:03,685 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:03,918 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:03,952 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:04,153 [BacktestEngine] Backtest complete: BacktestReport:
+  Bars: 2496
+  Trades: 25 (W:12 L:13)
+  Win Rate: 48.0%
+  PnL: $131.96
+  Return: 1.49%
+  Max Drawdown: 1.01%
+  Sharpe: 0.29
+  Profit Factor: 1.67
+  Avg PnL/Trade: $5.28
+  Avg Duration: 208080s
+  Fees: $23.67
+  Equity: $10,000.00 → $10,149.43
+2026-04-11 01:07:04,153 [SegmentedRunner]   Return: 1.49% | Trades: 25 | Sharpe: 0.29 | MaxDD: 1.01%
+2026-04-11 01:07:04,153 [SegmentedRunner] ════════════════════════════════════════════════════════════
+2026-04-11 01:07:04,153 [SegmentedRunner] Regime: crash_may_2021 — BTC crash from $64k to $29k
+2026-04-11 01:07:04,153 [SegmentedRunner] Period: 2021-04-15 to 2021-07-20
+2026-04-11 01:07:04,213 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:04,220 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:04,259 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:04,268 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:04,277 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:04,322 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:04,351 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:04,384 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:04,400 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:04,417 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:04,449 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:04,481 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:04,497 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:04,537 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:04,558 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:04,564 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:04,602 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:04,618 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:04,673 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:04,688 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:04,852 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:04,884 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:04,978 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:05,072 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:05,198 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:05,289 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:05,308 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:05,382 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:05,506 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:05,531 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:05,605 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:05,722 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:05,807 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:05,938 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:06,296 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:06,372 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:06,381 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:06,436 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:06,530 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:06,717 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:06,869 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:07,013 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:07,105 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:07,184 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:07,293 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:07,401 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:07,421 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:07,497 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:07,652 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:07,685 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:07,853 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:07,921 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:08,062 [BacktestEngine] Backtest complete: BacktestReport:
+  Bars: 2328
+  Trades: 26 (W:7 L:19)
+  Win Rate: 26.9%
+  PnL: $-213.68
+  Return: -2.25%
+  Max Drawdown: 2.59%
+  Sharpe: -0.64
+  Profit Factor: 0.22
+  Avg PnL/Trade: $-8.22
+  Avg Duration: 127938s
+  Fees: $22.13
+  Equity: $10,000.00 → $9,775.15
+2026-04-11 01:07:08,062 [SegmentedRunner]   Return: -2.25% | Trades: 26 | Sharpe: -0.64 | MaxDD: 2.59%
+2026-04-11 01:07:08,062 [SegmentedRunner] ════════════════════════════════════════════════════════════
+2026-04-11 01:07:08,062 [SegmentedRunner] Regime: recovery_2021_q3 — BTC recovery to $69k ATH
+2026-04-11 01:07:08,062 [SegmentedRunner] Period: 2021-07-21 to 2021-11-10
+2026-04-11 01:07:08,126 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:08,128 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:08,153 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:08,166 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:08,192 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:08,238 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:08,325 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:08,332 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:08,369 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:08,373 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:08,395 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:08,421 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:08,460 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:08,486 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:08,506 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:08,580 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:08,658 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:08,672 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:08,711 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:08,819 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:08,875 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:08,988 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:09,113 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:09,138 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:09,211 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:09,296 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:09,331 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:09,419 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:09,466 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:09,531 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:09,656 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:09,712 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:09,773 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:09,934 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:10,024 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:10,121 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:10,216 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:10,325 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:10,601 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:10,618 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:10,857 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:10,875 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:11,161 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:11,238 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:11,448 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:11,508 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:11,760 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:12,016 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:12,130 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:12,270 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:12,441 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:12,567 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:12,769 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:13,034 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:13,294 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:13,344 [BacktestEngine] Backtest complete: BacktestReport:
+  Bars: 2712
+  Trades: 27 (W:14 L:13)
+  Win Rate: 51.9%
+  PnL: $146.88
+  Return: 1.33%
+  Max Drawdown: 1.11%
+  Sharpe: 0.31
+  Profit Factor: 1.87
+  Avg PnL/Trade: $5.44
+  Avg Duration: 197867s
+  Fees: $26.94
+  Equity: $10,000.00 → $10,133.49
+2026-04-11 01:07:13,345 [SegmentedRunner]   Return: 1.33% | Trades: 27 | Sharpe: 0.31 | MaxDD: 1.11%
+2026-04-11 01:07:13,345 [SegmentedRunner] ════════════════════════════════════════════════════════════
+2026-04-11 01:07:13,345 [SegmentedRunner] Regime: bear_2022_h1 — BTC bear from $47k to $19k (Luna/3AC collapse)
+2026-04-11 01:07:13,345 [SegmentedRunner] Period: 2022-01-01 to 2022-06-30
+2026-04-11 01:07:13,380 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:13,463 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:13,478 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:13,488 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:13,529 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:13,550 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:13,573 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:13,630 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:13,631 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:13,640 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:13,659 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:13,720 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:13,729 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:13,750 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:13,802 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:13,835 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:13,907 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:13,934 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:13,979 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:14,034 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:14,188 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:14,213 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:14,260 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:14,356 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:14,362 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:14,415 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:14,498 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:14,755 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:14,800 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:14,849 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:14,933 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:15,011 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:15,132 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:15,443 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:15,596 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:15,749 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:15,812 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:15,935 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:16,145 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:16,176 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:16,286 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:16,382 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:16,529 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:16,561 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:17,020 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:17,220 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:17,308 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:17,346 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:17,359 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:17,374 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:17,382 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:17,471 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:17,522 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:17,857 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:17,907 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:18,092 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:18,198 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:18,293 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:18,364 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:18,544 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:18,778 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:18,984 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:19,008 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:19,022 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:19,026 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:19,121 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:19,198 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:19,308 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:19,441 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:19,690 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:19,812 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:19,920 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:20,028 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:20,735 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:20,861 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:20,955 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:21,086 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:21,155 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:21,249 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:21,406 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:21,523 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:21,670 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:21,855 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:21,991 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:22,110 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:22,364 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:22,776 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:22,961 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:23,013 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:23,181 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:23,430 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:23,547 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:23,653 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:24,477 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:24,536 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:24,922 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:25,227 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:25,412 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:25,830 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:26,323 [BacktestEngine] Backtest complete: BacktestReport:
+  Bars: 4344
+  Trades: 49 (W:11 L:38)
+  Win Rate: 22.4%
+  PnL: $-175.84
+  Return: -1.94%
+  Max Drawdown: 2.16%
+  Sharpe: -0.43
+  Profit Factor: 0.50
+  Avg PnL/Trade: $-3.59
+  Avg Duration: 133861s
+  Fees: $36.68
+  Equity: $10,000.00 → $9,805.74
+2026-04-11 01:07:26,323 [SegmentedRunner]   Return: -1.94% | Trades: 49 | Sharpe: -0.43 | MaxDD: 2.16%
+2026-04-11 01:07:26,323 [SegmentedRunner] ════════════════════════════════════════════════════════════
+2026-04-11 01:07:26,323 [SegmentedRunner] Regime: sideways_2022_h2 — BTC sideways $16k-$24k range
+2026-04-11 01:07:26,323 [SegmentedRunner] Period: 2022-07-01 to 2022-12-31
+2026-04-11 01:07:26,362 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:26,426 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:26,487 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:26,625 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:26,649 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:26,664 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:26,698 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:26,711 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:26,769 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:26,872 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:26,956 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:26,990 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:27,026 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:27,073 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:27,105 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:27,159 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:27,201 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:27,256 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:27,285 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:27,347 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:27,614 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:27,666 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:27,708 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:27,826 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:27,993 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:28,051 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:28,079 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:28,104 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:28,169 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:28,212 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:28,302 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:28,338 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:28,364 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:28,399 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:28,497 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:28,810 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:29,034 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:29,116 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:29,208 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:29,253 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:29,381 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:29,462 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:29,503 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:29,527 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:29,541 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:29,575 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:29,654 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:29,751 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:29,824 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:29,979 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:30,140 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:30,361 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:30,609 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:30,638 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:30,811 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:30,866 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:30,918 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:31,014 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:31,132 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:31,314 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:31,588 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:31,854 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:31,892 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:32,094 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:32,191 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:32,337 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:32,863 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:33,103 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:33,590 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:33,718 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:34,067 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:34,249 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:34,433 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:34,557 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:34,702 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:34,710 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:34,719 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:34,736 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:35,003 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:35,230 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:35,364 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:35,522 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:35,589 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:35,598 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:35,778 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:36,077 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:36,202 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:36,262 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:36,355 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:36,527 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:36,831 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:37,026 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:37,119 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:37,198 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:37,337 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:37,619 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:38,005 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:38,127 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:38,239 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:38,448 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:38,626 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:38,907 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:38,997 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:39,169 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:39,494 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:39,520 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:39,684 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:39,730 [BacktestEngine] Backtest complete: BacktestReport:
+  Bars: 4416
+  Trades: 53 (W:13 L:40)
+  Win Rate: 24.5%
+  PnL: $1.14
+  Return: -0.10%
+  Max Drawdown: 0.70%
+  Sharpe: -0.04
+  Profit Factor: 1.01
+  Avg PnL/Trade: $0.02
+  Avg Duration: 139042s
+  Fees: $20.59
+  Equity: $10,000.00 → $9,990.19
+2026-04-11 01:07:39,730 [SegmentedRunner]   Return: -0.10% | Trades: 53 | Sharpe: -0.04 | MaxDD: 0.70%
+2026-04-11 01:07:39,730 [SegmentedRunner] ════════════════════════════════════════════════════════════
+2026-04-11 01:07:39,730 [SegmentedRunner] Regime: recovery_2023 — BTC recovery from $16k to $31k
+2026-04-11 01:07:39,730 [SegmentedRunner] Period: 2023-01-01 to 2023-06-30
+2026-04-11 01:07:39,766 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:39,768 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:39,784 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:39,794 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:39,976 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:40,011 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:40,070 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:40,093 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:40,121 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:40,147 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:40,182 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:40,192 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:40,218 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:40,220 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:40,267 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:40,307 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:40,372 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:40,538 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:40,594 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:40,705 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:40,759 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:40,801 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:40,912 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:40,940 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:41,012 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:41,045 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:41,091 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:41,165 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:41,178 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:41,295 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:41,382 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:41,430 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:41,489 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:41,616 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:41,736 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:41,957 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:42,191 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:42,252 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:42,414 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:42,425 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:42,624 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:42,686 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:42,751 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:42,853 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:42,929 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:43,028 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:43,149 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:43,217 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:43,309 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:43,478 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:43,577 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:43,739 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:43,827 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:43,860 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:44,081 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:44,137 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:44,264 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:44,566 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:44,643 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:44,939 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:45,029 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:45,153 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:45,484 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:45,581 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:45,612 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:45,780 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:46,114 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:46,457 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:46,542 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:46,748 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:47,046 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:47,204 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:47,289 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:47,456 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:47,590 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:47,714 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:47,842 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:48,032 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:48,527 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:48,832 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:49,026 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:49,098 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:49,139 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:49,342 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:49,486 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:49,602 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:49,708 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:49,929 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:50,195 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:50,458 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:50,783 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:50,877 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:51,330 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:51,335 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:51,560 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:51,565 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:51,571 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:51,613 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:51,629 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:51,832 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:51,974 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:52,120 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:52,272 [BacktestEngine] Backtest complete: BacktestReport:
+  Bars: 4341
+  Trades: 50 (W:17 L:33)
+  Win Rate: 34.0%
+  PnL: $80.43
+  Return: 0.66%
+  Max Drawdown: 0.72%
+  Sharpe: 0.23
+  Profit Factor: 1.54
+  Avg PnL/Trade: $1.61
+  Avg Duration: 169416s
+  Fees: $26.38
+  Equity: $10,000.00 → $10,065.78
+2026-04-11 01:07:52,273 [SegmentedRunner]   Return: 0.66% | Trades: 50 | Sharpe: 0.23 | MaxDD: 0.72%
+2026-04-11 01:07:52,273 [SegmentedRunner] ════════════════════════════════════════════════════════════
+2026-04-11 01:07:52,273 [SegmentedRunner] Regime: pre_etf_2023_h2 — BTC ETF anticipation rally to $42k
+2026-04-11 01:07:52,273 [SegmentedRunner] Period: 2023-07-01 to 2023-12-31
+2026-04-11 01:07:52,316 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:52,351 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:52,359 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:52,361 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:52,362 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:52,363 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:52,364 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:52,364 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:52,370 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:52,380 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:52,411 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:52,421 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:52,441 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:52,471 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:52,472 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:52,475 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:52,482 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:52,534 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:52,560 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:52,592 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:52,609 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:52,624 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:52,638 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:52,682 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:52,727 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:52,755 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:52,792 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:52,796 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:52,799 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:52,808 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:52,839 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:52,875 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:52,907 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:52,941 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:52,942 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:52,943 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:52,953 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:53,018 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:53,049 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:53,055 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:53,057 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:53,061 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:53,137 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:53,220 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:53,257 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:53,301 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:53,326 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:53,528 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:53,581 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:53,678 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:53,735 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:53,807 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:53,817 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:53,844 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:53,893 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:53,925 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:53,943 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:53,949 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:54,035 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:54,174 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:54,261 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:54,400 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:54,402 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:54,405 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:54,484 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:54,679 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:54,893 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:54,925 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:55,008 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:55,030 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:55,221 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:55,446 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:55,477 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:55,609 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:55,612 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:55,649 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:55,849 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:55,883 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:56,058 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:56,160 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:56,260 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:56,306 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:56,442 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:56,815 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:57,244 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:57,311 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:57,904 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:58,053 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:58,304 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:58,364 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:58,563 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:58,686 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:58,910 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:58,917 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:58,921 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:58,925 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:58,952 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:59,018 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:59,443 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:59,498 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:59,550 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:07:59,790 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:07:59,909 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:00,051 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:00,400 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:00,534 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:00,892 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:01,141 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:01,321 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:01,429 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:02,144 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:02,280 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:02,448 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:02,878 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:03,101 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:03,513 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:04,000 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:04,150 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:04,221 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:04,410 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:04,431 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:04,625 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:04,757 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:05,058 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:05,153 [BacktestEngine] Backtest complete: BacktestReport:
+  Bars: 4416
+  Trades: 61 (W:16 L:45)
+  Win Rate: 26.2%
+  PnL: $25.66
+  Return: 0.06%
+  Max Drawdown: 0.85%
+  Sharpe: 0.02
+  Profit Factor: 1.18
+  Avg PnL/Trade: $0.42
+  Avg Duration: 133200s
+  Fees: $38.76
+  Equity: $10,000.00 → $10,006.41
+2026-04-11 01:08:05,154 [SegmentedRunner]   Return: 0.06% | Trades: 61 | Sharpe: 0.02 | MaxDD: 0.85%
+2026-04-11 01:08:05,154 [SegmentedRunner] ════════════════════════════════════════════════════════════
+2026-04-11 01:08:05,154 [SegmentedRunner] Regime: etf_bull_2024_q1 — BTC ETF approval rally to $73k
+2026-04-11 01:08:05,154 [SegmentedRunner] Period: 2024-01-01 to 2024-03-31
+2026-04-11 01:08:05,180 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:05,192 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:05,205 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:05,212 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:05,227 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:05,229 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:05,252 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:05,265 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:05,279 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:05,340 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:05,364 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:05,417 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:05,451 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:05,506 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:05,544 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:05,551 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:05,627 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:05,633 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:05,683 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:05,730 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:05,788 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:05,850 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:05,854 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:05,873 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:06,145 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:06,148 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:06,237 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:06,238 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:06,248 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:06,260 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:06,262 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:06,327 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:06,388 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:06,428 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:06,433 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:06,497 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:06,501 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:06,503 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:06,528 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:06,602 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:06,676 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:06,686 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:06,865 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:06,892 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:06,949 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:06,986 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:07,094 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:07,144 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:07,481 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:07,497 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:07,571 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:07,771 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:07,832 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:07,942 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:08,030 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:08,120 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:08,351 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:08,424 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:08,501 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:08,589 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:08,649 [BacktestEngine] Backtest complete: BacktestReport:
+  Bars: 2184
+  Trades: 29 (W:12 L:17)
+  Win Rate: 41.4%
+  PnL: $113.47
+  Return: 1.10%
+  Max Drawdown: 1.08%
+  Sharpe: 0.32
+  Profit Factor: 1.65
+  Avg PnL/Trade: $3.91
+  Avg Duration: 156910s
+  Fees: $31.26
+  Equity: $10,000.00 → $10,110.23
+2026-04-11 01:08:08,649 [SegmentedRunner]   Return: 1.10% | Trades: 29 | Sharpe: 0.32 | MaxDD: 1.08%
+2026-04-11 01:08:08,649 [SegmentedRunner] ════════════════════════════════════════════════════════════
+2026-04-11 01:08:08,649 [SegmentedRunner] Regime: consolidation_2024_q2q3 — BTC consolidation $56k-$72k range
+2026-04-11 01:08:08,649 [SegmentedRunner] Period: 2024-04-01 to 2024-09-30
+2026-04-11 01:08:08,708 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:08,708 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:08,709 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:08,766 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:08,786 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:08,808 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:08,851 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:08,862 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:08,887 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:08,890 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:08,914 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:09,036 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:09,080 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:09,089 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:09,132 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:09,153 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:09,181 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:09,185 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:09,254 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:09,377 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:09,481 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:09,511 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:09,564 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:09,642 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:09,674 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:09,843 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:09,880 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:09,955 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:10,065 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:10,145 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:10,183 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:10,212 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:10,324 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:10,381 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:10,459 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:10,699 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:10,851 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:10,922 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:11,013 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:11,066 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:11,229 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:11,290 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:11,465 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:11,512 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:11,619 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:11,682 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:11,824 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:11,892 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:11,965 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:12,021 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:12,120 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:12,292 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:12,571 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:12,683 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:12,782 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:12,926 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:13,079 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:13,484 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:13,620 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:13,936 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:14,194 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:14,389 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:14,445 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:14,524 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:15,218 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:15,360 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:15,427 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:15,720 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:15,758 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:15,884 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:16,075 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:16,221 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:16,426 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:16,679 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:16,788 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:16,903 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:16,969 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:17,397 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:17,405 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:17,414 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:17,423 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:17,441 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:17,822 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:17,898 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:18,496 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:18,622 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:18,797 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:18,834 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:19,205 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:19,627 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:19,681 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:20,125 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:20,343 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:20,804 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:20,931 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:20,962 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:21,043 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:21,225 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:21,287 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:21,440 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:21,535 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50
+2026-04-11 01:08:21,843 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 01:08:22,106 [BacktestEngine] Backtest complete: BacktestReport:
+  Bars: 4392
+  Trades: 51 (W:19 L:32)
+  Win Rate: 37.3%
+  PnL: $-127.28
+  Return: -1.60%
+  Max Drawdown: 2.59%
+  Sharpe: -0.26
+  Profit Factor: 0.73
+  Avg PnL/Trade: $-2.50
+  Avg Duration: 155718s
+  Fees: $64.44
+  Equity: $10,000.00 → $9,840.46
+2026-04-11 01:08:22,106 [SegmentedRunner]   Return: -1.60% | Trades: 51 | Sharpe: -0.26 | MaxDD: 2.59%
+
+==========================================================================================
+SEGMENTED BACKTEST REPORT — Comparative Results
+==========================================================================================
+Regime                         Return  Trades  WinRate  Sharpe   MaxDD        PnL     Fees
+------------------------------------------------------------------------------------------
+bull_2020_q4                   1.21%      21   47.6%    0.79  0.31%     114.51     7.18
+bull_2021_q1                   1.49%      25   48.0%    0.29  1.01%     131.96    23.67
+crash_may_2021                -2.25%      26   26.9%   -0.64  2.59%    -213.68    22.13
+recovery_2021_q3               1.33%      27   51.9%    0.31  1.11%     146.88    26.94
+bear_2022_h1                  -1.94%      49   22.4%   -0.43  2.16%    -175.84    36.68
+sideways_2022_h2              -0.10%      53   24.5%   -0.04  0.70%       1.14    20.59
+recovery_2023                  0.66%      50   34.0%    0.23  0.72%      80.43    26.38
+pre_etf_2023_h2                0.06%      61   26.2%    0.02  0.85%      25.66    38.76
+etf_bull_2024_q1               1.10%      29   41.4%    0.32  1.08%     113.47    31.26
+consolidation_2024_q2q3       -1.60%      51   37.3%   -0.26  2.59%    -127.28    64.44
+------------------------------------------------------------------------------------------
+AGGREGATE                                 392    33.4%                      97.25
+==========================================================================================

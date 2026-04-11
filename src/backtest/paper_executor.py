@@ -6,6 +6,7 @@ Sin red, sin persistencia. Slippage configurable.
 
 from dataclasses import dataclass
 from decimal import Decimal
+from typing import Optional
 
 from src.backtest.ledger import BacktestLedger
 
@@ -45,7 +46,7 @@ class PaperExecutor:
         qty: Decimal,
         price: Decimal,
         ts_ms: int = 0,
-    ) -> BacktestFill:
+    ) -> Optional[BacktestFill]:
         """
         Ejecutar orden simulada.
 
@@ -53,10 +54,22 @@ class PaperExecutor:
         - BUY: price * (1 + slippage_bps / 10000) → desfavorable
         - SELL: price * (1 - slippage_bps / 10000) → desfavorable
 
+        SELL qty se capea a ledger.position_qty ANTES de calcular notional/fee.
+        Si no hay posición para vender, retorna None (fail-closed).
+
         Returns:
-            BacktestFill con precio ajustado.
+            BacktestFill con precio ajustado, o None si no se ejecutó.
         """
-        if side.upper() == "BUY":
+        side_up = side.upper()
+
+        if side_up == "SELL":
+            # Cap qty to available position BEFORE computing fee/notional.
+            if qty > self.ledger.position_qty:
+                qty = self.ledger.position_qty
+            if qty <= Decimal("0"):
+                return None
+
+        if side_up == "BUY":
             exec_price = price * (Decimal("1") + self.slippage_bps / Decimal("10000"))
         else:
             exec_price = price * (Decimal("1") - self.slippage_bps / Decimal("10000"))
@@ -65,7 +78,7 @@ class PaperExecutor:
         fee = notional * self.fee_rate
 
         fill = BacktestFill(
-            side=side.upper(),
+            side=side_up,
             qty=qty,
             price=exec_price,
             fee=fee,
@@ -73,7 +86,7 @@ class PaperExecutor:
         )
 
         # Apply to ledger
-        if side.upper() == "BUY":
+        if side_up == "BUY":
             self.ledger.buy(qty, exec_price, fee, ts_ms)
         else:
             self.ledger.sell(qty, exec_price, fee, ts_ms)

@@ -5,7 +5,8 @@
 # Uses real Coinbase orders with the tightest possible constraints.
 #
 # Risk budget: ~$1 per trade, $5 max daily loss, $10 max drawdown.
-# At BTC ~$70k this means ~0.000014 BTC per order (~$1).
+# At BTC ~$73k this means ~0.000014 BTC per order (~$1).
+# Uses BTC-USDC pair (account funded with USDC).
 #
 # Requires manual review of:
 #   1. 24h dry_run stability report
@@ -14,26 +15,26 @@
 #   4. Ledger consistency audit
 #
 # Launch with (after all validations pass):
-#   python -m src.main --config config/live_canary.yaml
+#   FORTRESS_CONFIG=config/live_canary.yaml python -m src.main
 
 trading:
   observe_only: false      # Signals ARE generated
   dry_run: false            # REAL ORDERS — this is live trading
   smoke_test_mode: false
   max_cycles: 0
-  initial_cash: 25          # Match actual portfolio (~$25)
+  initial_cash: 50          # Match actual portfolio (~$50 USDC)
   max_position_pct: 0.10    # Max 10% of equity in one position
   max_notional_per_symbol: 5.0  # Hard cap: $5 per symbol
   max_orders_per_minute: 2   # Conservative rate limit
   sizing_mode: "NOTIONAL"
-  notional_pct: 0.04         # 4% of $25 = ~$1 per trade
+  notional_pct: 0.02         # 2% of $50 = ~$1 per trade
   strategy_mode: "fixed"
   mtf_enabled: false
   adaptive_sizing: false
 
 risk:
-  max_daily_loss: 0.20       # 20% of $25 = $5 max daily loss
-  max_drawdown: 0.40         # 40% of $25 = $10 max drawdown
+  max_daily_loss: 0.10       # 10% of $50 = $5 max daily loss
+  max_drawdown: 0.20         # 20% of $50 = $10 max drawdown
   max_consecutive_losses: 2  # Trip breaker after 2 consecutive losses
 
 monitoring:
@@ -46,7 +47,7 @@ monitoring:
   heartbeat_interval_s: 60
 
 symbols:
-  - symbol: "BTC-USD"
+  - symbol: "BTC-USDC"
     enabled: true
     timeframe: "5m"
     strategies:

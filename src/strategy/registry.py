@@ -26,6 +26,7 @@ def _init_registry() -> None:
     from src.strategy.sma_crossover import SmaCrossoverStrategy
     from src.strategy.mean_reversion import MeanReversionStrategy
     from src.strategy.momentum_breakout import MomentumBreakoutStrategy
+    from src.strategy.macd_strategy import MacdStrategy
     from src.strategy.noop import NoopStrategy
 
     _REGISTRY.update({
@@ -33,6 +34,8 @@ def _init_registry() -> None:
         "sma_crossover": SmaCrossoverStrategy,
         "mean_reversion": MeanReversionStrategy,
         "momentum_breakout": MomentumBreakoutStrategy,
+        "macd": MacdStrategy,
+        "macd_histogram": MacdStrategy,
         "noop": NoopStrategy,
     })
     _INITIALIZED = True

@@ -27,6 +27,7 @@ def _init_registry() -> None:
     from src.strategy.mean_reversion import MeanReversionStrategy
     from src.strategy.momentum_breakout import MomentumBreakoutStrategy
     from src.strategy.macd_strategy import MacdStrategy
+    from src.strategy.rsi_divergence import RsiDivergenceStrategy
     from src.strategy.noop import NoopStrategy
 
     _REGISTRY.update({
@@ -36,6 +37,7 @@ def _init_registry() -> None:
         "momentum_breakout": MomentumBreakoutStrategy,
         "macd": MacdStrategy,
         "macd_histogram": MacdStrategy,
+        "rsi_divergence": RsiDivergenceStrategy,
         "noop": NoopStrategy,
     })
     _INITIALIZED = True

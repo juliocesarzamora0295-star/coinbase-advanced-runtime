@@ -1,0 +1,1299 @@
+2026-04-11 09:51:01,085 [SegmentedRunner] ════════════════════════════════════════════════════════════
+2026-04-11 09:51:01,085 [SegmentedRunner] Regime: bull_2020_q4 — BTC rally from $10k to $29k
+2026-04-11 09:51:01,085 [SegmentedRunner] Period: 2020-10-01 to 2020-12-31
+2026-04-11 09:51:01,086 [SegmentedRunner] Only 0 bars in data\regimes_SOL-USD_1h\bull_2020_q4.csv — skipping (need ≥60)
+2026-04-11 09:51:01,086 [SegmentedRunner]   SKIPPED — no data or insufficient bars
+2026-04-11 09:51:01,086 [SegmentedRunner] ════════════════════════════════════════════════════════════
+2026-04-11 09:51:01,086 [SegmentedRunner] Regime: bull_2021_q1 — BTC rally to $64k ATH
+2026-04-11 09:51:01,086 [SegmentedRunner] Period: 2021-01-01 to 2021-04-14
+2026-04-11 09:51:01,086 [SegmentedRunner] Only 0 bars in data\regimes_SOL-USD_1h\bull_2021_q1.csv — skipping (need ≥60)
+2026-04-11 09:51:01,086 [SegmentedRunner]   SKIPPED — no data or insufficient bars
+2026-04-11 09:51:01,086 [SegmentedRunner] ════════════════════════════════════════════════════════════
+2026-04-11 09:51:01,086 [SegmentedRunner] Regime: crash_may_2021 — BTC crash from $64k to $29k
+2026-04-11 09:51:01,086 [SegmentedRunner] Period: 2021-04-15 to 2021-07-20
+2026-04-11 09:51:01,109 [StrategySelector] Regime switch: UNKNOWN → TRENDING_CALM (strategy: sma_crossover, ADX=34.3, ATR_norm=0.0183)
+2026-04-11 09:51:01,136 [StrategySelector] Regime switch: TRENDING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=43.4, ATR_norm=0.0252)
+2026-04-11 09:51:01,149 [MomentumBreakoutStrategy] BUY breakout: close=35.82 > DC=35.65, stop=34.08
+2026-04-11 09:51:01,162 [MomentumBreakoutStrategy] SELL: Trailing stop: close=34.00 < stop=34.08
+2026-04-11 09:51:01,276 [MomentumBreakoutStrategy] BUY breakout: close=29.44 > DC=28.39, stop=25.68
+2026-04-11 09:51:01,323 [MomentumBreakoutStrategy] SELL: Trailing stop: close=28.50 < stop=28.88
+2026-04-11 09:51:01,337 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.3, ATR_norm=0.0493)
+2026-04-11 09:51:01,387 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=27.1, ATR_norm=0.0332)
+2026-04-11 09:51:01,388 [MomentumBreakoutStrategy] BUY breakout: close=32.77 > DC=32.61, stop=30.59
+2026-04-11 09:51:01,429 [MomentumBreakoutStrategy] SELL: Trailing stop: close=30.29 < stop=30.84
+2026-04-11 09:51:01,444 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0367)
+2026-04-11 09:51:01,646 [MeanReversionStrategy] SELL: close=32.60 >= BB_upper=32.44, RSI=70.3
+2026-04-11 09:51:01,647 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.5, ATR_norm=0.0204)
+2026-04-11 09:51:01,666 [MomentumBreakoutStrategy] BUY breakout: close=34.09 > DC=32.96, stop=32.57
+2026-04-11 09:51:01,751 [MomentumBreakoutStrategy] SELL: Trailing stop: close=33.96 < stop=34.11
+2026-04-11 09:51:01,809 [MomentumBreakoutStrategy] BUY breakout: close=34.65 > DC=34.60, stop=32.87
+2026-04-11 09:51:01,829 [MomentumBreakoutStrategy] SELL: Trailing stop: close=33.77 < stop=33.85
+2026-04-11 09:51:01,834 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.8, ATR_norm=0.0239)
+2026-04-11 09:51:02,000 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.1, ATR_norm=0.0183)
+2026-04-11 09:51:02,025 [StrategySelector] Regime switch: TRENDING_VOLATILE → TRENDING_CALM (strategy: sma_crossover, ADX=32.2, ATR_norm=0.0144)
+2026-04-11 09:51:02,071 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.1, ATR_norm=0.0138)
+2026-04-11 09:51:02,154 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.1, ATR_norm=0.0149)
+2026-04-11 09:51:02,218 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.1, ATR_norm=0.0173)
+2026-04-11 09:51:02,279 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.7, ATR_norm=0.0164)
+2026-04-11 09:51:02,331 [StrategySelector] Regime switch: TRENDING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=28.0, ATR_norm=0.0263)
+2026-04-11 09:51:02,414 [MomentumBreakoutStrategy] BUY breakout: close=34.20 > DC=34.06, stop=32.88
+2026-04-11 09:51:02,436 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.8, ATR_norm=0.0172)
+2026-04-11 09:51:02,534 [StrategySelector] Regime switch: RANGING_VOLATILE → RANGING_CALM (strategy: mean_reversion, ADX=24.8, ATR_norm=0.0146)
+2026-04-11 09:51:02,649 [MeanReversionStrategy] BUY: close=30.42 <= BB_lower=30.83, RSI=24.9, stop=29.50
+2026-04-11 09:51:02,654 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.2, ATR_norm=0.0125)
+2026-04-11 09:51:02,792 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=29.94)
+2026-04-11 09:51:02,808 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=29.76 (stop was 29.94)
+2026-04-11 09:51:02,991 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.8, ATR_norm=0.0159)
+2026-04-11 09:51:02,993 [MeanReversionStrategy] SELL: mean-reversion stop-loss hit close=26.93 stop=29.50
+2026-04-11 09:51:03,083 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.6, ATR_norm=0.0150)
+2026-04-11 09:51:03,188 [BacktestEngine] Backtest complete: BacktestReport:
+  Bars: 800
+  Trades: 6 (W:0 L:6)
+  Win Rate: 0.0%
+  PnL: $-1.11
+  Return: -0.01%
+  Max Drawdown: 0.01%
+  Sharpe: -1.02
+  Profit Factor: 0.00
+  Avg PnL/Trade: $-0.18
+  Avg Duration: 129000s
+  Fees: $0.04
+  Equity: $10,000.00 → $9,998.87
+2026-04-11 09:51:03,188 [SegmentedRunner]   Return: -0.01% | Trades: 6 | Sharpe: -1.02 | MaxDD: 0.01%
+2026-04-11 09:51:03,188 [SegmentedRunner] ════════════════════════════════════════════════════════════
+2026-04-11 09:51:03,188 [SegmentedRunner] Regime: recovery_2021_q3 — BTC recovery to $69k ATH
+2026-04-11 09:51:03,188 [SegmentedRunner] Period: 2021-07-21 to 2021-11-10
+2026-04-11 09:51:03,213 [StrategySelector] Regime switch: UNKNOWN → TRENDING_CALM (strategy: sma_crossover, ADX=28.9, ATR_norm=0.0184)
+2026-04-11 09:51:03,295 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.1, ATR_norm=0.0176)
+2026-04-11 09:51:03,373 [MeanReversionStrategy] SELL: close=30.81 >= BB_upper=29.75, RSI=75.0
+2026-04-11 09:51:03,378 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.1, ATR_norm=0.0233)
+2026-04-11 09:51:03,388 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=28.34)
+2026-04-11 09:51:03,418 [StrategySelector] Regime switch: TRENDING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=36.2, ATR_norm=0.0254)
+2026-04-11 09:51:03,431 [MomentumBreakoutStrategy] SELL: Breakdown: close=27.64 < DC_lower=27.88
+2026-04-11 09:51:03,493 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=18.9, ATR_norm=0.0207)
+2026-04-11 09:51:03,588 [StrategySelector] Regime switch: RANGING_VOLATILE → RANGING_CALM (strategy: mean_reversion, ADX=15.1, ATR_norm=0.0150)
+2026-04-11 09:51:03,612 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.3, ATR_norm=0.0170)
+2026-04-11 09:51:03,646 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=30.86 (stop was 31.45)
+2026-04-11 09:51:03,814 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.4, ATR_norm=0.0216)
+2026-04-11 09:51:03,875 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.6, ATR_norm=0.0179)
+2026-04-11 09:51:03,923 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=33.11)
+2026-04-11 09:51:03,927 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0196)
+2026-04-11 09:51:03,991 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.3, ATR_norm=0.0170)
+2026-04-11 09:51:04,064 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0180)
+2026-04-11 09:51:04,111 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.9, ATR_norm=0.0170)
+2026-04-11 09:51:04,159 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=38.77 (stop was 38.92)
+2026-04-11 09:51:04,188 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.3, ATR_norm=0.0177)
+2026-04-11 09:51:04,438 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.8, ATR_norm=0.0183)
+2026-04-11 09:51:04,570 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=42.04)
+2026-04-11 09:51:04,597 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.4, ATR_norm=0.0158)
+2026-04-11 09:51:04,745 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.3, ATR_norm=0.0247)
+2026-04-11 09:51:04,753 [StrategySelector] Regime switch: TRENDING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=34.7, ATR_norm=0.0279)
+2026-04-11 09:51:04,767 [MomentumBreakoutStrategy] BUY breakout: close=55.64 > DC=55.59, stop=52.33
+2026-04-11 09:51:04,815 [MomentumBreakoutStrategy] SELL: Trailing stop: close=62.95 < stop=63.83
+2026-04-11 09:51:04,831 [MomentumBreakoutStrategy] BUY breakout: close=70.07 > DC=69.80, stop=63.85
+2026-04-11 09:51:04,871 [MomentumBreakoutStrategy] SELL: Trailing stop: close=65.15 < stop=67.49
+2026-04-11 09:51:04,918 [MomentumBreakoutStrategy] BUY breakout: close=72.31 > DC=72.16, stop=65.25
+2026-04-11 09:51:04,955 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.1, ATR_norm=0.0448)
+2026-04-11 09:51:05,106 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=27.1, ATR_norm=0.0229)
+2026-04-11 09:51:05,145 [MomentumBreakoutStrategy] SELL: Trailing stop: close=75.95 < stop=76.53
+2026-04-11 09:51:05,211 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.1, ATR_norm=0.0195)
+2026-04-11 09:51:05,238 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.4, ATR_norm=0.0208)
+2026-04-11 09:51:05,315 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.6, ATR_norm=0.0212)
+2026-04-11 09:51:05,372 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.3, ATR_norm=0.0283)
+2026-04-11 09:51:05,458 [MomentumBreakoutStrategy] BUY breakout: close=73.30 > DC=72.82, stop=70.24
+2026-04-11 09:51:05,472 [MomentumBreakoutStrategy] SELL: Trailing stop: close=68.39 < stop=70.24
+2026-04-11 09:51:05,496 [MomentumBreakoutStrategy] BUY breakout: close=75.37 > DC=74.08, stop=70.83
+2026-04-11 09:51:05,679 [MomentumBreakoutStrategy] SELL: Trailing stop: close=93.16 < stop=93.61
+2026-04-11 09:51:05,718 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0184)
+2026-04-11 09:51:05,732 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.6, ATR_norm=0.0207)
+2026-04-11 09:51:05,733 [MomentumBreakoutStrategy] BUY breakout: close=100.16 > DC=99.13, stop=96.02
+2026-04-11 09:51:05,836 [MomentumBreakoutStrategy] SELL: Trailing stop: close=116.50 < stop=117.82
+2026-04-11 09:51:05,883 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.2, ATR_norm=0.0410)
+2026-04-11 09:51:06,001 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.8, ATR_norm=0.0290)
+2026-04-11 09:51:06,010 [MomentumBreakoutStrategy] BUY breakout: close=129.26 > DC=129.00, stop=121.93
+2026-04-11 09:51:06,117 [MomentumBreakoutStrategy] SELL: Trailing stop: close=141.35 < stop=141.67
+2026-04-11 09:51:06,269 [MomentumBreakoutStrategy] BUY breakout: close=151.56 > DC=147.00, stop=145.45
+2026-04-11 09:51:06,336 [MomentumBreakoutStrategy] SELL: Breakdown: close=152.42 < DC_lower=154.51
+2026-04-11 09:51:06,416 [MomentumBreakoutStrategy] BUY breakout: close=183.17 > DC=180.00, stop=163.86
+2026-04-11 09:51:06,483 [MomentumBreakoutStrategy] SELL: Trailing stop: close=191.16 < stop=193.72
+2026-04-11 09:51:06,508 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.6, ATR_norm=0.0452)
+2026-04-11 09:51:06,549 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.6, ATR_norm=0.0437)
+2026-04-11 09:51:06,608 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.7, ATR_norm=0.0365)
+2026-04-11 09:51:06,748 [MeanReversionStrategy] BUY: close=163.46 <= BB_lower=167.39, RSI=28.8, stop=152.40
+2026-04-11 09:51:06,753 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=26.0, ATR_norm=0.0306)
+2026-04-11 09:51:06,831 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.4, ATR_norm=0.0306)
+2026-04-11 09:51:06,886 [MeanReversionStrategy] SELL: mean-reversion stop-loss hit close=150.54 stop=152.40
+2026-04-11 09:51:07,080 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.3, ATR_norm=0.0252)
+2026-04-11 09:51:07,161 [MomentumBreakoutStrategy] BUY breakout: close=155.55 > DC=149.11, stop=147.38
+2026-04-11 09:51:07,246 [MomentumBreakoutStrategy] SELL: Trailing stop: close=160.01 < stop=161.38
+2026-04-11 09:51:07,475 [MomentumBreakoutStrategy] BUY breakout: close=137.10 > DC=134.17, stop=128.49
+2026-04-11 09:51:07,591 [MomentumBreakoutStrategy] SELL: Breakdown: close=142.90 < DC_lower=143.02
+2026-04-11 09:51:07,666 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.0, ATR_norm=0.0243)
+2026-04-11 09:51:07,717 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.5, ATR_norm=0.0207)
+2026-04-11 09:51:07,775 [MomentumBreakoutStrategy] BUY breakout: close=140.15 > DC=138.38, stop=133.34
+2026-04-11 09:51:07,796 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.6, ATR_norm=0.0228)
+2026-04-11 09:51:07,858 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.0, ATR_norm=0.0240)
+2026-04-11 09:51:07,877 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.3, ATR_norm=0.0246)
+2026-04-11 09:51:07,949 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.6, ATR_norm=0.0220)
+2026-04-11 09:51:07,950 [MomentumBreakoutStrategy] SELL: Breakdown: close=129.28 < DC_lower=129.50
+2026-04-11 09:51:07,998 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.7, ATR_norm=0.0188)
+2026-04-11 09:51:08,173 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.8, ATR_norm=0.0165)
+2026-04-11 09:51:08,180 [MomentumBreakoutStrategy] BUY breakout: close=147.85 > DC=144.98, stop=142.64
+2026-04-11 09:51:08,298 [MomentumBreakoutStrategy] SELL: Trailing stop: close=167.88 < stop=168.43
+2026-04-11 09:51:08,338 [MomentumBreakoutStrategy] BUY breakout: close=177.05 > DC=175.11, stop=170.44
+2026-04-11 09:51:08,363 [MomentumBreakoutStrategy] SELL: Trailing stop: close=169.42 < stop=170.44
+2026-04-11 09:51:08,428 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.5, ATR_norm=0.0231)
+2026-04-11 09:51:08,571 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=26.6, ATR_norm=0.0191)
+2026-04-11 09:51:08,647 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.8, ATR_norm=0.0205)
+2026-04-11 09:51:08,873 [StrategySelector] Regime switch: RANGING_VOLATILE → RANGING_CALM (strategy: mean_reversion, ADX=18.0, ATR_norm=0.0149)
+2026-04-11 09:51:08,910 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.0, ATR_norm=0.0141)
+2026-04-11 09:51:08,940 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=20.0, ATR_norm=0.0130)
+2026-04-11 09:51:08,981 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=27.3, ATR_norm=0.0145)
+2026-04-11 09:51:08,982 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=151.54 (stop was 153.48)
+2026-04-11 09:51:09,141 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=142.58)
+2026-04-11 09:51:09,162 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.5, ATR_norm=0.0199)
+2026-04-11 09:51:09,264 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.7, ATR_norm=0.0134)
+2026-04-11 09:51:09,292 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=149.94 (stop was 150.07)
+2026-04-11 09:51:09,309 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=18.9, ATR_norm=0.0144)
+2026-04-11 09:51:09,328 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.3, ATR_norm=0.0175)
+2026-04-11 09:51:09,485 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=160.88)
+2026-04-11 09:51:09,503 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=160.73 (stop was 161.27)
+2026-04-11 09:51:09,626 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.2, ATR_norm=0.0119)
+2026-04-11 09:51:09,752 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=27.6, ATR_norm=0.0101)
+2026-04-11 09:51:09,753 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=160.83)
+2026-04-11 09:51:09,819 [StrategySelector] Regime switch: TRENDING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=56.9, ATR_norm=0.0263)
+2026-04-11 09:51:09,863 [MomentumBreakoutStrategy] BUY breakout: close=200.23 > DC=194.41, stop=188.84
+2026-04-11 09:51:09,926 [MomentumBreakoutStrategy] SELL: Trailing stop: close=197.62 < stop=199.70
+2026-04-11 09:51:09,972 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.3, ATR_norm=0.0228)
+2026-04-11 09:51:10,071 [StrategySelector] Regime switch: RANGING_VOLATILE → RANGING_CALM (strategy: mean_reversion, ADX=21.9, ATR_norm=0.0148)
+2026-04-11 09:51:10,083 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.6, ATR_norm=0.0162)
+2026-04-11 09:51:10,182 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=210.33 (stop was 210.53)
+2026-04-11 09:51:10,210 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.3, ATR_norm=0.0186)
+2026-04-11 09:51:10,326 [StrategySelector] Regime switch: RANGING_CALM → RANGING_VOLATILE (strategy: mean_reversion, ADX=22.7, ATR_norm=0.0251)
+2026-04-11 09:51:10,327 [MeanReversionStrategy] BUY: close=189.83 <= BB_lower=191.78, RSI=28.3, stop=177.93
+2026-04-11 09:51:10,338 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=27.7, ATR_norm=0.0259)
+2026-04-11 09:51:10,406 [MomentumBreakoutStrategy] BUY breakout: close=197.64 > DC=194.34, stop=187.33
+2026-04-11 09:51:10,446 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=20.0, ATR_norm=0.0225)
+2026-04-11 09:51:10,569 [StrategySelector] Regime switch: RANGING_VOLATILE → RANGING_CALM (strategy: mean_reversion, ADX=12.1, ATR_norm=0.0146)
+2026-04-11 09:51:10,686 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.8, ATR_norm=0.0142)
+2026-04-11 09:51:10,741 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=198.16)
+2026-04-11 09:51:10,789 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=200.65 (stop was 201.49)
+2026-04-11 09:51:10,794 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.6, ATR_norm=0.0182)
+2026-04-11 09:51:10,888 [MeanReversionStrategy] SELL: close=214.10 >= BB_upper=211.67, RSI=70.1
+2026-04-11 09:51:10,898 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.5, ATR_norm=0.0160)
+2026-04-11 09:51:11,077 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.6, ATR_norm=0.0208)
+2026-04-11 09:51:11,145 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.3, ATR_norm=0.0165)
+2026-04-11 09:51:11,165 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=18.7, ATR_norm=0.0155)
+2026-04-11 09:51:11,247 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.3, ATR_norm=0.0170)
+2026-04-11 09:51:11,305 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.2, ATR_norm=0.0131)
+2026-04-11 09:51:11,615 [MeanReversionStrategy] BUY: close=228.28 <= BB_lower=230.92, RSI=29.7, stop=215.38
+2026-04-11 09:51:11,621 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.7, ATR_norm=0.0225)
+2026-04-11 09:51:11,624 [BacktestEngine] Backtest complete: BacktestReport:
+  Bars: 2712
+  Trades: 21 (W:14 L:7)
+  Win Rate: 66.7%
+  PnL: $10.66
+  Return: 0.10%
+  Max Drawdown: 0.04%
+  Sharpe: 0.50
+  Profit Factor: 3.81
+  Avg PnL/Trade: $0.51
+  Avg Duration: 153600s
+  Fees: $0.46
+  Equity: $10,000.00 → $10,010.49
+2026-04-11 09:51:11,625 [SegmentedRunner]   Return: 0.10% | Trades: 21 | Sharpe: 0.50 | MaxDD: 0.04%
+2026-04-11 09:51:11,625 [SegmentedRunner] ════════════════════════════════════════════════════════════
+2026-04-11 09:51:11,625 [SegmentedRunner] Regime: bear_2022_h1 — BTC bear from $47k to $19k (Luna/3AC collapse)
+2026-04-11 09:51:11,625 [SegmentedRunner] Period: 2022-01-01 to 2022-06-30
+2026-04-11 09:51:11,648 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 09:51:11,653 [StrategySelector] Regime switch: UNKNOWN → RANGING_CALM (strategy: mean_reversion, ADX=18.8, ATR_norm=0.0075)
+2026-04-11 09:51:11,691 [MeanReversionStrategy] BUY: close=168.49 <= BB_lower=168.98, RSI=28.6, stop=164.29
+2026-04-11 09:51:11,693 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.9, ATR_norm=0.0101)
+2026-04-11 09:51:11,794 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0089)
+2026-04-11 09:51:11,821 [MeanReversionStrategy] SELL: mean-reversion stop-loss hit close=163.59 stop=164.29
+2026-04-11 09:51:11,824 [MeanReversionStrategy] BUY: close=163.88 <= BB_lower=164.67, RSI=30.0, stop=159.20
+2026-04-11 09:51:11,826 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.6, ATR_norm=0.0140)
+2026-04-11 09:51:11,932 [StrategySelector] Regime switch: TRENDING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=49.6, ATR_norm=0.0266)
+2026-04-11 09:51:11,997 [MomentumBreakoutStrategy] SELL: Breakdown: close=135.47 < DC_lower=135.77
+2026-04-11 09:51:12,017 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=20.0, ATR_norm=0.0260)
+2026-04-11 09:51:12,018 [MeanReversionStrategy] SELL: mean-reversion stop-loss hit close=142.71 stop=159.20
+2026-04-11 09:51:12,114 [StrategySelector] Regime switch: RANGING_VOLATILE → RANGING_CALM (strategy: mean_reversion, ADX=11.2, ATR_norm=0.0149)
+2026-04-11 09:51:12,137 [MeanReversionStrategy] BUY: close=133.37 <= BB_lower=134.89, RSI=28.6, stop=127.35
+2026-04-11 09:51:12,152 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.7, ATR_norm=0.0221)
+2026-04-11 09:51:12,201 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.8, ATR_norm=0.0155)
+2026-04-11 09:51:12,222 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.3, ATR_norm=0.0156)
+2026-04-11 09:51:12,225 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=135.99)
+2026-04-11 09:51:12,331 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=152.55 (stop was 153.26)
+2026-04-11 09:51:12,406 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=18.8, ATR_norm=0.0163)
+2026-04-11 09:51:12,578 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.1, ATR_norm=0.0111)
+2026-04-11 09:51:12,728 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=18.7, ATR_norm=0.0141)
+2026-04-11 09:51:12,797 [MeanReversionStrategy] SELL: close=143.27 >= BB_upper=141.38, RSI=71.1
+2026-04-11 09:51:12,823 [MeanReversionStrategy] BUY: close=127.52 <= BB_lower=130.24, RSI=25.6, stop=121.41
+2026-04-11 09:51:12,828 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=27.5, ATR_norm=0.0221)
+2026-04-11 09:51:12,835 [StrategySelector] Regime switch: TRENDING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=32.5, ATR_norm=0.0249)
+2026-04-11 09:51:13,016 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.8, ATR_norm=0.0381)
+2026-04-11 09:51:13,018 [MeanReversionStrategy] SELL: mean-reversion stop-loss hit close=93.14 stop=121.41
+2026-04-11 09:51:13,047 [MeanReversionStrategy] BUY: close=82.13 <= BB_lower=82.67, RSI=26.9, stop=74.28
+2026-04-11 09:51:13,049 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.1, ATR_norm=0.0392)
+2026-04-11 09:51:13,091 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.3, ATR_norm=0.0378)
+2026-04-11 09:51:13,194 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.4, ATR_norm=0.0249)
+2026-04-11 09:51:13,205 [MomentumBreakoutStrategy] BUY breakout: close=100.61 > DC=100.56, stop=95.59
+2026-04-11 09:51:13,221 [MomentumBreakoutStrategy] SELL: Trailing stop: close=94.09 < stop=95.59
+2026-04-11 09:51:13,245 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0333)
+2026-04-11 09:51:13,423 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.9, ATR_norm=0.0212)
+2026-04-11 09:51:13,434 [MomentumBreakoutStrategy] BUY breakout: close=98.15 > DC=97.73, stop=94.27
+2026-04-11 09:51:13,445 [MomentumBreakoutStrategy] SELL: Trailing stop: close=94.11 < stop=94.27
+2026-04-11 09:51:13,471 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.8, ATR_norm=0.0177)
+2026-04-11 09:51:13,504 [StrategySelector] Regime switch: RANGING_VOLATILE → RANGING_CALM (strategy: mean_reversion, ADX=18.9, ATR_norm=0.0148)
+2026-04-11 09:51:13,558 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.7, ATR_norm=0.0162)
+2026-04-11 09:51:13,608 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=97.05)
+2026-04-11 09:51:13,656 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=108.00 (stop was 108.02)
+2026-04-11 09:51:13,722 [StrategySelector] Regime switch: TRENDING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=28.8, ATR_norm=0.0260)
+2026-04-11 09:51:13,814 [MomentumBreakoutStrategy] BUY breakout: close=105.03 > DC=103.91, stop=100.46
+2026-04-11 09:51:13,952 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.6, ATR_norm=0.0160)
+2026-04-11 09:51:13,965 [StrategySelector] Regime switch: RANGING_VOLATILE → RANGING_CALM (strategy: mean_reversion, ADX=16.0, ATR_norm=0.0149)
+2026-04-11 09:51:14,033 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.4, ATR_norm=0.0157)
+2026-04-11 09:51:14,033 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=113.66)
+2026-04-11 09:51:14,075 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=117.62 (stop was 117.65)
+2026-04-11 09:51:14,085 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.8, ATR_norm=0.0169)
+2026-04-11 09:51:14,127 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.6, ATR_norm=0.0184)
+2026-04-11 09:51:14,207 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.3, ATR_norm=0.0155)
+2026-04-11 09:51:14,310 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.2, ATR_norm=0.0196)
+2026-04-11 09:51:14,566 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.8, ATR_norm=0.0160)
+2026-04-11 09:51:14,575 [MeanReversionStrategy] SELL: close=102.07 >= BB_upper=99.90, RSI=71.0
+2026-04-11 09:51:14,584 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.2, ATR_norm=0.0167)
+2026-04-11 09:51:14,700 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.1, ATR_norm=0.0155)
+2026-04-11 09:51:14,748 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.8, ATR_norm=0.0160)
+2026-04-11 09:51:14,913 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.6, ATR_norm=0.0143)
+2026-04-11 09:51:14,925 [MeanReversionStrategy] BUY: close=86.67 <= BB_lower=87.51, RSI=29.5, stop=83.24
+2026-04-11 09:51:14,993 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.2, ATR_norm=0.0203)
+2026-04-11 09:51:14,997 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=90.78)
+2026-04-11 09:51:15,022 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=89.22 (stop was 92.14)
+2026-04-11 09:51:15,055 [StrategySelector] Regime switch: TRENDING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=26.1, ATR_norm=0.0262)
+2026-04-11 09:51:15,056 [MomentumBreakoutStrategy] SELL: Breakdown: close=82.97 < DC_lower=84.25
+2026-04-11 09:51:15,113 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=20.0, ATR_norm=0.0220)
+2026-04-11 09:51:15,151 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=26.0, ATR_norm=0.0189)
+2026-04-11 09:51:15,166 [MomentumBreakoutStrategy] BUY breakout: close=92.08 > DC=91.93, stop=88.79
+2026-04-11 09:51:15,184 [MomentumBreakoutStrategy] SELL: Trailing stop: close=89.08 < stop=89.23
+2026-04-11 09:51:15,307 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=18.9, ATR_norm=0.0258)
+2026-04-11 09:51:15,578 [MeanReversionStrategy] SELL: close=94.95 >= BB_upper=92.95, RSI=71.2
+2026-04-11 09:51:15,591 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.6, ATR_norm=0.0213)
+2026-04-11 09:51:15,598 [MomentumBreakoutStrategy] BUY breakout: close=99.41 > DC=97.25, stop=95.22
+2026-04-11 09:51:15,657 [MomentumBreakoutStrategy] SELL: Trailing stop: close=96.59 < stop=96.70
+2026-04-11 09:51:15,690 [MomentumBreakoutStrategy] BUY breakout: close=104.29 > DC=102.10, stop=99.38
+2026-04-11 09:51:15,734 [MomentumBreakoutStrategy] SELL: Trailing stop: close=100.73 < stop=100.92
+2026-04-11 09:51:15,769 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.2, ATR_norm=0.0192)
+2026-04-11 09:51:15,823 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=26.2, ATR_norm=0.0172)
+2026-04-11 09:51:15,929 [StrategySelector] Regime switch: TRENDING_VOLATILE → TRENDING_CALM (strategy: sma_crossover, ADX=47.2, ATR_norm=0.0149)
+2026-04-11 09:51:16,135 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.7, ATR_norm=0.0179)
+2026-04-11 09:51:16,222 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.2, ATR_norm=0.0177)
+2026-04-11 09:51:16,270 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.4, ATR_norm=0.0168)
+2026-04-11 09:51:16,300 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.8, ATR_norm=0.0159)
+2026-04-11 09:51:16,364 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.8, ATR_norm=0.0143)
+2026-04-11 09:51:16,600 [MeanReversionStrategy] BUY: close=78.31 <= BB_lower=79.02, RSI=26.4, stop=76.11
+2026-04-11 09:51:16,602 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=27.2, ATR_norm=0.0116)
+2026-04-11 09:51:16,649 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.6, ATR_norm=0.0114)
+2026-04-11 09:51:16,752 [MeanReversionStrategy] SELL: close=84.91 >= BB_upper=83.31, RSI=77.2
+2026-04-11 09:51:16,776 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.8, ATR_norm=0.0138)
+2026-04-11 09:51:16,995 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=87.53)
+2026-04-11 09:51:17,073 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=90.73 (stop was 91.52)
+2026-04-11 09:51:17,217 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.3, ATR_norm=0.0113)
+2026-04-11 09:51:17,392 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.7, ATR_norm=0.0141)
+2026-04-11 09:51:17,573 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0127)
+2026-04-11 09:51:17,716 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.7, ATR_norm=0.0129)
+2026-04-11 09:51:17,856 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.0, ATR_norm=0.0205)
+2026-04-11 09:51:17,926 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.4, ATR_norm=0.0223)
+2026-04-11 09:51:18,028 [StrategySelector] Regime switch: TRENDING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=24.7, ATR_norm=0.0252)
+2026-04-11 09:51:18,058 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.8, ATR_norm=0.0220)
+2026-04-11 09:51:18,089 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.6, ATR_norm=0.0211)
+2026-04-11 09:51:18,146 [MomentumBreakoutStrategy] BUY breakout: close=139.08 > DC=138.46, stop=134.41
+2026-04-11 09:51:18,166 [MomentumBreakoutStrategy] SELL: Trailing stop: close=135.06 < stop=136.67
+2026-04-11 09:51:18,208 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=18.9, ATR_norm=0.0184)
+2026-04-11 09:51:18,298 [StrategySelector] Regime switch: RANGING_VOLATILE → RANGING_CALM (strategy: mean_reversion, ADX=9.4, ATR_norm=0.0145)
+2026-04-11 09:51:18,335 [MeanReversionStrategy] BUY: close=129.36 <= BB_lower=130.90, RSI=29.2, stop=123.75
+2026-04-11 09:51:18,468 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=27.6, ATR_norm=0.0205)
+2026-04-11 09:51:18,536 [StrategySelector] Regime switch: TRENDING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=50.2, ATR_norm=0.0254)
+2026-04-11 09:51:18,755 [StrategySelector] Regime switch: TRENDING_VOLATILE → TRENDING_CALM (strategy: sma_crossover, ADX=34.8, ATR_norm=0.0150)
+2026-04-11 09:51:18,812 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.7, ATR_norm=0.0126)
+2026-04-11 09:51:18,814 [MeanReversionStrategy] SELL: mean-reversion stop-loss hit close=111.13 stop=123.75
+2026-04-11 09:51:18,901 [MeanReversionStrategy] BUY: close=104.82 <= BB_lower=106.84, RSI=27.7, stop=100.13
+2026-04-11 09:51:18,908 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.1, ATR_norm=0.0184)
+2026-04-11 09:51:19,035 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0184)
+2026-04-11 09:51:19,185 [MeanReversionStrategy] SELL: mean-reversion stop-loss hit close=100.00 stop=100.13
+2026-04-11 09:51:19,524 [MeanReversionStrategy] BUY: close=95.54 <= BB_lower=98.05, RSI=24.1, stop=91.95
+2026-04-11 09:51:19,526 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.3, ATR_norm=0.0154)
+2026-04-11 09:51:19,607 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.7, ATR_norm=0.0130)
+2026-04-11 09:51:19,637 [MeanReversionStrategy] SELL: close=106.38 >= BB_upper=104.67, RSI=70.6
+2026-04-11 09:51:19,644 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.6, ATR_norm=0.0138)
+2026-04-11 09:51:19,786 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.2, ATR_norm=0.0133)
+2026-04-11 09:51:19,828 [MeanReversionStrategy] BUY: close=101.79 <= BB_lower=102.71, RSI=29.1, stop=97.90
+2026-04-11 09:51:19,835 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=27.0, ATR_norm=0.0150)
+2026-04-11 09:51:19,988 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=99.58)
+2026-04-11 09:51:20,013 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.8, ATR_norm=0.0084)
+2026-04-11 09:51:20,089 [MeanReversionStrategy] SELL: mean-reversion stop-loss hit close=96.93 stop=97.90
+2026-04-11 09:51:20,091 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.2, ATR_norm=0.0115)
+2026-04-11 09:51:20,092 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=97.40 (stop was 99.74)
+2026-04-11 09:51:20,188 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=98.43)
+2026-04-11 09:51:20,211 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=98.02 (stop was 98.76)
+2026-04-11 09:51:20,302 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=18.9, ATR_norm=0.0143)
+2026-04-11 09:51:20,500 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.6, ATR_norm=0.0121)
+2026-04-11 09:51:20,696 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.8, ATR_norm=0.0161)
+2026-04-11 09:51:20,977 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.6, ATR_norm=0.0132)
+2026-04-11 09:51:21,362 [StrategySelector] Regime switch: TRENDING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=50.5, ATR_norm=0.0279)
+2026-04-11 09:51:21,663 [MomentumBreakoutStrategy] BUY breakout: close=51.21 > DC=49.30, stop=44.21
+2026-04-11 09:51:21,725 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.3, ATR_norm=0.0562)
+2026-04-11 09:51:21,921 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=26.1, ATR_norm=0.0278)
+2026-04-11 09:51:21,962 [MomentumBreakoutStrategy] SELL: Trailing stop: close=55.39 < stop=55.66
+2026-04-11 09:51:22,010 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.5, ATR_norm=0.0321)
+2026-04-11 09:51:22,203 [MeanReversionStrategy] BUY: close=50.95 <= BB_lower=51.68, RSI=29.4, stop=47.72
+2026-04-11 09:51:22,205 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.6, ATR_norm=0.0259)
+2026-04-11 09:51:22,322 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.5, ATR_norm=0.0268)
+2026-04-11 09:51:22,540 [StrategySelector] Regime switch: RANGING_VOLATILE → RANGING_CALM (strategy: mean_reversion, ADX=11.4, ATR_norm=0.0147)
+2026-04-11 09:51:22,621 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.2, ATR_norm=0.0147)
+2026-04-11 09:51:22,798 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.2, ATR_norm=0.0192)
+2026-04-11 09:51:22,851 [MeanReversionStrategy] SELL: mean-reversion stop-loss hit close=47.64 stop=47.72
+2026-04-11 09:51:22,940 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=28.2, ATR_norm=0.0215)
+2026-04-11 09:51:22,975 [StrategySelector] Regime switch: TRENDING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=40.8, ATR_norm=0.0255)
+2026-04-11 09:51:23,131 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.7, ATR_norm=0.0214)
+2026-04-11 09:51:23,170 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.4, ATR_norm=0.0201)
+2026-04-11 09:51:23,208 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.2, ATR_norm=0.0183)
+2026-04-11 09:51:23,238 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=26.3, ATR_norm=0.0192)
+2026-04-11 09:51:23,280 [MomentumBreakoutStrategy] BUY breakout: close=45.72 > DC=45.62, stop=44.15
+2026-04-11 09:51:23,330 [MomentumBreakoutStrategy] SELL: Trailing stop: close=45.33 < stop=45.43
+2026-04-11 09:51:23,356 [MomentumBreakoutStrategy] BUY breakout: close=47.44 > DC=47.34, stop=45.67
+2026-04-11 09:51:23,412 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=18.8, ATR_norm=0.0176)
+2026-04-11 09:51:23,534 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=26.2, ATR_norm=0.0201)
+2026-04-11 09:51:23,535 [MomentumBreakoutStrategy] SELL: Breakdown: close=42.70 < DC_lower=42.79
+2026-04-11 09:51:23,822 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.7, ATR_norm=0.0162)
+2026-04-11 09:51:23,866 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.2, ATR_norm=0.0173)
+2026-04-11 09:51:23,938 [MomentumBreakoutStrategy] BUY breakout: close=40.89 > DC=40.21, stop=39.35
+2026-04-11 09:51:23,996 [MomentumBreakoutStrategy] SELL: Trailing stop: close=42.12 < stop=42.57
+2026-04-11 09:51:24,140 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.8, ATR_norm=0.0256)
+2026-04-11 09:51:24,401 [MeanReversionStrategy] BUY: close=37.25 <= BB_lower=37.45, RSI=29.2, stop=35.29
+2026-04-11 09:51:24,408 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.9, ATR_norm=0.0198)
+2026-04-11 09:51:24,731 [MomentumBreakoutStrategy] BUY breakout: close=30.41 > DC=29.82, stop=27.56
+2026-04-11 09:51:24,792 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=20.0, ATR_norm=0.0437)
+2026-04-11 09:51:24,794 [MeanReversionStrategy] SELL: mean-reversion stop-loss hit close=28.20 stop=35.29
+2026-04-11 09:51:24,904 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=26.6, ATR_norm=0.0425)
+2026-04-11 09:51:24,955 [MomentumBreakoutStrategy] SELL: Trailing stop: close=31.46 < stop=32.32
+2026-04-11 09:51:24,993 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.6, ATR_norm=0.0424)
+2026-04-11 09:51:25,331 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.3, ATR_norm=0.0359)
+2026-04-11 09:51:25,367 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0354)
+2026-04-11 09:51:25,394 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.2, ATR_norm=0.0344)
+2026-04-11 09:51:25,463 [MomentumBreakoutStrategy] BUY breakout: close=37.14 > DC=36.86, stop=34.70
+2026-04-11 09:51:25,518 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0313)
+2026-04-11 09:51:25,759 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=26.2, ATR_norm=0.0264)
+2026-04-11 09:51:25,913 [MomentumBreakoutStrategy] SELL: Trailing stop: close=40.54 < stop=40.55
+2026-04-11 09:51:25,977 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=18.7, ATR_norm=0.0192)
+2026-04-11 09:51:26,186 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.4, ATR_norm=0.0208)
+2026-04-11 09:51:26,231 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.6, ATR_norm=0.0190)
+2026-04-11 09:51:26,268 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.3, ATR_norm=0.0230)
+2026-04-11 09:51:26,471 [MomentumBreakoutStrategy] BUY breakout: close=33.74 > DC=33.16, stop=32.05
+2026-04-11 09:51:26,476 [BacktestEngine] Backtest complete: BacktestReport:
+  Bars: 4344
+  Trades: 27 (W:11 L:16)
+  Win Rate: 40.7%
+  PnL: $-0.44
+  Return: -0.01%
+  Max Drawdown: 0.03%
+  Sharpe: -0.06
+  Profit Factor: 0.89
+  Avg PnL/Trade: $-0.02
+  Avg Duration: 190533s
+  Fees: $0.26
+  Equity: $10,000.00 → $9,999.42
+2026-04-11 09:51:26,476 [SegmentedRunner]   Return: -0.01% | Trades: 27 | Sharpe: -0.06 | MaxDD: 0.03%
+2026-04-11 09:51:26,476 [SegmentedRunner] ════════════════════════════════════════════════════════════
+2026-04-11 09:51:26,476 [SegmentedRunner] Regime: sideways_2022_h2 — BTC sideways $16k-$24k range
+2026-04-11 09:51:26,476 [SegmentedRunner] Period: 2022-07-01 to 2022-12-31
+2026-04-11 09:51:26,504 [StrategySelector] Regime switch: UNKNOWN → RANGING_CALM (strategy: mean_reversion, ADX=13.8, ATR_norm=0.0157)
+2026-04-11 09:51:26,594 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=27.4, ATR_norm=0.0153)
+2026-04-11 09:51:26,696 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=20.0, ATR_norm=0.0202)
+2026-04-11 09:51:26,729 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.3, ATR_norm=0.0178)
+2026-04-11 09:51:26,845 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.0, ATR_norm=0.0181)
+2026-04-11 09:51:26,942 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.7, ATR_norm=0.0110)
+2026-04-11 09:51:27,141 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.2, ATR_norm=0.0173)
+2026-04-11 09:51:27,213 [MeanReversionStrategy] SELL: close=36.61 >= BB_upper=35.81, RSI=74.4
+2026-04-11 09:51:27,221 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.8, ATR_norm=0.0170)
+2026-04-11 09:51:27,333 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 09:51:27,338 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=38.03)
+2026-04-11 09:51:27,379 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=39.46 (stop was 39.56)
+2026-04-11 09:51:27,479 [StrategySelector] Regime switch: TRENDING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=33.7, ATR_norm=0.0254)
+2026-04-11 09:51:27,511 [MomentumBreakoutStrategy] BUY breakout: close=47.02 > DC=46.92, stop=44.84
+2026-04-11 09:51:27,546 [MomentumBreakoutStrategy] SELL: Trailing stop: close=44.32 < stop=44.84
+2026-04-11 09:51:27,675 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.0, ATR_norm=0.0197)
+2026-04-11 09:51:27,743 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.1, ATR_norm=0.0196)
+2026-04-11 09:51:27,829 [StrategySelector] Regime switch: TRENDING_VOLATILE → TRENDING_CALM (strategy: sma_crossover, ADX=25.0, ATR_norm=0.0150)
+2026-04-11 09:51:27,839 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=20.0, ATR_norm=0.0162)
+2026-04-11 09:51:27,889 [MeanReversionStrategy] BUY: close=38.09 <= BB_lower=38.62, RSI=29.9, stop=36.23
+2026-04-11 09:51:27,958 [MeanReversionStrategy] SELL: mean-reversion stop-loss hit close=36.15 stop=36.23
+2026-04-11 09:51:27,960 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.8, ATR_norm=0.0202)
+2026-04-11 09:51:28,060 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=35.38)
+2026-04-11 09:51:28,170 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=41.95 (stop was 42.17)
+2026-04-11 09:51:28,209 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.5, ATR_norm=0.0225)
+2026-04-11 09:51:28,258 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.4, ATR_norm=0.0213)
+2026-04-11 09:51:28,302 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.6, ATR_norm=0.0189)
+2026-04-11 09:51:28,366 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.1, ATR_norm=0.0167)
+2026-04-11 09:51:28,488 [StrategySelector] Regime switch: TRENDING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=31.6, ATR_norm=0.0251)
+2026-04-11 09:51:28,550 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.8, ATR_norm=0.0184)
+2026-04-11 09:51:28,638 [StrategySelector] Regime switch: RANGING_VOLATILE → RANGING_CALM (strategy: mean_reversion, ADX=16.5, ATR_norm=0.0145)
+2026-04-11 09:51:28,895 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.6, ATR_norm=0.0104)
+2026-04-11 09:51:29,075 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=41.27)
+2026-04-11 09:51:29,119 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=43.49 (stop was 43.53)
+2026-04-11 09:51:29,161 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.1, ATR_norm=0.0140)
+2026-04-11 09:51:29,219 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=27.2, ATR_norm=0.0157)
+2026-04-11 09:51:29,220 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=45.58)
+2026-04-11 09:51:29,255 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=46.40 (stop was 46.51)
+2026-04-11 09:51:29,604 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0122)
+2026-04-11 09:51:29,616 [MeanReversionStrategy] BUY: close=38.53 <= BB_lower=39.43, RSI=25.0, stop=36.95
+2026-04-11 09:51:29,619 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.7, ATR_norm=0.0169)
+2026-04-11 09:51:29,816 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=35.16)
+2026-04-11 09:51:29,819 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.0, ATR_norm=0.0151)
+2026-04-11 09:51:29,820 [MeanReversionStrategy] SELL: mean-reversion stop-loss hit close=36.17 stop=36.95
+2026-04-11 09:51:29,845 [MeanReversionStrategy] BUY: close=34.39 <= BB_lower=34.94, RSI=29.1, stop=32.90
+2026-04-11 09:51:29,847 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=27.1, ATR_norm=0.0168)
+2026-04-11 09:51:29,848 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=34.48 (stop was 35.16)
+2026-04-11 09:51:29,914 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.6, ATR_norm=0.0147)
+2026-04-11 09:51:30,164 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.2, ATR_norm=0.0113)
+2026-04-11 09:51:30,424 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=31.13)
+2026-04-11 09:51:30,461 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=31.31 (stop was 32.13)
+2026-04-11 09:51:30,523 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=31.79)
+2026-04-11 09:51:30,534 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=31.76 (stop was 31.79)
+2026-04-11 09:51:30,551 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=18.8, ATR_norm=0.0145)
+2026-04-11 09:51:30,552 [MeanReversionStrategy] SELL: mean-reversion stop-loss hit close=31.94 stop=32.90
+2026-04-11 09:51:30,612 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.5, ATR_norm=0.0142)
+2026-04-11 09:51:30,640 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.1, ATR_norm=0.0123)
+2026-04-11 09:51:30,749 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.1, ATR_norm=0.0100)
+2026-04-11 09:51:30,818 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.6, ATR_norm=0.0074)
+2026-04-11 09:51:30,872 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.7, ATR_norm=0.0081)
+2026-04-11 09:51:30,933 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.3, ATR_norm=0.0083)
+2026-04-11 09:51:30,958 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.3, ATR_norm=0.0125)
+2026-04-11 09:51:31,106 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=31.87)
+2026-04-11 09:51:31,214 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=34.71 (stop was 34.74)
+2026-04-11 09:51:31,285 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.3, ATR_norm=0.0113)
+2026-04-11 09:51:31,432 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.6, ATR_norm=0.0172)
+2026-04-11 09:51:31,661 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=32.04)
+2026-04-11 09:51:31,676 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 09:51:31,682 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=31.98)
+2026-04-11 09:51:31,688 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 09:51:31,784 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0100)
+2026-04-11 09:51:31,899 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.8, ATR_norm=0.0108)
+2026-04-11 09:51:32,013 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=31.46)
+2026-04-11 09:51:32,024 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.8, ATR_norm=0.0133)
+2026-04-11 09:51:32,280 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.3, ATR_norm=0.0143)
+2026-04-11 09:51:32,293 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=31.99 (stop was 32.09)
+2026-04-11 09:51:32,314 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.1, ATR_norm=0.0149)
+2026-04-11 09:51:32,352 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.4, ATR_norm=0.0155)
+2026-04-11 09:51:32,424 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=18.9, ATR_norm=0.0127)
+2026-04-11 09:51:32,501 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.4, ATR_norm=0.0112)
+2026-04-11 09:51:32,578 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.8, ATR_norm=0.0134)
+2026-04-11 09:51:32,597 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.2, ATR_norm=0.0135)
+2026-04-11 09:51:32,732 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.3, ATR_norm=0.0134)
+2026-04-11 09:51:32,944 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.2, ATR_norm=0.0130)
+2026-04-11 09:51:33,144 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=32.38)
+2026-04-11 09:51:33,259 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=33.64 (stop was 33.69)
+2026-04-11 09:51:33,356 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.8, ATR_norm=0.0082)
+2026-04-11 09:51:33,443 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.1, ATR_norm=0.0088)
+2026-04-11 09:51:33,620 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=32.41)
+2026-04-11 09:51:33,642 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=32.89 (stop was 32.91)
+2026-04-11 09:51:33,645 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=20.0, ATR_norm=0.0061)
+2026-04-11 09:51:33,688 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.2, ATR_norm=0.0081)
+2026-04-11 09:51:33,965 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=30.51)
+2026-04-11 09:51:33,987 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=30.82 (stop was 30.90)
+2026-04-11 09:51:34,143 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=18.7, ATR_norm=0.0057)
+2026-04-11 09:51:34,250 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.6, ATR_norm=0.0089)
+2026-04-11 09:51:34,656 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0081)
+2026-04-11 09:51:34,756 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.7, ATR_norm=0.0096)
+2026-04-11 09:51:34,829 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.8, ATR_norm=0.0100)
+2026-04-11 09:51:34,918 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=27.0, ATR_norm=0.0140)
+2026-04-11 09:51:34,920 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=31.30)
+2026-04-11 09:51:34,930 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=30.98 (stop was 31.30)
+2026-04-11 09:51:35,189 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=31.25)
+2026-04-11 09:51:35,261 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=32.75 (stop was 32.79)
+2026-04-11 09:51:35,323 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.6, ATR_norm=0.0119)
+2026-04-11 09:51:35,585 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.5, ATR_norm=0.0095)
+2026-04-11 09:51:35,690 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.4, ATR_norm=0.0148)
+2026-04-11 09:51:35,769 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.2, ATR_norm=0.0122)
+2026-04-11 09:51:35,944 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.7, ATR_norm=0.0157)
+2026-04-11 09:51:35,974 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.6, ATR_norm=0.0175)
+2026-04-11 09:51:36,066 [StrategySelector] Regime switch: TRENDING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=39.1, ATR_norm=0.0292)
+2026-04-11 09:51:36,341 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.5, ATR_norm=0.0793)
+2026-04-11 09:51:36,542 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.7, ATR_norm=0.0291)
+2026-04-11 09:51:36,653 [MomentumBreakoutStrategy] BUY breakout: close=14.56 > DC=14.40, stop=13.34
+2026-04-11 09:51:36,799 [MomentumBreakoutStrategy] SELL: Trailing stop: close=14.17 < stop=14.17
+2026-04-11 09:51:36,802 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.3, ATR_norm=0.0255)
+2026-04-11 09:51:36,947 [StrategySelector] Regime switch: RANGING_VOLATILE → RANGING_CALM (strategy: mean_reversion, ADX=9.2, ATR_norm=0.0149)
+2026-04-11 09:51:36,966 [MeanReversionStrategy] BUY: close=13.17 <= BB_lower=13.59, RSI=26.1, stop=12.50
+2026-04-11 09:51:37,128 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.8, ATR_norm=0.0153)
+2026-04-11 09:51:37,429 [StrategySelector] Regime switch: TRENDING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=24.6, ATR_norm=0.0250)
+2026-04-11 09:51:37,452 [MomentumBreakoutStrategy] BUY breakout: close=12.43 > DC=12.31, stop=11.89
+2026-04-11 09:51:37,652 [MomentumBreakoutStrategy] SELL: Trailing stop: close=13.97 < stop=14.04
+2026-04-11 09:51:37,690 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0176)
+2026-04-11 09:51:37,716 [StrategySelector] Regime switch: RANGING_VOLATILE → RANGING_CALM (strategy: mean_reversion, ADX=15.5, ATR_norm=0.0148)
+2026-04-11 09:51:37,963 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.5, ATR_norm=0.0186)
+2026-04-11 09:51:38,013 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.6, ATR_norm=0.0191)
+2026-04-11 09:51:38,250 [MeanReversionStrategy] SELL: close=14.17 >= BB_upper=14.01, RSI=70.0
+2026-04-11 09:51:38,569 [MeanReversionStrategy] BUY: close=13.30 <= BB_lower=13.35, RSI=29.6, stop=13.06
+2026-04-11 09:51:38,679 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.1, ATR_norm=0.0081)
+2026-04-11 09:51:38,684 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=13.83)
+2026-04-11 09:51:38,702 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=13.90 (stop was 13.91)
+2026-04-11 09:51:38,830 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.4, ATR_norm=0.0106)
+2026-04-11 09:51:38,910 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.6, ATR_norm=0.0098)
+2026-04-11 09:51:39,031 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.6, ATR_norm=0.0079)
+2026-04-11 09:51:39,353 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.2, ATR_norm=0.0047)
+2026-04-11 09:51:39,520 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=13.35)
+2026-04-11 09:51:39,620 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=14.31 (stop was 14.37)
+2026-04-11 09:51:39,679 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.0, ATR_norm=0.0134)
+2026-04-11 09:51:39,805 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.7, ATR_norm=0.0139)
+2026-04-11 09:51:39,964 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.5, ATR_norm=0.0101)
+2026-04-11 09:51:39,966 [MeanReversionStrategy] SELL: mean-reversion stop-loss hit close=12.37 stop=13.06
+2026-04-11 09:51:40,131 [MeanReversionStrategy] BUY: close=11.80 <= BB_lower=11.88, RSI=30.0, stop=11.40
+2026-04-11 09:51:40,313 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.5, ATR_norm=0.0093)
+2026-04-11 09:51:40,374 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.8, ATR_norm=0.0078)
+2026-04-11 09:51:40,434 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.1, ATR_norm=0.0092)
+2026-04-11 09:51:40,453 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.7, ATR_norm=0.0111)
+2026-04-11 09:51:40,588 [MeanReversionStrategy] SELL: mean-reversion stop-loss hit close=11.38 stop=11.40
+2026-04-11 09:51:40,593 [MeanReversionStrategy] BUY: close=11.28 <= BB_lower=11.45, RSI=19.7, stop=10.96
+2026-04-11 09:51:40,600 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=27.4, ATR_norm=0.0111)
+2026-04-11 09:51:40,687 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.5, ATR_norm=0.0074)
+2026-04-11 09:51:40,849 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.8, ATR_norm=0.0077)
+2026-04-11 09:51:40,898 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.0, ATR_norm=0.0076)
+2026-04-11 09:51:40,930 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.1, ATR_norm=0.0104)
+2026-04-11 09:51:41,136 [StrategySelector] Regime switch: TRENDING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=49.9, ATR_norm=0.0292)
+2026-04-11 09:51:41,349 [BacktestEngine] Backtest complete: BacktestReport:
+  Bars: 4416
+  Trades: 24 (W:10 L:14)
+  Win Rate: 41.7%
+  PnL: $0.14
+  Return: 0.00%
+  Max Drawdown: 0.00%
+  Sharpe: 0.01
+  Profit Factor: 1.16
+  Avg PnL/Trade: $0.01
+  Avg Duration: 118350s
+  Fees: $0.12
+  Equity: $10,000.00 → $10,000.03
+2026-04-11 09:51:41,350 [SegmentedRunner]   Return: 0.00% | Trades: 24 | Sharpe: 0.01 | MaxDD: 0.00%
+2026-04-11 09:51:41,350 [SegmentedRunner] ════════════════════════════════════════════════════════════
+2026-04-11 09:51:41,350 [SegmentedRunner] Regime: recovery_2023 — BTC recovery from $16k to $31k
+2026-04-11 09:51:41,350 [SegmentedRunner] Period: 2023-01-01 to 2023-06-30
+2026-04-11 09:51:41,377 [StrategySelector] Regime switch: UNKNOWN → TRENDING_CALM (strategy: sma_crossover, ADX=62.0, ATR_norm=0.0178)
+2026-04-11 09:51:41,389 [StrategySelector] Regime switch: TRENDING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=67.3, ATR_norm=0.0267)
+2026-04-11 09:51:41,455 [MomentumBreakoutStrategy] SELL: Breakdown: close=12.97 < DC_lower=13.07
+2026-04-11 09:51:41,489 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.4, ATR_norm=0.0202)
+2026-04-11 09:51:41,598 [StrategySelector] Regime switch: RANGING_VOLATILE → RANGING_CALM (strategy: mean_reversion, ADX=11.9, ATR_norm=0.0147)
+2026-04-11 09:51:41,720 [MeanReversionStrategy] SELL: close=13.82 >= BB_upper=13.77, RSI=70.0
+2026-04-11 09:51:41,722 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.9, ATR_norm=0.0121)
+2026-04-11 09:51:41,748 [StrategySelector] Regime switch: TRENDING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=43.8, ATR_norm=0.0266)
+2026-04-11 09:51:41,749 [MomentumBreakoutStrategy] BUY breakout: close=15.97 > DC=15.95, stop=15.12
+2026-04-11 09:51:41,808 [MomentumBreakoutStrategy] SELL: Breakdown: close=15.75 < DC_lower=15.93
+2026-04-11 09:51:41,881 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0161)
+2026-04-11 09:51:41,891 [StrategySelector] Regime switch: RANGING_VOLATILE → RANGING_CALM (strategy: mean_reversion, ADX=16.6, ATR_norm=0.0144)
+2026-04-11 09:51:41,908 [MeanReversionStrategy] BUY: close=15.35 <= BB_lower=15.46, RSI=29.9, stop=14.74
+2026-04-11 09:51:42,022 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.4, ATR_norm=0.0201)
+2026-04-11 09:51:42,068 [StrategySelector] Regime switch: TRENDING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=42.3, ATR_norm=0.0289)
+2026-04-11 09:51:42,068 [MomentumBreakoutStrategy] BUY breakout: close=19.99 > DC=18.63, stop=18.84
+2026-04-11 09:51:42,149 [MomentumBreakoutStrategy] SELL: Trailing stop: close=22.15 < stop=22.51
+2026-04-11 09:51:42,205 [MomentumBreakoutStrategy] BUY breakout: close=24.62 > DC=24.19, stop=23.34
+2026-04-11 09:51:42,210 [MomentumBreakoutStrategy] SELL: Trailing stop: close=23.09 < stop=23.34
+2026-04-11 09:51:42,232 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0269)
+2026-04-11 09:51:42,398 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.7, ATR_norm=0.0295)
+2026-04-11 09:51:42,480 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=20.0, ATR_norm=0.0177)
+2026-04-11 09:51:42,499 [StrategySelector] Regime switch: RANGING_VOLATILE → RANGING_CALM (strategy: mean_reversion, ADX=17.0, ATR_norm=0.0146)
+2026-04-11 09:51:42,521 [MeanReversionStrategy] SELL: close=22.50 >= BB_upper=22.06, RSI=73.5
+2026-04-11 09:51:42,526 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.1, ATR_norm=0.0164)
+2026-04-11 09:51:42,564 [StrategySelector] Regime switch: TRENDING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=47.7, ATR_norm=0.0274)
+2026-04-11 09:51:42,692 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=20.0, ATR_norm=0.0154)
+2026-04-11 09:51:42,721 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.2, ATR_norm=0.0181)
+2026-04-11 09:51:42,737 [MomentumBreakoutStrategy] BUY breakout: close=24.86 > DC=24.80, stop=24.04
+2026-04-11 09:51:42,747 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_CALM (strategy: mean_reversion, ADX=19.2, ATR_norm=0.0149)
+2026-04-11 09:51:42,799 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.3, ATR_norm=0.0203)
+2026-04-11 09:51:42,802 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 09:51:42,875 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=23.72)
+2026-04-11 09:51:42,924 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=20.0, ATR_norm=0.0177)
+2026-04-11 09:51:43,146 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.2, ATR_norm=0.0158)
+2026-04-11 09:51:43,165 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=25.32 (stop was 25.50)
+2026-04-11 09:51:43,253 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.6, ATR_norm=0.0145)
+2026-04-11 09:51:43,339 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=27.5, ATR_norm=0.0140)
+2026-04-11 09:51:43,368 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=24.32)
+2026-04-11 09:51:43,418 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=24.24 (stop was 25.01)
+2026-04-11 09:51:43,464 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.4, ATR_norm=0.0169)
+2026-04-11 09:51:43,615 [MeanReversionStrategy] BUY: close=23.64 <= BB_lower=23.88, RSI=25.2, stop=23.05
+2026-04-11 09:51:43,624 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=27.0, ATR_norm=0.0103)
+2026-04-11 09:51:43,743 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.8, ATR_norm=0.0095)
+2026-04-11 09:51:43,751 [MeanReversionStrategy] SELL: mean-reversion stop-loss hit close=23.02 stop=23.05
+2026-04-11 09:51:43,874 [MeanReversionStrategy] BUY: close=22.34 <= BB_lower=22.53, RSI=26.4, stop=21.53
+2026-04-11 09:51:43,876 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.1, ATR_norm=0.0146)
+2026-04-11 09:51:44,076 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=20.62)
+2026-04-11 09:51:44,117 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=21.38 (stop was 21.62)
+2026-04-11 09:51:44,202 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=20.0, ATR_norm=0.0138)
+2026-04-11 09:51:44,204 [MeanReversionStrategy] SELL: mean-reversion stop-loss hit close=20.94 stop=21.53
+2026-04-11 09:51:44,334 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.3, ATR_norm=0.0130)
+2026-04-11 09:51:44,465 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0127)
+2026-04-11 09:51:44,617 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.6, ATR_norm=0.0118)
+2026-04-11 09:51:44,893 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=23.13)
+2026-04-11 09:51:44,900 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.7, ATR_norm=0.0135)
+2026-04-11 09:51:44,970 [MeanReversionStrategy] BUY: close=23.04 <= BB_lower=23.37, RSI=28.9, stop=22.29
+2026-04-11 09:51:44,990 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.7, ATR_norm=0.0144)
+2026-04-11 09:51:44,991 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=22.79 (stop was 23.39)
+2026-04-11 09:51:45,110 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.0, ATR_norm=0.0106)
+2026-04-11 09:51:45,247 [MeanReversionStrategy] SELL: mean-reversion stop-loss hit close=22.27 stop=22.29
+2026-04-11 09:51:45,494 [MeanReversionStrategy] BUY: close=20.55 <= BB_lower=21.22, RSI=18.7, stop=19.84
+2026-04-11 09:51:45,504 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.6, ATR_norm=0.0134)
+2026-04-11 09:51:45,565 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.1, ATR_norm=0.0094)
+2026-04-11 09:51:45,620 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.5, ATR_norm=0.0072)
+2026-04-11 09:51:45,673 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.8, ATR_norm=0.0080)
+2026-04-11 09:51:45,709 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.9, ATR_norm=0.0098)
+2026-04-11 09:51:45,783 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=18.9, ATR_norm=0.0087)
+2026-04-11 09:51:45,869 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.6, ATR_norm=0.0117)
+2026-04-11 09:51:46,035 [StrategySelector] Regime switch: TRENDING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=61.4, ATR_norm=0.0257)
+2026-04-11 09:51:46,036 [MomentumBreakoutStrategy] SELL: Trailing stop: close=17.36 < stop=24.20
+2026-04-11 09:51:46,135 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.7, ATR_norm=0.0205)
+2026-04-11 09:51:46,137 [MeanReversionStrategy] SELL: mean-reversion stop-loss hit close=18.21 stop=19.84
+2026-04-11 09:51:46,191 [StrategySelector] Regime switch: RANGING_VOLATILE → RANGING_CALM (strategy: mean_reversion, ADX=14.5, ATR_norm=0.0147)
+2026-04-11 09:51:46,221 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=28.3, ATR_norm=0.0206)
+2026-04-11 09:51:46,370 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=20.0, ATR_norm=0.0213)
+2026-04-11 09:51:46,423 [MeanReversionStrategy] BUY: close=19.30 <= BB_lower=19.87, RSI=23.7, stop=18.10
+2026-04-11 09:51:46,425 [StrategySelector] Regime switch: RANGING_CALM → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.0, ATR_norm=0.0263)
+2026-04-11 09:51:46,443 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.4, ATR_norm=0.0226)
+2026-04-11 09:51:46,487 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0180)
+2026-04-11 09:51:46,569 [StrategySelector] Regime switch: RANGING_VOLATILE → RANGING_CALM (strategy: mean_reversion, ADX=17.5, ATR_norm=0.0146)
+2026-04-11 09:51:46,622 [MeanReversionStrategy] SELL: close=21.65 >= BB_upper=21.29, RSI=73.6
+2026-04-11 09:51:46,628 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=27.2, ATR_norm=0.0203)
+2026-04-11 09:51:46,757 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.4, ATR_norm=0.0156)
+2026-04-11 09:51:46,831 [StrategySelector] Regime switch: RANGING_CALM → RANGING_VOLATILE (strategy: mean_reversion, ADX=21.7, ATR_norm=0.0250)
+2026-04-11 09:51:46,981 [StrategySelector] Regime switch: RANGING_VOLATILE → RANGING_CALM (strategy: mean_reversion, ADX=12.7, ATR_norm=0.0150)
+2026-04-11 09:51:47,022 [MeanReversionStrategy] BUY: close=21.16 <= BB_lower=21.74, RSI=27.6, stop=19.94
+2026-04-11 09:51:47,057 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.2, ATR_norm=0.0196)
+2026-04-11 09:51:47,105 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.3, ATR_norm=0.0173)
+2026-04-11 09:51:47,181 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.4, ATR_norm=0.0155)
+2026-04-11 09:51:47,323 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=20.43)
+2026-04-11 09:51:47,355 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0091)
+2026-04-11 09:51:47,403 [MeanReversionStrategy] SELL: mean-reversion stop-loss hit close=19.91 stop=19.94
+2026-04-11 09:51:47,407 [MeanReversionStrategy] BUY: close=19.80 <= BB_lower=19.99, RSI=25.2, stop=19.20
+2026-04-11 09:51:47,409 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.0, ATR_norm=0.0126)
+2026-04-11 09:51:47,410 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=19.70 (stop was 20.66)
+2026-04-11 09:51:47,485 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.2, ATR_norm=0.0119)
+2026-04-11 09:51:47,524 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.2, ATR_norm=0.0119)
+2026-04-11 09:51:47,667 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.4, ATR_norm=0.0110)
+2026-04-11 09:51:47,752 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.0, ATR_norm=0.0112)
+2026-04-11 09:51:47,753 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=20.70)
+2026-04-11 09:51:47,814 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.7, ATR_norm=0.0086)
+2026-04-11 09:51:47,907 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.2, ATR_norm=0.0084)
+2026-04-11 09:51:47,908 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=20.47 (stop was 20.74)
+2026-04-11 09:51:47,991 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=18.9, ATR_norm=0.0133)
+2026-04-11 09:51:48,231 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.5, ATR_norm=0.0084)
+2026-04-11 09:51:48,370 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.1, ATR_norm=0.0061)
+2026-04-11 09:51:48,419 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.9, ATR_norm=0.0059)
+2026-04-11 09:51:48,513 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.6, ATR_norm=0.0059)
+2026-04-11 09:51:48,578 [MeanReversionStrategy] SELL: close=20.67 >= BB_upper=20.56, RSI=70.3
+2026-04-11 09:51:48,605 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=27.1, ATR_norm=0.0077)
+2026-04-11 09:51:48,924 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.8, ATR_norm=0.0129)
+2026-04-11 09:51:49,093 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.0, ATR_norm=0.0113)
+2026-04-11 09:51:49,140 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.0, ATR_norm=0.0154)
+2026-04-11 09:51:49,196 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.9, ATR_norm=0.0131)
+2026-04-11 09:51:49,219 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.6, ATR_norm=0.0120)
+2026-04-11 09:51:49,310 [MeanReversionStrategy] BUY: close=22.86 <= BB_lower=23.70, RSI=18.6, stop=21.83
+2026-04-11 09:51:49,316 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=27.8, ATR_norm=0.0172)
+2026-04-11 09:51:49,612 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=21.58)
+2026-04-11 09:51:49,644 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=21.66 (stop was 21.80)
+2026-04-11 09:51:49,708 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=18.6, ATR_norm=0.0116)
+2026-04-11 09:51:49,710 [MeanReversionStrategy] SELL: mean-reversion stop-loss hit close=21.74 stop=21.83
+2026-04-11 09:51:49,864 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.4, ATR_norm=0.0114)
+2026-04-11 09:51:49,875 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=21.41)
+2026-04-11 09:51:49,924 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=21.09 (stop was 22.39)
+2026-04-11 09:51:50,026 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=21.64)
+2026-04-11 09:51:50,168 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=23.10 (stop was 23.16)
+2026-04-11 09:51:50,224 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0084)
+2026-04-11 09:51:50,272 [MeanReversionStrategy] BUY: close=22.18 <= BB_lower=22.55, RSI=25.9, stop=21.46
+2026-04-11 09:51:50,274 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.6, ATR_norm=0.0126)
+2026-04-11 09:51:50,431 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=21.59)
+2026-04-11 09:51:50,464 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=21.41 (stop was 21.59)
+2026-04-11 09:51:50,537 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=21.84)
+2026-04-11 09:51:50,551 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=21.87 (stop was 21.97)
+2026-04-11 09:51:50,604 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=20.0, ATR_norm=0.0093)
+2026-04-11 09:51:50,656 [MeanReversionStrategy] SELL: close=22.67 >= BB_upper=22.55, RSI=70.3
+2026-04-11 09:51:50,675 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.3, ATR_norm=0.0105)
+2026-04-11 09:51:50,789 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.1, ATR_norm=0.0080)
+2026-04-11 09:51:50,832 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.8, ATR_norm=0.0084)
+2026-04-11 09:51:51,043 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0087)
+2026-04-11 09:51:51,159 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.8, ATR_norm=0.0101)
+2026-04-11 09:51:51,295 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=20.46)
+2026-04-11 09:51:51,379 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=20.75 (stop was 20.80)
+2026-04-11 09:51:51,434 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.8, ATR_norm=0.0076)
+2026-04-11 09:51:51,585 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.2, ATR_norm=0.0080)
+2026-04-11 09:51:51,753 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=20.69)
+2026-04-11 09:51:51,766 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0077)
+2026-04-11 09:51:51,811 [MeanReversionStrategy] BUY: close=20.21 <= BB_lower=20.35, RSI=27.8, stop=19.76
+2026-04-11 09:51:51,818 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.0, ATR_norm=0.0093)
+2026-04-11 09:51:51,819 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=20.35 (stop was 20.69)
+2026-04-11 09:51:51,895 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.3, ATR_norm=0.0067)
+2026-04-11 09:51:51,977 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.2, ATR_norm=0.0045)
+2026-04-11 09:51:52,009 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0044)
+2026-04-11 09:51:52,112 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.9, ATR_norm=0.0054)
+2026-04-11 09:51:52,240 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=20.0, ATR_norm=0.0083)
+2026-04-11 09:51:52,324 [MeanReversionStrategy] SELL: mean-reversion stop-loss hit close=19.56 stop=19.76
+2026-04-11 09:51:52,340 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.0, ATR_norm=0.0081)
+2026-04-11 09:51:52,480 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.3, ATR_norm=0.0070)
+2026-04-11 09:51:52,664 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.1, ATR_norm=0.0052)
+2026-04-11 09:51:52,875 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=20.52)
+2026-04-11 09:51:52,879 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 09:51:52,901 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=20.81)
+2026-04-11 09:51:52,961 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.6, ATR_norm=0.0096)
+2026-04-11 09:51:52,997 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.2, ATR_norm=0.0098)
+2026-04-11 09:51:52,998 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=20.63 (stop was 20.93)
+2026-04-11 09:51:53,087 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.3, ATR_norm=0.0073)
+2026-04-11 09:51:53,229 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.5, ATR_norm=0.0073)
+2026-04-11 09:51:53,258 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.5, ATR_norm=0.0061)
+2026-04-11 09:51:53,405 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=27.2, ATR_norm=0.0074)
+2026-04-11 09:51:53,666 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=19.25)
+2026-04-11 09:51:53,674 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 09:51:53,842 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=18.63)
+2026-04-11 09:51:53,853 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=18.53 (stop was 18.63)
+2026-04-11 09:51:53,896 [StrategySelector] Regime switch: TRENDING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=47.4, ATR_norm=0.0398)
+2026-04-11 09:51:54,049 [MomentumBreakoutStrategy] BUY breakout: close=16.00 > DC=15.86, stop=15.31
+2026-04-11 09:51:54,060 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.4, ATR_norm=0.0225)
+2026-04-11 09:51:54,294 [StrategySelector] Regime switch: RANGING_VOLATILE → RANGING_CALM (strategy: mean_reversion, ADX=16.4, ATR_norm=0.0148)
+2026-04-11 09:51:54,377 [MeanReversionStrategy] BUY: close=14.19 <= BB_lower=14.66, RSI=25.8, stop=13.53
+2026-04-11 09:51:54,394 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.1, ATR_norm=0.0176)
+2026-04-11 09:51:54,416 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0172)
+2026-04-11 09:51:54,632 [MeanReversionStrategy] SELL: close=16.04 >= BB_upper=15.89, RSI=77.6
+2026-04-11 09:51:54,635 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.5, ATR_norm=0.0141)
+2026-04-11 09:51:54,713 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=20.0, ATR_norm=0.0096)
+2026-04-11 09:51:54,923 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.2, ATR_norm=0.0112)
+2026-04-11 09:51:55,294 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=16.77)
+2026-04-11 09:51:55,335 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=16.64 (stop was 16.86)
+2026-04-11 09:51:55,409 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.3, ATR_norm=0.0128)
+2026-04-11 09:51:55,571 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.3, ATR_norm=0.0141)
+2026-04-11 09:51:55,632 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0120)
+2026-04-11 09:51:55,788 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.9, ATR_norm=0.0128)
+2026-04-11 09:51:55,839 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=16.92)
+2026-04-11 09:51:55,929 [StrategySelector] Regime switch: TRENDING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=40.7, ATR_norm=0.0288)
+2026-04-11 09:51:55,982 [BacktestEngine] Backtest complete: BacktestReport:
+  Bars: 4339
+  Trades: 27 (W:5 L:22)
+  Win Rate: 18.5%
+  PnL: $-1.11
+  Return: -0.01%
+  Max Drawdown: 0.01%
+  Sharpe: -0.48
+  Profit Factor: 0.18
+  Avg PnL/Trade: $-0.04
+  Avg Duration: 166533s
+  Fees: $0.08
+  Equity: $10,000.00 → $9,998.97
+2026-04-11 09:51:55,982 [SegmentedRunner]   Return: -0.01% | Trades: 27 | Sharpe: -0.48 | MaxDD: 0.01%
+2026-04-11 09:51:55,983 [SegmentedRunner] ════════════════════════════════════════════════════════════
+2026-04-11 09:51:55,983 [SegmentedRunner] Regime: pre_etf_2023_h2 — BTC ETF anticipation rally to $42k
+2026-04-11 09:51:55,983 [SegmentedRunner] Period: 2023-07-01 to 2023-12-31
+2026-04-11 09:51:56,010 [StrategySelector] Regime switch: UNKNOWN → TRENDING_CALM (strategy: sma_crossover, ADX=39.3, ATR_norm=0.0116)
+2026-04-11 09:51:56,042 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0122)
+2026-04-11 09:51:56,086 [MeanReversionStrategy] SELL: close=19.85 >= BB_upper=19.64, RSI=70.1
+2026-04-11 09:51:56,142 [MeanReversionStrategy] BUY: close=18.62 <= BB_lower=18.83, RSI=29.3, stop=18.11
+2026-04-11 09:51:56,160 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.1, ATR_norm=0.0119)
+2026-04-11 09:51:56,201 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=19.76)
+2026-04-11 09:51:56,206 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=19.69 (stop was 19.76)
+2026-04-11 09:51:56,236 [StrategySelector] Regime switch: TRENDING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=22.3, ATR_norm=0.0250)
+2026-04-11 09:51:56,268 [MomentumBreakoutStrategy] BUY breakout: close=21.21 > DC=21.12, stop=20.19
+2026-04-11 09:51:56,328 [MomentumBreakoutStrategy] SELL: Trailing stop: close=21.51 < stop=21.57
+2026-04-11 09:51:56,354 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=18.8, ATR_norm=0.0163)
+2026-04-11 09:51:56,364 [StrategySelector] Regime switch: RANGING_VOLATILE → RANGING_CALM (strategy: mean_reversion, ADX=15.3, ATR_norm=0.0148)
+2026-04-11 09:51:56,447 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.2, ATR_norm=0.0135)
+2026-04-11 09:51:56,485 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0150)
+2026-04-11 09:51:56,506 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.4, ATR_norm=0.0139)
+2026-04-11 09:51:56,642 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=24.18)
+2026-04-11 09:51:56,647 [StrategySelector] Regime switch: TRENDING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=38.5, ATR_norm=0.0266)
+2026-04-11 09:51:56,662 [MomentumBreakoutStrategy] BUY breakout: close=29.33 > DC=26.82, stop=27.17
+2026-04-11 09:51:56,705 [MomentumBreakoutStrategy] SELL: Trailing stop: close=27.14 < stop=27.25
+2026-04-11 09:51:56,773 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.8, ATR_norm=0.0222)
+2026-04-11 09:51:56,920 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.7, ATR_norm=0.0198)
+2026-04-11 09:51:57,023 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=20.0, ATR_norm=0.0155)
+2026-04-11 09:51:57,075 [StrategySelector] Regime switch: RANGING_VOLATILE → RANGING_CALM (strategy: mean_reversion, ADX=11.3, ATR_norm=0.0150)
+2026-04-11 09:51:57,126 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.3, ATR_norm=0.0161)
+2026-04-11 09:51:57,137 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 09:51:57,211 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.6, ATR_norm=0.0110)
+2026-04-11 09:51:57,272 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=27.5, ATR_norm=0.0120)
+2026-04-11 09:51:57,477 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=23.25)
+2026-04-11 09:51:57,584 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=24.67 (stop was 24.79)
+2026-04-11 09:51:57,607 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.8, ATR_norm=0.0103)
+2026-04-11 09:51:57,780 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.4, ATR_norm=0.0085)
+2026-04-11 09:51:57,947 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=23.08)
+2026-04-11 09:51:57,957 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=23.01 (stop was 23.08)
+2026-04-11 09:51:58,062 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.3, ATR_norm=0.0086)
+2026-04-11 09:51:58,119 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.5, ATR_norm=0.0105)
+2026-04-11 09:51:58,211 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=22.50)
+2026-04-11 09:51:58,274 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=22.80 (stop was 22.96)
+2026-04-11 09:51:58,307 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.4, ATR_norm=0.0085)
+2026-04-11 09:51:58,355 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.7, ATR_norm=0.0096)
+2026-04-11 09:51:58,450 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.8, ATR_norm=0.0090)
+2026-04-11 09:51:58,538 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.6, ATR_norm=0.0079)
+2026-04-11 09:51:58,562 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=18.9, ATR_norm=0.0072)
+2026-04-11 09:51:58,683 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=27.5, ATR_norm=0.0060)
+2026-04-11 09:51:58,815 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=24.76)
+2026-04-11 09:51:58,845 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.5, ATR_norm=0.0082)
+2026-04-11 09:51:58,887 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.5, ATR_norm=0.0101)
+2026-04-11 09:51:58,888 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=23.81 (stop was 24.79)
+2026-04-11 09:51:59,150 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=21.41)
+2026-04-11 09:51:59,155 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0093)
+2026-04-11 09:51:59,290 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.8, ATR_norm=0.0095)
+2026-04-11 09:51:59,291 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=21.37 (stop was 21.41)
+2026-04-11 09:51:59,443 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=21.04)
+2026-04-11 09:51:59,494 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=21.23 (stop was 21.44)
+2026-04-11 09:51:59,688 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=20.40)
+2026-04-11 09:51:59,721 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=20.58 (stop was 20.59)
+2026-04-11 09:51:59,783 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.2, ATR_norm=0.0081)
+2026-04-11 09:51:59,841 [MeanReversionStrategy] SELL: close=21.74 >= BB_upper=21.12, RSI=80.0
+2026-04-11 09:51:59,847 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.4, ATR_norm=0.0142)
+2026-04-11 09:51:59,848 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=21.06)
+2026-04-11 09:51:59,910 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=20.92 (stop was 21.29)
+2026-04-11 09:52:00,097 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.7, ATR_norm=0.0085)
+2026-04-11 09:52:00,262 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.0, ATR_norm=0.0080)
+2026-04-11 09:52:00,341 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.5, ATR_norm=0.0085)
+2026-04-11 09:52:00,370 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=27.1, ATR_norm=0.0122)
+2026-04-11 09:52:00,374 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=19.88)
+2026-04-11 09:52:00,414 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=19.80 (stop was 19.88)
+2026-04-11 09:52:00,462 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.4, ATR_norm=0.0114)
+2026-04-11 09:52:00,560 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.7, ATR_norm=0.0097)
+2026-04-11 09:52:00,566 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=19.64)
+2026-04-11 09:52:00,584 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=19.62 (stop was 19.67)
+2026-04-11 09:52:00,887 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=17.30)
+2026-04-11 09:52:00,998 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=18.67 (stop was 18.69)
+2026-04-11 09:52:01,188 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0087)
+2026-04-11 09:52:01,288 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.7, ATR_norm=0.0071)
+2026-04-11 09:52:01,332 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=19.50)
+2026-04-11 09:52:01,443 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.6, ATR_norm=0.0092)
+2026-04-11 09:52:01,578 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=27.4, ATR_norm=0.0108)
+2026-04-11 09:52:01,579 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=19.37 (stop was 19.84)
+2026-04-11 09:52:01,749 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.6, ATR_norm=0.0052)
+2026-04-11 09:52:02,024 [MeanReversionStrategy] BUY: close=18.94 <= BB_lower=18.98, RSI=29.2, stop=18.62
+2026-04-11 09:52:02,026 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.9, ATR_norm=0.0068)
+2026-04-11 09:52:02,118 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.1, ATR_norm=0.0072)
+2026-04-11 09:52:02,161 [MeanReversionStrategy] SELL: close=19.59 >= BB_upper=19.50, RSI=71.0
+2026-04-11 09:52:02,182 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.2, ATR_norm=0.0080)
+2026-04-11 09:52:02,553 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.7, ATR_norm=0.0177)
+2026-04-11 09:52:02,588 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.5, ATR_norm=0.0169)
+2026-04-11 09:52:02,607 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.1, ATR_norm=0.0153)
+2026-04-11 09:52:02,868 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.5, ATR_norm=0.0127)
+2026-04-11 09:52:02,926 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.7, ATR_norm=0.0082)
+2026-04-11 09:52:03,057 [MeanReversionStrategy] BUY: close=22.41 <= BB_lower=22.76, RSI=22.0, stop=21.87
+2026-04-11 09:52:03,064 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=27.2, ATR_norm=0.0099)
+2026-04-11 09:52:03,197 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.0, ATR_norm=0.0103)
+2026-04-11 09:52:03,241 [MeanReversionStrategy] SELL: mean-reversion stop-loss hit close=21.84 stop=21.87
+2026-04-11 09:52:03,287 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.6, ATR_norm=0.0095)
+2026-04-11 09:52:03,399 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0074)
+2026-04-11 09:52:03,434 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.4, ATR_norm=0.0092)
+2026-04-11 09:52:03,529 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=18.7, ATR_norm=0.0057)
+2026-04-11 09:52:03,621 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.8, ATR_norm=0.0078)
+2026-04-11 09:52:03,625 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=22.25)
+2026-04-11 09:52:03,724 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=23.70 (stop was 23.78)
+2026-04-11 09:52:03,790 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.7, ATR_norm=0.0108)
+2026-04-11 09:52:03,906 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.2, ATR_norm=0.0109)
+2026-04-11 09:52:03,914 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=24.17)
+2026-04-11 09:52:04,123 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=28.83 (stop was 29.04)
+2026-04-11 09:52:04,267 [StrategySelector] Regime switch: TRENDING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=33.7, ATR_norm=0.0256)
+2026-04-11 09:52:04,384 [MomentumBreakoutStrategy] BUY breakout: close=33.29 > DC=32.50, stop=31.65
+2026-04-11 09:52:04,447 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=18.9, ATR_norm=0.0204)
+2026-04-11 09:52:04,638 [StrategySelector] Regime switch: RANGING_VOLATILE → RANGING_CALM (strategy: mean_reversion, ADX=10.7, ATR_norm=0.0147)
+2026-04-11 09:52:04,793 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=27.0, ATR_norm=0.0099)
+2026-04-11 09:52:05,047 [StrategySelector] Regime switch: TRENDING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=58.6, ATR_norm=0.0294)
+2026-04-11 09:52:05,067 [MomentumBreakoutStrategy] SELL: Trailing stop: close=41.18 < stop=41.35
+2026-04-11 09:52:05,199 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.7, ATR_norm=0.0261)
+2026-04-11 09:52:05,389 [StrategySelector] Regime switch: RANGING_VOLATILE → RANGING_CALM (strategy: mean_reversion, ADX=17.7, ATR_norm=0.0149)
+2026-04-11 09:52:05,810 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.8, ATR_norm=0.0182)
+2026-04-11 09:52:05,820 [StrategySelector] Regime switch: TRENDING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=23.0, ATR_norm=0.0269)
+2026-04-11 09:52:05,838 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.5, ATR_norm=0.0270)
+2026-04-11 09:52:05,890 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.9, ATR_norm=0.0263)
+2026-04-11 09:52:05,895 [MomentumBreakoutStrategy] BUY breakout: close=50.71 > DC=49.84, stop=47.95
+2026-04-11 09:52:06,015 [MomentumBreakoutStrategy] SELL: Trailing stop: close=57.55 < stop=58.28
+2026-04-11 09:52:06,091 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.7, ATR_norm=0.0331)
+2026-04-11 09:52:06,200 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=26.9, ATR_norm=0.0367)
+2026-04-11 09:52:06,276 [MomentumBreakoutStrategy] BUY breakout: close=57.35 > DC=55.83, stop=54.02
+2026-04-11 09:52:06,288 [MomentumBreakoutStrategy] SELL: Trailing stop: close=53.74 < stop=54.02
+2026-04-11 09:52:06,309 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.6, ATR_norm=0.0297)
+2026-04-11 09:52:06,361 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.1, ATR_norm=0.0260)
+2026-04-11 09:52:06,362 [MomentumBreakoutStrategy] BUY breakout: close=63.00 > DC=59.88, stop=59.73
+2026-04-11 09:52:06,451 [MomentumBreakoutStrategy] SELL: Trailing stop: close=64.04 < stop=64.71
+2026-04-11 09:52:06,647 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.2, ATR_norm=0.0219)
+2026-04-11 09:52:06,879 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.3, ATR_norm=0.0207)
+2026-04-11 09:52:07,034 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.4, ATR_norm=0.0197)
+2026-04-11 09:52:07,073 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.0, ATR_norm=0.0196)
+2026-04-11 09:52:07,157 [StrategySelector] Regime switch: TRENDING_VOLATILE → TRENDING_CALM (strategy: sma_crossover, ADX=22.8, ATR_norm=0.0144)
+2026-04-11 09:52:07,298 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0120)
+2026-04-11 09:52:07,426 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.6, ATR_norm=0.0102)
+2026-04-11 09:52:07,448 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.7, ATR_norm=0.0111)
+2026-04-11 09:52:07,494 [MeanReversionStrategy] BUY: close=55.05 <= BB_lower=55.36, RSI=27.9, stop=53.21
+2026-04-11 09:52:07,497 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.7, ATR_norm=0.0131)
+2026-04-11 09:52:07,615 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=56.97)
+2026-04-11 09:52:07,688 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=59.35 (stop was 59.61)
+2026-04-11 09:52:07,779 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=20.0, ATR_norm=0.0140)
+2026-04-11 09:52:07,966 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.6, ATR_norm=0.0093)
+2026-04-11 09:52:08,093 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0119)
+2026-04-11 09:52:08,154 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.2, ATR_norm=0.0172)
+2026-04-11 09:52:08,312 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=60.90)
+2026-04-11 09:52:08,334 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=63.05 (stop was 63.56)
+2026-04-11 09:52:08,351 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.1, ATR_norm=0.0193)
+2026-04-11 09:52:08,482 [MeanReversionStrategy] SELL: close=68.75 >= BB_upper=67.55, RSI=71.7
+2026-04-11 09:52:08,493 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.6, ATR_norm=0.0207)
+2026-04-11 09:52:08,759 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0159)
+2026-04-11 09:52:08,772 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=27.0, ATR_norm=0.0228)
+2026-04-11 09:52:08,885 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=18.8, ATR_norm=0.0182)
+2026-04-11 09:52:08,914 [MeanReversionStrategy] BUY: close=65.85 <= BB_lower=67.27, RSI=27.1, stop=62.19
+2026-04-11 09:52:09,051 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.8, ATR_norm=0.0188)
+2026-04-11 09:52:09,074 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=67.55)
+2026-04-11 09:52:09,198 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=76.11 (stop was 76.22)
+2026-04-11 09:52:09,285 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.7, ATR_norm=0.0171)
+2026-04-11 09:52:09,370 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.4, ATR_norm=0.0162)
+2026-04-11 09:52:09,534 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=73.18)
+2026-04-11 09:52:09,572 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=73.08 (stop was 73.63)
+2026-04-11 09:52:09,600 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.7, ATR_norm=0.0180)
+2026-04-11 09:52:09,650 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.3, ATR_norm=0.0157)
+2026-04-11 09:52:09,773 [StrategySelector] Regime switch: TRENDING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=55.0, ATR_norm=0.0255)
+2026-04-11 09:52:09,802 [MomentumBreakoutStrategy] BUY breakout: close=97.80 > DC=96.00, stop=92.74
+2026-04-11 09:52:09,826 [MomentumBreakoutStrategy] SELL: Trailing stop: close=93.73 < stop=93.90
+2026-04-11 09:52:09,935 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.3, ATR_norm=0.0185)
+2026-04-11 09:52:09,969 [MeanReversionStrategy] SELL: close=102.88 >= BB_upper=100.24, RSI=73.7
+2026-04-11 09:52:09,972 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.6, ATR_norm=0.0195)
+2026-04-11 09:52:09,985 [MomentumBreakoutStrategy] BUY breakout: close=108.82 > DC=103.86, stop=104.16
+2026-04-11 09:52:10,033 [MomentumBreakoutStrategy] SELL: Trailing stop: close=110.02 < stop=110.86
+2026-04-11 09:52:10,133 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.7, ATR_norm=0.0221)
+2026-04-11 09:52:10,166 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=26.2, ATR_norm=0.0250)
+2026-04-11 09:52:10,243 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.6, ATR_norm=0.0259)
+2026-04-11 09:52:10,266 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.1, ATR_norm=0.0330)
+2026-04-11 09:52:10,327 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=18.8, ATR_norm=0.0245)
+2026-04-11 09:52:10,462 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.8, ATR_norm=0.0281)
+2026-04-11 09:52:10,551 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.6, ATR_norm=0.0235)
+2026-04-11 09:52:10,717 [StrategySelector] Regime switch: RANGING_VOLATILE → RANGING_CALM (strategy: mean_reversion, ADX=14.3, ATR_norm=0.0149)
+2026-04-11 09:52:10,830 [BacktestEngine] Backtest complete: BacktestReport:
+  Bars: 4416
+  Trades: 29 (W:14 L:15)
+  Win Rate: 48.3%
+  PnL: $1.01
+  Return: 0.01%
+  Max Drawdown: 0.01%
+  Sharpe: 0.14
+  Profit Factor: 1.61
+  Avg PnL/Trade: $0.03
+  Avg Duration: 120662s
+  Fees: $0.19
+  Equity: $10,000.00 → $10,000.92
+2026-04-11 09:52:10,831 [SegmentedRunner]   Return: 0.01% | Trades: 29 | Sharpe: 0.14 | MaxDD: 0.01%
+2026-04-11 09:52:10,831 [SegmentedRunner] ════════════════════════════════════════════════════════════
+2026-04-11 09:52:10,831 [SegmentedRunner] Regime: etf_bull_2024_q1 — BTC ETF approval rally to $73k
+2026-04-11 09:52:10,831 [SegmentedRunner] Period: 2024-01-01 to 2024-03-31
+2026-04-11 09:52:10,848 [SmaCrossoverStrategy] SELL signal: SMA20 crossed below SMA50
+2026-04-11 09:52:10,852 [StrategySelector] Regime switch: UNKNOWN → RANGING_CALM (strategy: mean_reversion, ADX=23.6, ATR_norm=0.0194)
+2026-04-11 09:52:10,857 [MeanReversionStrategy] BUY: close=100.63 <= BB_lower=103.43, RSI=27.6, stop=92.75
+2026-04-11 09:52:10,861 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=33.8, ATR_norm=0.0338)
+2026-04-11 09:52:10,919 [MomentumBreakoutStrategy] BUY breakout: close=102.36 > DC=102.00, stop=97.58
+2026-04-11 09:52:10,946 [MomentumBreakoutStrategy] SELL: Trailing stop: close=101.14 < stop=101.34
+2026-04-11 09:52:10,965 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.4, ATR_norm=0.0206)
+2026-04-11 09:52:11,026 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.3, ATR_norm=0.0215)
+2026-04-11 09:52:11,105 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0176)
+2026-04-11 09:52:11,131 [MeanReversionStrategy] SELL: mean-reversion stop-loss hit close=89.32 stop=92.75
+2026-04-11 09:52:11,143 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.6, ATR_norm=0.0239)
+2026-04-11 09:52:11,182 [MomentumBreakoutStrategy] BUY breakout: close=98.37 > DC=96.78, stop=94.14
+2026-04-11 09:52:11,226 [MomentumBreakoutStrategy] SELL: Trailing stop: close=98.52 < stop=98.75
+2026-04-11 09:52:11,239 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=18.9, ATR_norm=0.0236)
+2026-04-11 09:52:11,472 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.5, ATR_norm=0.0220)
+2026-04-11 09:52:11,528 [MomentumBreakoutStrategy] BUY breakout: close=94.90 > DC=93.32, stop=91.90
+2026-04-11 09:52:11,568 [StrategySelector] Regime switch: TRENDING_VOLATILE → TRENDING_CALM (strategy: sma_crossover, ADX=22.7, ATR_norm=0.0147)
+2026-04-11 09:52:11,604 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.7, ATR_norm=0.0202)
+2026-04-11 09:52:11,912 [MeanReversionStrategy] BUY: close=94.73 <= BB_lower=95.18, RSI=29.9, stop=90.69
+2026-04-11 09:52:11,914 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.5, ATR_norm=0.0191)
+2026-04-11 09:52:12,070 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.2, ATR_norm=0.0092)
+2026-04-11 09:52:12,125 [MeanReversionStrategy] SELL: mean-reversion stop-loss hit close=90.18 stop=90.69
+2026-04-11 09:52:12,130 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=27.1, ATR_norm=0.0114)
+2026-04-11 09:52:12,275 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=83.51)
+2026-04-11 09:52:12,345 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.6, ATR_norm=0.0169)
+2026-04-11 09:52:12,424 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.7, ATR_norm=0.0153)
+2026-04-11 09:52:12,551 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=96.15 (stop was 96.71)
+2026-04-11 09:52:12,813 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.3, ATR_norm=0.0143)
+2026-04-11 09:52:12,855 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.1, ATR_norm=0.0131)
+2026-04-11 09:52:12,874 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.4, ATR_norm=0.0149)
+2026-04-11 09:52:12,989 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.3, ATR_norm=0.0091)
+2026-04-11 09:52:13,020 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.4, ATR_norm=0.0085)
+2026-04-11 09:52:13,045 [MeanReversionStrategy] BUY: close=95.18 <= BB_lower=95.26, RSI=29.8, stop=92.90
+2026-04-11 09:52:13,049 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.2, ATR_norm=0.0098)
+2026-04-11 09:52:13,102 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.0, ATR_norm=0.0101)
+2026-04-11 09:52:13,273 [MeanReversionStrategy] SELL: close=100.60 >= BB_upper=99.03, RSI=75.1
+2026-04-11 09:52:13,275 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.0, ATR_norm=0.0105)
+2026-04-11 09:52:13,512 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.5, ATR_norm=0.0094)
+2026-04-11 09:52:13,576 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.2, ATR_norm=0.0105)
+2026-04-11 09:52:13,616 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=110.55)
+2026-04-11 09:52:13,649 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=109.89 (stop was 112.10)
+2026-04-11 09:52:13,686 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=18.7, ATR_norm=0.0131)
+2026-04-11 09:52:13,717 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.7, ATR_norm=0.0129)
+2026-04-11 09:52:13,775 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=18.9, ATR_norm=0.0105)
+2026-04-11 09:52:13,878 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.7, ATR_norm=0.0134)
+2026-04-11 09:52:13,964 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.8, ATR_norm=0.0098)
+2026-04-11 09:52:14,020 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.2, ATR_norm=0.0103)
+2026-04-11 09:52:14,071 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.8, ATR_norm=0.0102)
+2026-04-11 09:52:14,167 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.7, ATR_norm=0.0162)
+2026-04-11 09:52:14,297 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.8, ATR_norm=0.0142)
+2026-04-11 09:52:14,416 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.2, ATR_norm=0.0135)
+2026-04-11 09:52:14,441 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.2, ATR_norm=0.0112)
+2026-04-11 09:52:14,639 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.7, ATR_norm=0.0131)
+2026-04-11 09:52:14,734 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.3, ATR_norm=0.0124)
+2026-04-11 09:52:14,773 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.2, ATR_norm=0.0184)
+2026-04-11 09:52:14,782 [StrategySelector] Regime switch: TRENDING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=24.2, ATR_norm=0.0264)
+2026-04-11 09:52:14,866 [MomentumBreakoutStrategy] SELL: Trailing stop: close=123.73 < stop=125.94
+2026-04-11 09:52:14,875 [MomentumBreakoutStrategy] BUY breakout: close=135.80 > DC=134.75, stop=127.42
+2026-04-11 09:52:14,920 [MomentumBreakoutStrategy] SELL: Trailing stop: close=129.40 < stop=129.48
+2026-04-11 09:52:14,934 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.8, ATR_norm=0.0229)
+2026-04-11 09:52:15,013 [StrategySelector] Regime switch: RANGING_VOLATILE → RANGING_CALM (strategy: mean_reversion, ADX=11.9, ATR_norm=0.0148)
+2026-04-11 09:52:15,156 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.6, ATR_norm=0.0152)
+2026-04-11 09:52:15,213 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.1, ATR_norm=0.0190)
+2026-04-11 09:52:15,246 [StrategySelector] Regime switch: RANGING_CALM → RANGING_VOLATILE (strategy: mean_reversion, ADX=20.9, ATR_norm=0.0257)
+2026-04-11 09:52:15,268 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=26.1, ATR_norm=0.0426)
+2026-04-11 09:52:15,301 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.5, ATR_norm=0.0331)
+2026-04-11 09:52:15,395 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.9, ATR_norm=0.0237)
+2026-04-11 09:52:15,402 [MomentumBreakoutStrategy] BUY breakout: close=144.76 > DC=144.47, stop=137.90
+2026-04-11 09:52:15,480 [MomentumBreakoutStrategy] SELL: Trailing stop: close=145.70 < stop=146.78
+2026-04-11 09:52:15,504 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.2, ATR_norm=0.0206)
+2026-04-11 09:52:15,548 [StrategySelector] Regime switch: RANGING_VOLATILE → RANGING_CALM (strategy: mean_reversion, ADX=13.9, ATR_norm=0.0149)
+2026-04-11 09:52:15,687 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=27.1, ATR_norm=0.0171)
+2026-04-11 09:52:15,734 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.7, ATR_norm=0.0171)
+2026-04-11 09:52:15,940 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.4, ATR_norm=0.0195)
+2026-04-11 09:52:15,989 [StrategySelector] Regime switch: TRENDING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=31.0, ATR_norm=0.0251)
+2026-04-11 09:52:16,006 [MomentumBreakoutStrategy] BUY breakout: close=176.69 > DC=174.61, stop=167.72
+2026-04-11 09:52:16,021 [MomentumBreakoutStrategy] SELL: Trailing stop: close=173.23 < stop=174.32
+2026-04-11 09:52:16,045 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0354)
+2026-04-11 09:52:16,127 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.7, ATR_norm=0.0260)
+2026-04-11 09:52:16,173 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.7, ATR_norm=0.0346)
+2026-04-11 09:52:16,362 [MeanReversionStrategy] BUY: close=183.61 <= BB_lower=187.23, RSI=29.6, stop=170.64
+2026-04-11 09:52:16,383 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.7, ATR_norm=0.0325)
+2026-04-11 09:52:16,491 [MomentumBreakoutStrategy] BUY breakout: close=183.85 > DC=176.92, stop=172.02
+2026-04-11 09:52:16,553 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.4, ATR_norm=0.0228)
+2026-04-11 09:52:16,640 [MeanReversionStrategy] SELL: mean-reversion stop-loss hit close=169.20 stop=170.64
+2026-04-11 09:52:16,644 [MeanReversionStrategy] BUY: close=168.59 <= BB_lower=169.47, RSI=29.2, stop=159.66
+2026-04-11 09:52:16,791 [StrategySelector] Regime switch: RANGING_VOLATILE → RANGING_CALM (strategy: mean_reversion, ADX=14.0, ATR_norm=0.0146)
+2026-04-11 09:52:16,863 [MeanReversionStrategy] SELL: close=184.97 >= BB_upper=182.04, RSI=72.0
+2026-04-11 09:52:16,884 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.8, ATR_norm=0.0132)
+2026-04-11 09:52:17,011 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.0, ATR_norm=0.0143)
+2026-04-11 09:52:17,319 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=27.5, ATR_norm=0.0128)
+2026-04-11 09:52:17,378 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.4, ATR_norm=0.0113)
+2026-04-11 09:52:17,470 [BacktestEngine] Backtest complete: BacktestReport:
+  Bars: 2184
+  Trades: 11 (W:5 L:6)
+  Win Rate: 45.5%
+  PnL: $-0.87
+  Return: -0.01%
+  Max Drawdown: 0.02%
+  Sharpe: -0.14
+  Profit Factor: 0.58
+  Avg PnL/Trade: $-0.08
+  Avg Duration: 202909s
+  Fees: $0.18
+  Equity: $10,000.00 → $9,999.04
+2026-04-11 09:52:17,471 [SegmentedRunner]   Return: -0.01% | Trades: 11 | Sharpe: -0.14 | MaxDD: 0.02%
+2026-04-11 09:52:17,471 [SegmentedRunner] ════════════════════════════════════════════════════════════
+2026-04-11 09:52:17,471 [SegmentedRunner] Regime: consolidation_2024_q2q3 — BTC consolidation $56k-$72k range
+2026-04-11 09:52:17,471 [SegmentedRunner] Period: 2024-04-01 to 2024-09-30
+2026-04-11 09:52:17,499 [StrategySelector] Regime switch: UNKNOWN → TRENDING_CALM (strategy: sma_crossover, ADX=26.0, ATR_norm=0.0166)
+2026-04-11 09:52:17,504 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=181.06)
+2026-04-11 09:52:17,510 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0163)
+2026-04-11 09:52:17,642 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.7, ATR_norm=0.0181)
+2026-04-11 09:52:17,643 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=169.87 (stop was 184.25)
+2026-04-11 09:52:17,669 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=20.0, ATR_norm=0.0157)
+2026-04-11 09:52:17,943 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.3, ATR_norm=0.0102)
+2026-04-11 09:52:18,029 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=18.7, ATR_norm=0.0144)
+2026-04-11 09:52:18,150 [MeanReversionStrategy] BUY: close=167.25 <= BB_lower=167.41, RSI=30.0, stop=162.49
+2026-04-11 09:52:18,158 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.8, ATR_norm=0.0239)
+2026-04-11 09:52:18,166 [StrategySelector] Regime switch: TRENDING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=36.8, ATR_norm=0.0263)
+2026-04-11 09:52:18,218 [MomentumBreakoutStrategy] SELL: Breakdown: close=139.47 < DC_lower=144.39
+2026-04-11 09:52:18,292 [MomentumBreakoutStrategy] BUY breakout: close=150.70 > DC=145.62, stop=140.90
+2026-04-11 09:52:18,329 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.1, ATR_norm=0.0231)
+2026-04-11 09:52:18,331 [MeanReversionStrategy] SELL: mean-reversion stop-loss hit close=151.08 stop=162.49
+2026-04-11 09:52:18,356 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.8, ATR_norm=0.0310)
+2026-04-11 09:52:18,356 [MomentumBreakoutStrategy] SELL: Trailing stop: close=136.22 < stop=147.20
+2026-04-11 09:52:18,488 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=20.0, ATR_norm=0.0276)
+2026-04-11 09:52:18,731 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.4, ATR_norm=0.0159)
+2026-04-11 09:52:18,740 [StrategySelector] Regime switch: TRENDING_VOLATILE → TRENDING_CALM (strategy: sma_crossover, ADX=27.8, ATR_norm=0.0149)
+2026-04-11 09:52:18,774 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.2, ATR_norm=0.0137)
+2026-04-11 09:52:18,813 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.6, ATR_norm=0.0146)
+2026-04-11 09:52:18,880 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.2, ATR_norm=0.0119)
+2026-04-11 09:52:18,899 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.4, ATR_norm=0.0123)
+2026-04-11 09:52:19,171 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=140.52)
+2026-04-11 09:52:19,212 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=139.04 (stop was 141.09)
+2026-04-11 09:52:19,295 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0133)
+2026-04-11 09:52:19,309 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.5, ATR_norm=0.0151)
+2026-04-11 09:52:19,390 [StrategySelector] Regime switch: TRENDING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=34.2, ATR_norm=0.0253)
+2026-04-11 09:52:19,434 [MomentumBreakoutStrategy] BUY breakout: close=138.75 > DC=135.86, stop=133.04
+2026-04-11 09:52:19,521 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.4, ATR_norm=0.0166)
+2026-04-11 09:52:19,538 [StrategySelector] Regime switch: RANGING_VOLATILE → RANGING_CALM (strategy: mean_reversion, ADX=20.8, ATR_norm=0.0148)
+2026-04-11 09:52:19,574 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.6, ATR_norm=0.0137)
+2026-04-11 09:52:19,634 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.6, ATR_norm=0.0102)
+2026-04-11 09:52:19,719 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.1, ATR_norm=0.0135)
+2026-04-11 09:52:19,737 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.8, ATR_norm=0.0166)
+2026-04-11 09:52:19,852 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.1, ATR_norm=0.0149)
+2026-04-11 09:52:19,966 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=148.14)
+2026-04-11 09:52:20,006 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=147.49 (stop was 151.27)
+2026-04-11 09:52:20,086 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0105)
+2026-04-11 09:52:20,195 [MeanReversionStrategy] BUY: close=140.10 <= BB_lower=141.14, RSI=29.9, stop=136.10
+2026-04-11 09:52:20,242 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.6, ATR_norm=0.0145)
+2026-04-11 09:52:20,257 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=142.91)
+2026-04-11 09:52:20,300 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=143.47 (stop was 144.21)
+2026-04-11 09:52:20,312 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.1, ATR_norm=0.0139)
+2026-04-11 09:52:20,376 [MeanReversionStrategy] SELL: close=150.92 >= BB_upper=148.50, RSI=74.2
+2026-04-11 09:52:20,389 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.5, ATR_norm=0.0141)
+2026-04-11 09:52:20,392 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=149.81)
+2026-04-11 09:52:20,447 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=158.55 (stop was 160.40)
+2026-04-11 09:52:20,631 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.3, ATR_norm=0.0091)
+2026-04-11 09:52:20,751 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.6, ATR_norm=0.0158)
+2026-04-11 09:52:20,849 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.0, ATR_norm=0.0130)
+2026-04-11 09:52:20,953 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.4, ATR_norm=0.0151)
+2026-04-11 09:52:21,087 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.1, ATR_norm=0.0111)
+2026-04-11 09:52:21,170 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.3, ATR_norm=0.0089)
+2026-04-11 09:52:21,263 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=167.45)
+2026-04-11 09:52:21,288 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.2, ATR_norm=0.0107)
+2026-04-11 09:52:21,766 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.5, ATR_norm=0.0050)
+2026-04-11 09:52:21,767 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=164.46 (stop was 167.91)
+2026-04-11 09:52:21,863 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.2, ATR_norm=0.0091)
+2026-04-11 09:52:21,971 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.4, ATR_norm=0.0076)
+2026-04-11 09:52:22,086 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.3, ATR_norm=0.0062)
+2026-04-11 09:52:22,106 [MeanReversionStrategy] BUY: close=169.05 <= BB_lower=170.28, RSI=29.8, stop=166.02
+2026-04-11 09:52:22,113 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.0, ATR_norm=0.0078)
+2026-04-11 09:52:22,336 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=158.94)
+2026-04-11 09:52:22,356 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=157.62 (stop was 159.00)
+2026-04-11 09:52:22,538 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=149.50)
+2026-04-11 09:52:22,583 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=149.63 (stop was 150.63)
+2026-04-11 09:52:22,733 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=18.7, ATR_norm=0.0094)
+2026-04-11 09:52:22,735 [MeanReversionStrategy] SELL: mean-reversion stop-loss hit close=144.81 stop=166.02
+2026-04-11 09:52:22,857 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.1, ATR_norm=0.0072)
+2026-04-11 09:52:23,048 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.4, ATR_norm=0.0159)
+2026-04-11 09:52:23,428 [MeanReversionStrategy] BUY: close=131.51 <= BB_lower=132.35, RSI=29.0, stop=129.29
+2026-04-11 09:52:23,438 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.1, ATR_norm=0.0072)
+2026-04-11 09:52:23,548 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=131.86)
+2026-04-11 09:52:23,658 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.7, ATR_norm=0.0120)
+2026-04-11 09:52:23,735 [MeanReversionStrategy] SELL: close=147.88 >= BB_upper=142.88, RSI=82.1
+2026-04-11 09:52:23,742 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=27.3, ATR_norm=0.0149)
+2026-04-11 09:52:23,785 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=146.00 (stop was 146.33)
+2026-04-11 09:52:23,827 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0152)
+2026-04-11 09:52:23,956 [MeanReversionStrategy] BUY: close=138.06 <= BB_lower=138.51, RSI=29.8, stop=135.17
+2026-04-11 09:52:23,964 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.2, ATR_norm=0.0081)
+2026-04-11 09:52:23,982 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.7, ATR_norm=0.0082)
+2026-04-11 09:52:24,015 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.1, ATR_norm=0.0085)
+2026-04-11 09:52:24,023 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=141.77)
+2026-04-11 09:52:24,191 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=150.32 (stop was 151.26)
+2026-04-11 09:52:24,355 [StrategySelector] Regime switch: TRENDING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=57.2, ATR_norm=0.0254)
+2026-04-11 09:52:24,356 [MomentumBreakoutStrategy] SELL: Trailing stop: close=122.82 < stop=137.46
+2026-04-11 09:52:24,460 [MomentumBreakoutStrategy] BUY breakout: close=141.92 > DC=140.65, stop=137.58
+2026-04-11 09:52:24,469 [StrategySelector] Regime switch: TRENDING_VOLATILE → TRENDING_CALM (strategy: sma_crossover, ADX=36.3, ATR_norm=0.0145)
+2026-04-11 09:52:24,540 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.6, ATR_norm=0.0137)
+2026-04-11 09:52:24,562 [MeanReversionStrategy] SELL: mean-reversion stop-loss hit close=134.25 stop=135.17
+2026-04-11 09:52:24,566 [MeanReversionStrategy] BUY: close=133.02 <= BB_lower=134.06, RSI=28.3, stop=128.21
+2026-04-11 09:52:24,584 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.2, ATR_norm=0.0170)
+2026-04-11 09:52:24,638 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.3, ATR_norm=0.0210)
+2026-04-11 09:52:24,976 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.2, ATR_norm=0.0125)
+2026-04-11 09:52:25,011 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0123)
+2026-04-11 09:52:25,115 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.3, ATR_norm=0.0086)
+2026-04-11 09:52:25,455 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.8, ATR_norm=0.0119)
+2026-04-11 09:52:25,582 [MeanReversionStrategy] SELL: close=168.72 >= BB_upper=167.39, RSI=70.7
+2026-04-11 09:52:25,592 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.3, ATR_norm=0.0149)
+2026-04-11 09:52:25,803 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=18.7, ATR_norm=0.0135)
+2026-04-11 09:52:25,929 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.2, ATR_norm=0.0168)
+2026-04-11 09:52:26,022 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=174.81)
+2026-04-11 09:52:26,026 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.5, ATR_norm=0.0158)
+2026-04-11 09:52:26,079 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.0, ATR_norm=0.0177)
+2026-04-11 09:52:26,080 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=168.00 (stop was 174.81)
+2026-04-11 09:52:26,128 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.6, ATR_norm=0.0159)
+2026-04-11 09:52:26,169 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.9, ATR_norm=0.0117)
+2026-04-11 09:52:26,174 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=174.05)
+2026-04-11 09:52:26,264 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=182.49 (stop was 184.04)
+2026-04-11 09:52:26,316 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.5, ATR_norm=0.0121)
+2026-04-11 09:52:26,481 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.2, ATR_norm=0.0119)
+2026-04-11 09:52:26,597 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.8, ATR_norm=0.0110)
+2026-04-11 09:52:26,652 [MeanReversionStrategy] BUY: close=171.62 <= BB_lower=172.04, RSI=28.2, stop=165.24
+2026-04-11 09:52:26,659 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.5, ATR_norm=0.0145)
+2026-04-11 09:52:26,982 [StrategySelector] Regime switch: TRENDING_CALM → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=36.6, ATR_norm=0.0269)
+2026-04-11 09:52:26,983 [MomentumBreakoutStrategy] SELL: Trailing stop: close=131.40 < stop=138.16
+2026-04-11 09:52:27,113 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.4, ATR_norm=0.0321)
+2026-04-11 09:52:27,115 [MeanReversionStrategy] SELL: mean-reversion stop-loss hit close=139.28 stop=165.24
+2026-04-11 09:52:27,184 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.8, ATR_norm=0.0256)
+2026-04-11 09:52:27,188 [MomentumBreakoutStrategy] BUY breakout: close=153.51 > DC=151.83, stop=145.82
+2026-04-11 09:52:27,235 [MomentumBreakoutStrategy] SELL: Trailing stop: close=146.04 < stop=147.01
+2026-04-11 09:52:27,253 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0232)
+2026-04-11 09:52:27,325 [StrategySelector] Regime switch: RANGING_VOLATILE → TRENDING_VOLATILE (strategy: momentum_breakout, ADX=25.4, ATR_norm=0.0218)
+2026-04-11 09:52:27,354 [MomentumBreakoutStrategy] BUY breakout: close=163.18 > DC=162.90, stop=156.53
+2026-04-11 09:52:27,372 [MomentumBreakoutStrategy] SELL: Trailing stop: close=156.03 < stop=156.53
+2026-04-11 09:52:27,401 [StrategySelector] Regime switch: TRENDING_VOLATILE → RANGING_VOLATILE (strategy: mean_reversion, ADX=19.6, ATR_norm=0.0173)
+2026-04-11 09:52:27,490 [StrategySelector] Regime switch: RANGING_VOLATILE → RANGING_CALM (strategy: mean_reversion, ADX=11.0, ATR_norm=0.0149)
+2026-04-11 09:52:27,614 [MeanReversionStrategy] BUY: close=149.34 <= BB_lower=150.93, RSI=27.5, stop=144.91
+2026-04-11 09:52:27,629 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.3, ATR_norm=0.0118)
+2026-04-11 09:52:27,729 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.1, ATR_norm=0.0192)
+2026-04-11 09:52:27,747 [MeanReversionStrategy] SELL: mean-reversion stop-loss hit close=143.71 stop=144.91
+2026-04-11 09:52:28,175 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.1, ATR_norm=0.0115)
+2026-04-11 09:52:28,210 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.1, ATR_norm=0.0102)
+2026-04-11 09:52:28,284 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.6, ATR_norm=0.0098)
+2026-04-11 09:52:28,380 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.3, ATR_norm=0.0110)
+2026-04-11 09:52:28,451 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.0, ATR_norm=0.0111)
+2026-04-11 09:52:28,596 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.2, ATR_norm=0.0096)
+2026-04-11 09:52:28,727 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.8, ATR_norm=0.0074)
+2026-04-11 09:52:28,980 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.8, ATR_norm=0.0098)
+2026-04-11 09:52:29,105 [MeanReversionStrategy] BUY: close=153.64 <= BB_lower=155.35, RSI=29.9, stop=149.37
+2026-04-11 09:52:29,112 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.2, ATR_norm=0.0110)
+2026-04-11 09:52:29,301 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.0, ATR_norm=0.0109)
+2026-04-11 09:52:29,302 [MeanReversionStrategy] SELL: mean-reversion stop-loss hit close=144.46 stop=149.37
+2026-04-11 09:52:29,307 [MeanReversionStrategy] BUY: close=139.70 <= BB_lower=141.68, RSI=27.8, stop=135.13
+2026-04-11 09:52:29,340 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.3, ATR_norm=0.0125)
+2026-04-11 09:52:29,433 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.9, ATR_norm=0.0106)
+2026-04-11 09:52:29,506 [MeanReversionStrategy] SELL: mean-reversion stop-loss hit close=135.00 stop=135.13
+2026-04-11 09:52:29,535 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.0, ATR_norm=0.0087)
+2026-04-11 09:52:29,695 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.7, ATR_norm=0.0131)
+2026-04-11 09:52:29,813 [MeanReversionStrategy] BUY: close=126.65 <= BB_lower=126.65, RSI=26.2, stop=122.59
+2026-04-11 09:52:29,816 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.5, ATR_norm=0.0149)
+2026-04-11 09:52:29,904 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=130.66)
+2026-04-11 09:52:29,921 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.8, ATR_norm=0.0127)
+2026-04-11 09:52:30,102 [MeanReversionStrategy] SELL: mean-reversion stop-loss hit close=121.24 stop=122.59
+2026-04-11 09:52:30,123 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.3, ATR_norm=0.0170)
+2026-04-11 09:52:30,124 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=124.53 (stop was 130.66)
+2026-04-11 09:52:30,152 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.5, ATR_norm=0.0127)
+2026-04-11 09:52:30,413 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.9, ATR_norm=0.0121)
+2026-04-11 09:52:30,594 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.1, ATR_norm=0.0119)
+2026-04-11 09:52:30,707 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.8, ATR_norm=0.0090)
+2026-04-11 09:52:30,741 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.7, ATR_norm=0.0076)
+2026-04-11 09:52:30,801 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.3, ATR_norm=0.0091)
+2026-04-11 09:52:30,880 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.2, ATR_norm=0.0066)
+2026-04-11 09:52:30,984 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=26.0, ATR_norm=0.0062)
+2026-04-11 09:52:31,164 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=129.37)
+2026-04-11 09:52:31,227 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=129.18 (stop was 130.09)
+2026-04-11 09:52:31,302 [SmaCrossoverStrategy] BUY signal: SMA20 crossed above SMA50 (stop=135.09)
+2026-04-11 09:52:31,420 [SmaCrossoverStrategy] SELL signal: SMA trailing stop hit at close=147.21 (stop was 147.93)
+2026-04-11 09:52:31,482 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.4, ATR_norm=0.0109)
+2026-04-11 09:52:31,661 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.1, ATR_norm=0.0098)
+2026-04-11 09:52:31,759 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=20.0, ATR_norm=0.0103)
+2026-04-11 09:52:31,880 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.8, ATR_norm=0.0118)
+2026-04-11 09:52:31,982 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.1, ATR_norm=0.0098)
+2026-04-11 09:52:32,037 [StrategySelector] Regime switch: RANGING_CALM → TRENDING_CALM (strategy: sma_crossover, ADX=25.6, ATR_norm=0.0116)
+2026-04-11 09:52:32,202 [StrategySelector] Regime switch: TRENDING_CALM → RANGING_CALM (strategy: mean_reversion, ADX=19.5, ATR_norm=0.0085)
+2026-04-11 09:52:32,494 [BacktestEngine] Backtest complete: BacktestReport:
+  Bars: 4392
+  Trades: 25 (W:9 L:16)
+  Win Rate: 36.0%
+  PnL: $-5.33
+  Return: -0.06%
+  Max Drawdown: 0.07%
+  Sharpe: -0.41
+  Profit Factor: 0.37
+  Avg PnL/Trade: $-0.21
+  Avg Duration: 212976s
+  Fees: $0.47
+  Equity: $10,000.00 → $9,994.44
+2026-04-11 09:52:32,495 [SegmentedRunner]   Return: -0.06% | Trades: 25 | Sharpe: -0.41 | MaxDD: 0.07%
+
+==========================================================================================
+SEGMENTED BACKTEST REPORT — Comparative Results
+==========================================================================================
+Regime                         Return  Trades  WinRate  Sharpe   MaxDD        PnL     Fees
+------------------------------------------------------------------------------------------
+crash_may_2021                -0.01%       6    0.0%   -1.02  0.01%      -1.11     0.04
+recovery_2021_q3               0.10%      21   66.7%    0.50  0.04%      10.66     0.46
+bear_2022_h1                  -0.01%      27   40.7%   -0.06  0.03%      -0.44     0.26
+sideways_2022_h2               0.00%      24   41.7%    0.01  0.00%       0.14     0.12
+recovery_2023                 -0.01%      27   18.5%   -0.48  0.01%      -1.11     0.08
+pre_etf_2023_h2                0.01%      29   48.3%    0.14  0.01%       1.01     0.19
+etf_bull_2024_q1              -0.01%      11   45.5%   -0.14  0.02%      -0.87     0.18
+consolidation_2024_q2q3       -0.06%      25   36.0%   -0.41  0.07%      -5.33     0.47
+------------------------------------------------------------------------------------------
+AGGREGATE                                 170    40.0%                       2.96
+==========================================================================================

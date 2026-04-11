@@ -41,18 +41,22 @@ _GRANULARITY_SECONDS = {
 }
 
 
-def _fetch_json(url: str) -> any:
-    """Fetch JSON from URL with basic retry."""
-    for attempt in range(3):
+def _fetch_json(url: str, max_attempts: int = 5) -> any:
+    """Fetch JSON from URL with exponential backoff retry (fail-closed on exhaustion)."""
+    for attempt in range(max_attempts):
         try:
             req = Request(url, headers={"User-Agent": "fortress-backtest/1.0"})
             with urlopen(req, timeout=30) as resp:
                 return json.loads(resp.read().decode())
         except Exception as exc:
-            if attempt == 2:
+            if attempt == max_attempts - 1:
                 raise
-            logger.warning("Fetch attempt %d failed: %s — retrying", attempt + 1, exc)
-            time.sleep(2 * (attempt + 1))
+            backoff = min(30, 2 ** attempt)
+            logger.warning(
+                "Fetch attempt %d/%d failed: %s — retry in %ds",
+                attempt + 1, max_attempts, exc, backoff,
+            )
+            time.sleep(backoff)
 
 
 def download_coinbase(
@@ -147,9 +151,10 @@ def download_coinbase(
     return output
 
 
-# ── Pre-defined market regimes for BTC-USD ────────────────────────────────
-# Each tuple: (label, start_iso, end_iso, description)
-BTC_MARKET_REGIMES = [
+# ── Pre-defined market regimes ────────────────────────────────────────────
+# Dates track crypto market cycles (bull/bear/sideways) and apply to any
+# correlated asset (BTC, ETH, SOL). Each tuple: (label, start, end, desc).
+MARKET_REGIMES = [
     (
         "bull_2020_q4",
         "2020-10-01T00:00:00Z",
@@ -213,6 +218,9 @@ BTC_MARKET_REGIMES = [
 ]
 
 
+BTC_MARKET_REGIMES = MARKET_REGIMES  # backward-compat alias
+
+
 def parse_regime_dates(
     regime: tuple[str, str, str, str],
 ) -> tuple[str, datetime, datetime, str]:
@@ -221,3 +229,41 @@ def parse_regime_dates(
     start_dt = datetime.fromisoformat(start_iso.replace("Z", "+00:00"))
     end_dt = datetime.fromisoformat(end_iso.replace("Z", "+00:00"))
     return label, start_dt, end_dt, desc
+
+
+def resample_1h_to_4h(csv_1h: Path, csv_4h: Path) -> Path:
+    """
+    Resample a 1h OHLCV CSV into 4h bars. Coinbase has no native 4h candle
+    (only 2h and 6h), so we aggregate four 1h bars into one 4h bar:
+    - open: first bar's open
+    - high: max of highs
+    - low: min of lows
+    - close: last bar's close
+    - volume: sum of volumes
+    - timestamp_ms: first bar's timestamp
+    Incomplete trailing groups are dropped (fail-closed on partial bars).
+    """
+    import pandas as pd
+
+    df = pd.read_csv(csv_1h)
+    if len(df) < 4:
+        raise ValueError(f"Not enough 1h bars to resample: {len(df)}")
+
+    groups = []
+    for i in range(0, len(df) - (len(df) % 4), 4):
+        chunk = df.iloc[i : i + 4]
+        groups.append(
+            {
+                "timestamp": int(chunk.iloc[0]["timestamp"]),
+                "open": float(chunk.iloc[0]["open"]),
+                "high": float(chunk["high"].max()),
+                "low": float(chunk["low"].min()),
+                "close": float(chunk.iloc[-1]["close"]),
+                "volume": float(chunk["volume"].sum()),
+            }
+        )
+
+    out = pd.DataFrame(groups)
+    csv_4h.parent.mkdir(parents=True, exist_ok=True)
+    out.to_csv(csv_4h, index=False)
+    return csv_4h
